@@ -47,6 +47,7 @@ const LoginScreen = ({ navigation }) => {
     isAuthenticated,
     logout,
     Moralis,
+    user
   } = useMoralis();
 
   const [userEmail, setUserEmail] = useState("");
@@ -64,6 +65,7 @@ const LoginScreen = ({ navigation }) => {
   const handleCryptoLogin = () => {
     authenticate({ connector })
       .then(() => {
+        console.log(user)
         if (authError) {
           setErrortext(authError.message);
           setVisible(true);

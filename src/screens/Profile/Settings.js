@@ -10,7 +10,7 @@ const Settings = ({navigation}) => {
   return (
     <ScrollView
       style={{flex: 1, backgroundColor: themeColor.primaryBlack, padding: 20}}>
-      <Header />
+      <Header navigation={navigation} />
       <LinearGradient
         style={{
           width: '94%',

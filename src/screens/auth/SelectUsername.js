@@ -1,7 +1,6 @@
 import React from 'react';
 import {View, Text, Image, TextInput, TouchableOpacity} from 'react-native';
 import {themeColor} from '../../common/theme';
-import Padlock from '../../../assets/svg/PadLock.svg';
 import SvgImage from '../../components/SvgImage';
 import {typography} from '../../common/typography';
 import {useState} from 'react';
@@ -19,7 +18,7 @@ const SelectUsername = ({navigation}) => {
         flexDirection: 'column',
         backgroundColor: themeColor.primaryBlack,
       }}>
-      <Header />
+     <Header navigation={navigation} />
 
       <View style={{alignSelf: 'center'}}>
         <Image source={require('../../../assets/images/ETH.png')} />

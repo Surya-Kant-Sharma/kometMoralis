@@ -2,16 +2,17 @@ import React from 'react';
 import {View, Text, TouchableOpacity, TextInput} from 'react-native';
 import {themeColor} from '../../common/theme';
 import Header from '../../components/Header';
-import Send from '../../../assets/svg/Send.svg';
+//import Send from '../../../assets/svg/Send.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import {typography} from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import ReceiveIcon from '../../../assets/svg/ReceiveIcon.svg';
+import AntDesign from 'react-native-vector-icons/AntDesign'
+// import ReceiveIcon from '../../../assets/svg/ReceiveIcon.svg';
 const ReceiveToken = ({navigation}) => {
   return (
     <View
       style={{flex: 1, backgroundColor: themeColor.primaryBlack, padding: 30}}>
-      <Header />
+      <Header navigation={navigation} />
       <View>
         <LinearGradient
           colors={['#FF84F3', '#B02FA4']}
@@ -26,7 +27,7 @@ const ReceiveToken = ({navigation}) => {
           }}>
           <TouchableOpacity
             style={{alignItems: 'center', justifyContent: 'center'}}>
-            <ReceiveIcon />
+            <AntDesign name={'arrowdown'} color={'white'} size={28} />
           </TouchableOpacity>
         </LinearGradient>
         <Text

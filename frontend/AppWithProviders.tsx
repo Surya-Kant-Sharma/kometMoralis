@@ -2,8 +2,13 @@ import React from "react";
 import App from "./App";
 import { Providers } from "./Providers";
 import RootNavigation from '../src/index'
-export default () => (
+import { LogBox } from "react-native";
+export default () => {
+  LogBox.ignoreAllLogs(true)
+  return(
   <Providers>
-    <RootNavigation />
+
+     {/* <App/>  */}
+     <RootNavigation /> 
   </Providers>
-);
+)};

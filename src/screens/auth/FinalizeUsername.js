@@ -13,8 +13,8 @@ import {typography} from '../../common/typography';
 import GradientButton from '../../components/GradientButton';
 import BorderButton from '../../components/BorderButton';
 import TouchID from 'react-native-touch-id';
-import Padlock from '../../../assets/svg/PadLock.svg';
-import ETH from '../../../assets/svg/ETH.svg';
+// import Padlock from '../../../assets/svg/PadLock.svg';
+// import ETH from '../../../assets/svg/ETH.svg';
 import Header from '../../components/Header';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 const FinalizeUserName = ({navigation, route}) => {
@@ -29,9 +29,10 @@ const FinalizeUserName = ({navigation, route}) => {
         flexDirection: 'column',
         backgroundColor: themeColor.primaryBlack,
       }}>
-      <Header />
+      <Header navigation={navigation} />
       <View style={{alignSelf: 'center'}}>
-      <MaterialIcons name={'highlight'}/>
+      
+      <Image source={require('../../../assets/images/OnBoarding1.png')}/>
       </View>
       <View>
         <Text
@@ -59,7 +60,7 @@ const FinalizeUserName = ({navigation, route}) => {
               padding: 10,
             }}>
             <Text style={{color: '#8F8F8F', fontFamily: typography.medium}}>
-              @{route.params.name.toString()}
+              @{route.params.name.toString().replace(' ','')}
               <Text style={{color: '#4F5686', fontFamily: typography.medium}}>
                 .komet.me
               </Text>

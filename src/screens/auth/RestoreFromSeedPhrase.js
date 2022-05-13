@@ -15,13 +15,14 @@ import Tags from 'react-native-tags';
 const {width, height} = Dimensions.get('screen');
 import {ethers} from 'ethers';
 import {useDispatch} from 'react-redux';
-import {getAddress, getBalance} from '../../store/Actions/action';
+import {getAddress, getBalance,getWallets} from '../../store/Actions/action';
 
 const RestoreFromSeedPhrase = ({navigation}) => {
   const [phrase, setPhrase] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const dispatch = useDispatch();
   const fetchAddress = address => dispatch(getAddress(address));
+  const fetchWallets = address => dispatch(getWallets(address));
   const fetchBalance = balance => dispatch(getBalance(balance));
 
   var provider;
@@ -56,6 +57,7 @@ const RestoreFromSeedPhrase = ({navigation}) => {
       console.log(wallet);
       const balance = await provider.getBalance(wallet.address);
       fetchAddress(wallet.address);
+      fetchWallets(wallet.address)
       fetchBalance(balance);
       navigation.navigate('Dashboard');
       setLoading(false);
@@ -72,7 +74,7 @@ const RestoreFromSeedPhrase = ({navigation}) => {
         padding: 30,
         backgroundColor: themeColor.primaryBlack,
       }}>
-      <Header />
+      <Header navigation={navigation} />
       <View style={{marginVertical: 40}}>
         <Text
           style={{

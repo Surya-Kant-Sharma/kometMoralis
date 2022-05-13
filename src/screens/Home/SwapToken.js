@@ -1,18 +1,19 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, TextInput} from 'react-native';
+import {View, Text, TouchableOpacity, TextInput, Image} from 'react-native';
 import {themeColor} from '../../common/theme';
 import Header from '../../components/Header';
-import MaticIcon from '../../../assets/svg/MaticIcon.svg';
+//import {MaticIcon} from '../../../assets/svg/MaticIcon.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import {typography} from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign'
 
-import HistoryIcon from '../../../assets/svg/HistoryIcon.svg';
+//import HistoryIcon from '../../../assets/svg/HistoryIcon.svg';
 const SwapToken = ({navigation}) => {
   return (
     <View
       style={{flex: 1, backgroundColor: themeColor.primaryBlack, padding: 30}}>
-      <Header />
+      <Header navigation={navigation} />
       <View>
         <LinearGradient
           colors={['#FF84F3', '#B02FA4']}
@@ -27,7 +28,7 @@ const SwapToken = ({navigation}) => {
           }}>
           <TouchableOpacity
             style={{alignItems: 'center', justifyContent: 'center'}}>
-            <HistoryIcon />
+            <AntDesign name={'swap'} color={'white'} size={32} />
           </TouchableOpacity>
         </LinearGradient>
         <Text
@@ -67,7 +68,7 @@ const SwapToken = ({navigation}) => {
           <View style={{height: 20}}></View>
         </View>
         <View style={{justifyContent: 'center', alignItems: 'center'}}>
-          <MaticIcon />
+        <Image source={{uri:'https://ffnews.com/wp-content/uploads/2021/07/q4itcBEb_400x400-300x300.jpg'}} style={{height:40,width:40,borderRadius:40}}/>
           <View
             style={{
               margin: 5,

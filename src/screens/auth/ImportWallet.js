@@ -9,13 +9,14 @@ import {
   Touchable,
   TouchableOpacity,
   StyleSheet,
+
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {themeColor} from '../../common/theme';
 import {typography} from '../../common/typography';
 import BorderButton from '../../components/BorderButton';
 import GradientButton from '../../components/GradientButton';
-import AddWallet from '../../../assets/svg/AddWallet.svg';
+//import AddWallet from '../../../assets/svg/AddWallet.svg';
 
 const ImportWallet = ({navigation}) => {
   const {height, width} = Dimensions.get('screen');
@@ -59,7 +60,7 @@ const ImportWallet = ({navigation}) => {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        <AddWallet />
+        <Image source={require('../../../assets/images/importWallet.png')} />
         <Text
           style={{
             color: 'rgba(255,255,255,1)',

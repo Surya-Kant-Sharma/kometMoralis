@@ -15,22 +15,23 @@ import {
 import {themeColor} from '../../common/theme';
 import {typography} from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import axios from 'axios';
 const {width, height} = Dimensions.get('screen');
 const MarketPlace = ({navigation}) => {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(false);
   const fetchCollections = async () => {
     setLoading(true);
-    // await axios
-    //   .get('https://api.opensea.io/api/v1/collections?offset=0&limit=300')
-    //   .then(res => {
-    //     setCollections(res.data.collections.filter(a => a.image_url != null));
-    //     setLoading(false);
-    //   })
-    //   .catch(error => {
-    //     setLoading(false);
-    //     console.log(error);
-    //   });
+     await axios
+       .get('https://api.opensea.io/api/v1/collections?offset=0&limit=300')
+       .then(res => {
+         setCollections(res.data.collections.filter(a => a.image_url != null));
+         setLoading(false);
+       })
+       .catch(error => {
+         setLoading(false);
+         console.log(error);
+       });
   };
 
   useEffect(() => {
@@ -39,18 +40,35 @@ const MarketPlace = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+      
       <View style={styles.searchBarContainer}>
-        <View style={styles.textInputContainer}>
-          <MaterialIcons name={'search'} size={24} color={'white'} />
-          <TextInput placeholder={'Search'} style={{height: 40}} />
-        </View>
-        <TouchableOpacity
+      <TouchableOpacity
           style={{
+            height:40,
+            width:40,
+            borderRadius:40,
+            backgroundColor:'#89007C',
             alignSelf: 'center',
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-          <Text>Explore</Text>
+          <MaterialIcons name='menu' color={'white'} size={30}/>
+        </TouchableOpacity>
+          {/* <MaterialIcons name={'search'} size={24} color={'white'} />
+          <TextInput placeholder={'Search'} style={{height: 40}} /> */}
+          <Text style={{fontSize:18,fontFamily:typography.medium,color:'white'}}>DISCOVER</Text>
+        
+          <TouchableOpacity
+          style={{
+            height:40,
+            width:40,
+            borderRadius:40,
+            backgroundColor:'#89007C',
+            alignSelf: 'center',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          {/* <MaterialIcons name='menu' color={'white'} size={30}/> */}
         </TouchableOpacity>
       </View>
       {loading ? (
@@ -64,10 +82,10 @@ const MarketPlace = ({navigation}) => {
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item, index}) => (
             <TouchableOpacity
-              onPress={() => navigation.navigate('NFTPage', {item: item})}
+              onPress={() => navigation.navigate('Collections', {item: item})}
               style={styles.cardContainer}>
               <Image source={{uri: item.image_url}} style={styles.image} />
-              <Text style={styles.imageText}>{item.slug}</Text>
+              {/* <Text style={styles.imageText}>{item.slug}</Text> */}
             </TouchableOpacity>
           )}
         />
@@ -84,6 +102,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     flexDirection: 'row',
     margin: 10,
+    alignItems:'center'
   },
   textInputContainer: {
     flexDirection: 'row',
@@ -95,11 +114,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 10,
   },
-  cardContainer: {height: width * 0.5, width: width * 0.4, margin: 10},
+  cardContainer: {height: width * 0.5, width: width * 0.45, margin: 2},
   image: {
-    height: width * 0.4,
-    width: width * 0.4,
-    borderRadius: 20,
+    height: width * 0.45,
+    width: width * 0.45,
+    borderRadius: 5,
   },
   imageText: {
     alignSelf: 'center',

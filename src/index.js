@@ -25,11 +25,13 @@ import Settings from './screens/Profile/Settings';
 import SendToken from './screens/Home/SendToken';
 import ReceiveToken from './screens/Home/ReceiveToken';
 import SwapToken from './screens/Home/SwapToken';
+import SendTokenFinalize from './screens/Home/SendTokenFinalize';
 import { Provider } from 'react-redux';
 import appStore from './store/store';
 import { LogBox } from 'react-native';
+import Collections from './screens/MarketPlace/Collections';
 const RootNavigation = () => {
-  LogBox.ignoreLogs(['Warning: ...']); 
+ 
   const Stack = createStackNavigator();
   return (
     <Provider store={appStore} >
@@ -62,6 +64,8 @@ const RootNavigation = () => {
         <Stack.Screen name="SendToken" component={SendToken} />
         <Stack.Screen name="ReceiveToken" component={ReceiveToken} />
         <Stack.Screen name="SwapToken" component={SwapToken} />
+        <Stack.Screen name="SendTokenFinalize" component={SendTokenFinalize} />
+        <Stack.Screen name="Collections" component={Collections} />
       </Stack.Navigator>
     </NavigationContainer>
     </Provider>

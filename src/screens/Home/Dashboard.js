@@ -1,18 +1,20 @@
 import React from 'react';
 import {View, Text, Image} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import HomeIcon from '../../../assets/svg/HomeIcon.svg';
-import MarketPlaceIcon from '../../../assets/svg/MarketPlaceIcon.svg';
-import ProfileIcon from '../../../assets/svg/ProfileIcon.svg';
-import HomeIconSelected from '../../../assets/svg/HomeIconSelected.svg';
-import MarketPlaceIconSelected from '../../../assets/svg/MarketPlaceIconSelected.svg';
-import ProfileIconSelected from '../../../assets/svg/ProfileIconSelected.svg';
+// import HomeIcon from '../../../assets/svg/HomeIcon.svg';
+// import MarketPlaceIcon from '../../../assets/svg/MarketPlaceIcon.svg';
+// import ProfileIcon from '../../../assets/svg/ProfileIcon.svg';
+// import HomeIconSelected from '../../../assets/svg/HomeIconSelected.svg';
+// import MarketPlaceIconSelected from '../../../assets/svg/MarketPlaceIconSelected.svg';
+// import ProfileIconSelected from '../../../assets/svg/ProfileIconSelected.svg';
 import Home from './Home';
 import MarketPlace from './MarketPlace';
 import Profile from './Profile';
 import {themeColor} from '../../common/theme';
+import AntDesign from 'react-native-vector-icons/AntDesign'
 const Tab = createBottomTabNavigator();
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
+import FontAwesomeFive  from 'react-native-vector-icons/FontAwesome5';
 
 const Dashboard = () => {
   return (
@@ -36,7 +38,7 @@ const Dashboard = () => {
           component={Home}
           options={{
             tabBarIcon: ({color, size, focused}) =>
-              <MaterialIcon name={'highlight'}/>
+              <AntDesign name={'home'} color={focused?'white':'#D3D3D3'} size={size}/>
           }}
         />
         <Tab.Screen
@@ -44,7 +46,7 @@ const Dashboard = () => {
           component={MarketPlace}
           options={{
             tabBarIcon: ({color, size, focused}) =>
-            <MaterialIcon name={'highlight'}/>
+            <MaterialIcon name={'storefront'} color={focused?'white':'#D3D3D3'} size={size}/>
           }}
         />
         <Tab.Screen
@@ -52,7 +54,7 @@ const Dashboard = () => {
           component={Profile}
           options={{
             tabBarIcon: ({color, size, focused}) =>
-            <MaterialIcon name={'highlight'}/>
+            <AntDesign name={'user'} color={focused?'white':'#D3D3D3'} size={size}/>
           }}
         />
       </Tab.Navigator>

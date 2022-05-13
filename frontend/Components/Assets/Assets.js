@@ -42,6 +42,11 @@ export default function Assets() {
           </Text>
           <NativeBalance chain="0x89" />
           <ERC20Balance chain="0x89"></ERC20Balance>
+          <Text style={styles.chainText} category="c2">
+            Rinkby Chain
+          </Text>
+          <NativeBalance chain="rinkeby" />
+          {/* <ERC20Balance chain="rinkeby"></ERC20Balance> */}
         </View>
       </ScrollView>
     </SafeAreaView>

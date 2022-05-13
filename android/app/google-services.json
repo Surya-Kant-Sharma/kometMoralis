@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "638019657946",
+    "project_id": "kometapp-7cd08",
+    "storage_bucket": "kometapp-7cd08.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:638019657946:android:54c2ac08c7f9d8bfe8c5e3",
+        "android_client_info": {
+          "package_name": "com.kometapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "638019657946-fd33vif8b9md3ope917ocmbka15nluu9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kometapp",
+            "certificate_hash": "8d5743d16ba7f740c46eaaac1a53c5c0bdfb4d1c"
+          }
+        },
+        {
+          "client_id": "638019657946-thbc2c24p6phcuir5qfpfs32saa14haf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMgGAmeZE0mbA7w77RjWCF9z5RyjoBM-M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "638019657946-thbc2c24p6phcuir5qfpfs32saa14haf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

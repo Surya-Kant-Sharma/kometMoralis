@@ -10,18 +10,20 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Linking,
+  Image,
 } from 'react-native';
 import {themeColor} from '../../common/theme';
 import {typography} from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import ScanIcon from '../../../assets/svg/ScanIcon.svg';
-import ReceiveIcon from '../../../assets/svg/ReceiveIcon.svg';
-import Send from '../../../assets/svg/Send.svg';
-import HistoryIcon from '../../../assets/svg/HistoryIcon.svg';
-import {useSelector} from 'react-redux';
+// import ScanIcon from '../../../assets/svg/ScanIcon.svg';
+// import ReceiveIcon from '../../../assets/svg/ReceiveIcon.svg';
+// import Send from '../../../assets/svg/Send.svg';
+// import HistoryIcon from '../../../assets/svg/HistoryIcon.svg';
+import {useDispatch, useSelector} from 'react-redux';
 //import ScanIcon from '../../../assets/svg/ScanIcon.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import Entypo from 'react-native-vector-icons/Entypo';
+import AntDesign from 'react-native-vector-icons/AntDesign'
 import {ethers} from 'ethers';
 const {width, height} = Dimensions.get('screen');
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -33,12 +35,16 @@ import {
   useMoralisWeb3ApiCall,
 } from "react-moralis";
 import { useWalletConnect } from "../../../frontend/WalletConnect";
+import { getOtherWalletAddress, getWallets } from '../../store/Actions/action';
 
 const Home = ({navigation, route}) => {
   const address = useSelector(state => state.address);
   var provider;
   var balance = useSelector(state => state.balance);
-  const [value, setValue] = useState('Ethereum Mainnet');
+  const dispatch=useDispatch();
+  const fetchOtherWallet=(add)=>dispatch(getOtherWalletAddress(add))
+  const fetchWallets=(add)=>dispatch((getWallets(add)))
+  const [value, setValue] = useState('Polygon Testnet');
   const [open, setOpen] = useState(false);
   const [networkModal, setNetworkModal] = useState(false);
   const [networks, setNetworks] = useState([
@@ -55,17 +61,25 @@ const Home = ({navigation, route}) => {
     isAuthenticated,
     logout,
     Moralis,
-    user
+    user,
+    refetchUserData, isUserUpdating, userError
   } = useMoralis();
-  const handleCryptoLogin = () => {
-    authenticate({ connector })
-      .then(() => {
-        console.log(user,isAuthenticating,isAuthenticated)
-        console.log(JSON.stringify(user,null,2))
+
+  useEffect(() => {
+    //console.log(user);
+    fetchOtherWallet(user?.attributes.accounts[0])
+    fetchWallets(user?.attributes.accounts[0])
+  }, [isAuthenticated]);
+
+ 
+  const handleCryptoLogin = async() => {
+    authenticate({ connector, onComplete: () => alert("🎉")  })
+      .then(async() => {
+        navigation.navigate('Profile')
         if (authError) {
           //setErrortext(authError.message);
           console.log(authError)
-          setVisible(true);
+          //setVisible(true);
         } else {
           if (isAuthenticated) {
             navigation.navigate("Profile");
@@ -88,14 +102,20 @@ const Home = ({navigation, route}) => {
             </TouchableOpacity>
           </LinearGradient>
           <TouchableOpacity
-            onPress={() => handleCryptoLogin()}
+            onPress={() => isAuthenticated?navigation.navigate('Profile'): handleCryptoLogin()}
             style={{
               ...styles.headerDropdownContainer,
               backgroundColor: '#343153',
             }}>
             {/* <ScanIcon /> */}
-            <MaterialIcons name={'highlight'}/>
+            {isAuthenticated?
+            <Image source={{uri:'https://miro.medium.com/max/1400/1*gRFH48Pd7u3TpbWnc9__BQ.png'}} style={{height:22, width:22, borderRadius:22}}/>
+            :<AntDesign name={'scan1'} color={'white'} size={22} />
+}
+            {!isAuthenticated?
             <Text style={styles.dropDownText}>Connect Wallet</Text>
+          :<Text style={styles.dropDownText}>Meta Mask Wallet</Text>
+          }
           </TouchableOpacity>
         </View>
         <View style={styles.textContainer}>
@@ -187,7 +207,7 @@ const Home = ({navigation, route}) => {
                 backgroundColor: themeColor.primaryBlack,
                 padding: 30,
               }}>
-              <Header />
+              <Header navigation={navigation} />
               <View>
                 <Text
                   style={{
@@ -281,7 +301,7 @@ const Home = ({navigation, route}) => {
             </KeyboardAvoidingView>
           </Modal>
           <TouchableOpacity
-            onPress={() => setOpen(true)}
+            //onPress={() => setOpen(true)}
             style={{
               justifyContent: 'space-around',
               flexDirection: 'row',
@@ -333,7 +353,7 @@ const Home = ({navigation, route}) => {
                 <TouchableOpacity
                   style={{alignItems: 'center', justifyContent: 'center'}}>
                   {/* <Send /> */}
-                  <MaterialIcons name={'highlight'}/>
+                  <AntDesign name={'arrowup'} color={'white'} size={28} />
                 </TouchableOpacity>
               </LinearGradient>
               <Text
@@ -360,7 +380,7 @@ const Home = ({navigation, route}) => {
                 <TouchableOpacity
                   style={{alignItems: 'center', justifyContent: 'center'}}>
                   {/* <ReceiveIcon /> */}
-                  <MaterialIcons name={'highlight'}/>
+                  <AntDesign name={'arrowdown'} color={'white'} size={28} />
                 </TouchableOpacity>
               </LinearGradient>
               <Text
@@ -386,7 +406,7 @@ const Home = ({navigation, route}) => {
                 <TouchableOpacity
                   style={{alignItems: 'center', justifyContent: 'center'}}>
                   {/* <HistoryIcon /> */}
-                  <MaterialIcons name={'highlight'}/>
+                  <AntDesign name={'swap'} color={'white'} size={28} />
                 </TouchableOpacity>
               </LinearGradient>
               <Text

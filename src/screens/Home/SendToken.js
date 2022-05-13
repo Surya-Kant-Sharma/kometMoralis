@@ -2,10 +2,11 @@ import React, {useState} from 'react';
 import {View, Text, TouchableOpacity, TextInput, Modal} from 'react-native';
 import {themeColor} from '../../common/theme';
 import Header from '../../components/Header';
-import Send from '../../../assets/svg/Send.svg';
+//import Send from '../../../assets/svg/Send.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import {typography} from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign'
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {RNCamera} from 'react-native-camera';
 
@@ -14,7 +15,7 @@ const SendToken = ({navigation}) => {
   return (
     <View
       style={{flex: 1, backgroundColor: themeColor.primaryBlack, padding: 30}}>
-      <Header />
+     <Header navigation={navigation} />
       <Modal visible={visible} onRequestClose={() => setVisible(false)}>
         <View
           style={{
@@ -23,7 +24,7 @@ const SendToken = ({navigation}) => {
             padding: 30,
             alignItems: 'center',
           }}>
-          <Header />
+          <Header navigation={navigation} />
           <QRCodeScanner
             onRead={val => {
               console.log(val);
@@ -46,7 +47,7 @@ const SendToken = ({navigation}) => {
           }}>
           <TouchableOpacity
             style={{alignItems: 'center', justifyContent: 'center'}}>
-            <Send />
+            <AntDesign name={'arrowup'} color={'white'} size={28} />
           </TouchableOpacity>
         </LinearGradient>
         <Text
@@ -82,7 +83,8 @@ const SendToken = ({navigation}) => {
         />
       </View>
       <TouchableOpacity
-        onPress={() => setVisible(true)}
+        //onPress={() => setVisible(true)}
+        onPress={()=>navigation.navigate('SendTokenFinalize')}
         style={{
           borderRadius: 10,
           borderColor: '#232732',
@@ -103,6 +105,33 @@ const SendToken = ({navigation}) => {
             flex: 1,
           }}>
           {'  '}Scan any QR code
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        //onPress={() => setVisible(true)}
+        onPress={()=>navigation.navigate('SendTokenFinalize',{account:'0x871B104A1f9022b8e92c192fdcc1f943fd080152'})}
+        style={{
+          borderRadius: 10,
+          borderColor: '#232732',
+          borderWidth: 1,
+          marginVertical: 20,
+          flexDirection: 'row',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          paddingHorizontal: 10,
+          height: 50,
+          borderColor:'white'
+        }}>
+        <Text
+        numberOfLines={1}
+        ellipsizeMode={'middle'}
+          style={{
+            fontFamily: typography.regular,
+            fontSize: 14,
+
+            flex: 1,
+          }}>
+          0x871B104A1f9022b8e92c192fdcc1f943fd080152
         </Text>
       </TouchableOpacity>
     </View>

@@ -20,24 +20,20 @@ const OnboardingScreen = ({navigation}) => {
   const {height, width} = Dimensions.get('screen');
   const [currentIndex, setCurrentIndex] = useState([0]);
   const onBoardingData = [
-    {
-      id: 0,
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Laoreet ut dui imperdiet.',
-      image: require('../../../assets/images/OnBoarding1.png'),
-    },
+    
     {
       id: 1,
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Laoreet ut dui imperdiet.',
+      text: 'Easily access and own trusted NFTs with a single click',
       image: require('../../../assets/images/OnBoarding2.png'),
     },
     {
       id: 2,
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Laoreet ut dui imperdiet.',
+      text: 'Progressive wallet security to safegaurd your funds.',
       image: require('../../../assets/images/OnBoarding3.png'),
     },
     {
       id: 3,
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Laoreet ut dui imperdiet.',
+      text: "Create your distinct identity in the  community",
       image: require('../../../assets/images/OnBoarding4.png'),
     },
   ];
@@ -92,7 +88,7 @@ const OnboardingScreen = ({navigation}) => {
         <FlatList
           showsHorizontalScrollIndicator={false}
           horizontal
-          data={[0, 1, 2, 3]}
+          data={[0, 1, 2]}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item}) => (
             <View

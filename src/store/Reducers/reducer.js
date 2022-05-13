@@ -1,9 +1,11 @@
-import {ADDRESS, BALANCE, PROVIDER} from '../Actions/action';
+import {ADDRESS, BALANCE, OTHERWALLET, PROVIDER,WALLETS} from '../Actions/action';
 
 const defaultState = {
   address: null,
   balance: 0,
   provider: null,
+  wallets:[],
+  otherWallet:null
 };
 
 const Reducer = (state = defaultState, action) => {
@@ -18,7 +20,12 @@ const Reducer = (state = defaultState, action) => {
     case PROVIDER:
       //console.log('User', );
       return {...state, provider: action.payload};
-    default:
+    case OTHERWALLET:
+        //console.log('User', );
+        return {...state, otherWallet: action.payload};  
+    case WALLETS:
+      return {...state, wallets: action.payload};
+        default:
       console.log('Default Again');
       return {
         ...state,

@@ -66,7 +66,7 @@ const RestoreFromDevice = ({navigation, route}) => {
         alignItems: 'center',
         backgroundColor: themeColor.primaryBlack,
       }}>
-      <Header />
+      <Header navigation={navigation} />
       <View>
         <Text
           style={{

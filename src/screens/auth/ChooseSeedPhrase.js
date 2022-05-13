@@ -62,7 +62,7 @@ const ChooseSeedPhrase = ({navigation}) => {
         justifyContent: 'space-between',
         flexDirection: 'column',
       }}>
-      <Header />
+     <Header navigation={navigation} />
       <View style={{alignItems: 'center'}}>
         <Text
           style={{
