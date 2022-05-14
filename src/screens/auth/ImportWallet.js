@@ -9,7 +9,6 @@ import {
   Touchable,
   TouchableOpacity,
   StyleSheet,
-
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {themeColor} from '../../common/theme';
@@ -60,7 +59,7 @@ const ImportWallet = ({navigation}) => {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        <Image source={require('../../../assets/images/importWallet.png')} />
+  <Image source={require('../../../assets/images/importWallet.png')}/>
         <Text
           style={{
             color: 'rgba(255,255,255,1)',

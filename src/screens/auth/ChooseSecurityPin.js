@@ -29,11 +29,15 @@ const ChooseSecurityPin = ({navigation, route}) => {
       scopes: [
         'https://www.googleapis.com/auth/drive',
         'https://www.googleapis.com/auth/drive.file',
+        'https://www.googleapis.com/auth/drive.appdata',
         'https://www.googleapis.com/auth/drive.metadata',
+        'https://www.googleapis.com/auth/drive.readonly',
+        'https://www.googleapis.com/auth/drive.metadata.readonly',
+        'https://www.googleapis.com/auth/drive.apps.readonly',
+        'https://www.googleapis.com/auth/drive.photos.readonly',
       ],
-
       webClientId:
-        '277296107198-utt05fh9uf6e2cvmpql7dlp1omter314.apps.googleusercontent.com',
+        '638019657946-thbc2c24p6phcuir5qfpfs32saa14haf.apps.googleusercontent.com',
     });
     // Check if user is already signed in
     _isSignedIn();
@@ -102,7 +106,7 @@ const ChooseSecurityPin = ({navigation, route}) => {
         alignItems: 'center',
         backgroundColor: themeColor.primaryBlack,
       }}>
-      <Header navigation={navigation} />
+      <Header navigation={navigation}/>
       <View>
         <Text
           style={{
@@ -170,8 +174,8 @@ const ChooseSecurityPin = ({navigation, route}) => {
           colors={['#FF8DF4', '#89007C']}
           onPress={() => {
             //navigation.navigate('Dashboard');
-            //encryptText(route.params.phrase, pin, navigation);
-            _signIn();
+            encryptText(route.params.phrase, pin, navigation);
+            //_signIn();
             //decryptText();
           }}
         />

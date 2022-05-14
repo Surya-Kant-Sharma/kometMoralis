@@ -13,17 +13,11 @@ const SplashScreen = ({navigation}) => {
 
   var connector;
 
-  var fetchProvider = provider => dispatch(getProvider(provider));
+  //var fetchProvider = provider => dispatch(getProvider(provider));
 
   const INFURA_ID = 'd02fb37024ef430b8f15fdacf9134ccc';
   const daiAddress = '0x16FC4D55f9f8D5f43F8e639198AD509737450AE3';
   var provider;
-  provider = new ethers.providers.JsonRpcProvider(
-    'https://rinkeby.infura.io/v3/d02fb37024ef430b8f15fdacf9134ccc',
-  );
-  React.useEffect(()=>{
-    console.log(provider)
-  })
   var contract;
   const daiAbi = [
     // Some details about the token
@@ -40,7 +34,14 @@ const SplashScreen = ({navigation}) => {
     'event Transfer(address indexed from, address indexed to, uint amount)',
   ];
 
-  
+  React.useEffect(() => {
+    provider = new ethers.providers.JsonRpcProvider(
+      'https://rinkeby.infura.io/v3/d02fb37024ef430b8f15fdacf9134ccc',
+    );
+    //fetchProvider(provider);
+    //   contract = new ethers.Contract(daiAddress, daiAbi, provider);
+    //   fetchBlockNumber();
+  }, []);
 
   const fetchBlockNumber = async () => {
     const receiverAddress = '0x44Ad8BA47A77326f4d19599A1a9367DD5aa8EF42';

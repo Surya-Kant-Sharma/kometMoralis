@@ -1,12 +1,6 @@
 import React from 'react';
 import {View, Text, Image} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-// import HomeIcon from '../../../assets/svg/HomeIcon.svg';
-// import MarketPlaceIcon from '../../../assets/svg/MarketPlaceIcon.svg';
-// import ProfileIcon from '../../../assets/svg/ProfileIcon.svg';
-// import HomeIconSelected from '../../../assets/svg/HomeIconSelected.svg';
-// import MarketPlaceIconSelected from '../../../assets/svg/MarketPlaceIconSelected.svg';
-// import ProfileIconSelected from '../../../assets/svg/ProfileIconSelected.svg';
 import Home from './Home';
 import MarketPlace from './MarketPlace';
 import Profile from './Profile';

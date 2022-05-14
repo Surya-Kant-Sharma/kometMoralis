@@ -1,0 +1,29 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "counter",
+        "type": "uint256"
+      }
+    ],
+    "name": "Increment",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "counter",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "setCounter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

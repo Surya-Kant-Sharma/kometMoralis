@@ -6,7 +6,7 @@ const Header = ({navigation}) => {
   return (
     <>
       <View style={{flexDirection: 'row', height: 60}}>
-        <TouchableOpacity style={{flex: 1}} onPress={()=>navigation.goBack()}>
+        <TouchableOpacity onPress={()=>navigation.goBack()} style={{flex: 1}}>
           <MaterialIcons name={'arrow-back-ios'} color={'white'} size={28} />
         </TouchableOpacity>
         <View style={{flex: 1}}></View>

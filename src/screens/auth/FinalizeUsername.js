@@ -12,11 +12,8 @@ import {themeColor} from '../../common/theme';
 import {typography} from '../../common/typography';
 import GradientButton from '../../components/GradientButton';
 import BorderButton from '../../components/BorderButton';
-import TouchID from 'react-native-touch-id';
-// import Padlock from '../../../assets/svg/PadLock.svg';
-// import ETH from '../../../assets/svg/ETH.svg';
+import ETH from '../../../assets/svg/ETH.svg';
 import Header from '../../components/Header';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 const FinalizeUserName = ({navigation, route}) => {
   console.log(route.params);
 
@@ -28,11 +25,8 @@ const FinalizeUserName = ({navigation, route}) => {
         justifyContent: 'flex-start',
         flexDirection: 'column',
         backgroundColor: themeColor.primaryBlack,
-      }}>
-      <Header navigation={navigation} />
-      <View style={{alignSelf: 'center'}}>
-      
-      <Image source={require('../../../assets/images/OnBoarding1.png')}/>
+      }}><Header navigation={navigation}/><View style={{alignSelf: 'center'}}>
+        <Image source={require('../../../assets/images/ETH.png')} />
       </View>
       <View>
         <Text
@@ -60,7 +54,7 @@ const FinalizeUserName = ({navigation, route}) => {
               padding: 10,
             }}>
             <Text style={{color: '#8F8F8F', fontFamily: typography.medium}}>
-              @{route.params.name.toString().replace(' ','')}
+              @{route.params.name.toString()}
               <Text style={{color: '#4F5686', fontFamily: typography.medium}}>
                 .komet.me
               </Text>

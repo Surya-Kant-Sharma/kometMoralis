@@ -2,7 +2,7 @@ import React from 'react';
 import {SvgXml} from 'react-native-svg';
 
 function SvgImage(svgImage) {
-  const xml = `<svg width="290" height="290" viewBox="0 0 290 290" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+  const xml = `<svg width="290" height="290" viewBox="0 0 290 290" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <rect x="60.4596" width="237.266" height="237.266" transform="rotate(14.7628 60.4596 0)" fill="url(#pattern0)"/>
     <defs>
     <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">

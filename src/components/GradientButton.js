@@ -3,9 +3,9 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {typography} from '../common/typography';
 
-const GradientButton = ({colors, text, onPress}) => {
+const GradientButton = ({colors, text, onPress, disabled}) => {
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={onPress} disabled={disabled || false}>
       <LinearGradient
         colors={colors}
         start={{x: 0, y: 1}}

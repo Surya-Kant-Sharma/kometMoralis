@@ -1,11 +1,10 @@
 import { View, Text,Image } from 'react-native'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { typography } from '../common/typography'
 import useNativeBalance from '../../frontend/hooks/useNativeBalance';
 
 const AssetsLog = ({image,coinName,value,symbol,price,change,chain}) => {
-
-    const {nativeBalance} = useNativeBalance(0);
+  const {nativeBalance} = useNativeBalance(chain);
     console.log(nativeBalance)
   return (
     <View style={{margin:20}}>
@@ -14,7 +13,7 @@ const AssetsLog = ({image,coinName,value,symbol,price,change,chain}) => {
         <Image source={{uri:image}} style={{height:40,width:40,borderRadius:40}}/>
         <View style={{marginHorizontal:10}}>
           <Text style={{fontFamily:typography.regular,fontSize:14,color:'white'}}>{coinName}</Text>
-          <Text style={{fontFamily:typography.regular,fontSize:12,color:'gray'}}>{nativeBalance?.split(' ')[0]} ETH</Text>
+          <Text style={{fontFamily:typography.regular,fontSize:12,color:'gray'}}>{nativeBalance?.toString().replace('undefined'|| 'ETH',' ')}MATIC</Text>
         </View>
       </View>
       <View style={{marginHorizontal:10}}>

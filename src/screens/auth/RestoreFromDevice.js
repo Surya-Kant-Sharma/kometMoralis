@@ -7,10 +7,11 @@ import {typography} from '../../common/typography';
 import GradientButton from '../../components/GradientButton';
 import Header from '../../components/Header';
 import {ethers} from 'ethers';
-import {useDispatch} from 'react-redux';
-import {getAddress, getBalance} from '../../store/Actions/action';
+import {useDispatch, useSelector} from 'react-redux';
+import {setAddress, setBalance} from '../../store/Actions/action';
 
 import {decryptText} from '../../common/fileFunctions';
+import { walletProvider } from '../../Utils/Provider';
 var RNFS = require('react-native-fs');
 
 const RestoreFromDevice = ({navigation, route}) => {
@@ -19,13 +20,15 @@ const RestoreFromDevice = ({navigation, route}) => {
   const [confirmedPin, setConfirmedPin] = useState('');
   const dispatch = useDispatch();
   var provider;
-  const fetchAddress = address => dispatch(getAddress(address));
-  const fetchBalance = balance => dispatch(getBalance(balance));
+  const fetchAddress = address => dispatch(setAddress(address));
+  const fetchBalance = balance => dispatch(setBalance(balance));
 
   const fetchPrivateKey = async string => {
-    provider = new ethers.providers.JsonRpcProvider(
-      'https://rinkeby.infura.io/v3/d02fb37024ef430b8f15fdacf9134ccc',
-    );
+     provider = new ethers.providers.JsonRpcProvider(
+       'https://rinkeby.infura.io/v3/d02fb37024ef430b8f15fdacf9134ccc',
+     );
+
+    
 
     try {
       const walletfromPhrase = new ethers.Wallet.fromMnemonic(string);
@@ -33,16 +36,18 @@ const RestoreFromDevice = ({navigation, route}) => {
       console.log(wallet);
       const balance = await provider.getBalance(wallet.address);
       fetchAddress(wallet.address);
-      fetchBalance(balance);
+      //fetchBalance(balance);
       navigation.navigate('Dashboard');
     } catch (error) {
       console.log(error);
+      //alert(err.message)
     }
   };
 
   const decryptFromDevice = async () => {
     const text = await decryptText(pin);
     if (text.length > 0) {
+      Alert.alert(text)
       fetchPrivateKey(text);
     }
   };
@@ -66,7 +71,7 @@ const RestoreFromDevice = ({navigation, route}) => {
         alignItems: 'center',
         backgroundColor: themeColor.primaryBlack,
       }}>
-      <Header navigation={navigation} />
+      <Header navigation={navigation}/>
       <View>
         <Text
           style={{

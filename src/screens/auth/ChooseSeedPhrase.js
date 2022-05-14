@@ -2,6 +2,7 @@ import React from 'react';
 import {useState} from 'react';
 import {View, Text, FlatList, Dimensions} from 'react-native';
 import bip39 from 'react-native-bip39';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {themeColor} from '../../common/theme';
 import {typography} from '../../common/typography';
 import BorderButton from '../../components/BorderButton';
@@ -62,8 +63,7 @@ const ChooseSeedPhrase = ({navigation}) => {
         justifyContent: 'space-between',
         flexDirection: 'column',
       }}>
-     <Header navigation={navigation} />
-      <View style={{alignItems: 'center'}}>
+<Header navigation={navigation}/><View style={{alignItems: 'center'}}>
         <Text
           style={{
             fontFamily: typography.semiBold,

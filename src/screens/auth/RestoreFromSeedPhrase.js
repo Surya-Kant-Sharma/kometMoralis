@@ -14,25 +14,18 @@ import Header from '../../components/Header';
 import Tags from 'react-native-tags';
 const {width, height} = Dimensions.get('screen');
 import {ethers} from 'ethers';
-import {useDispatch} from 'react-redux';
-import {getAddress, getBalance,getWallets} from '../../store/Actions/action';
+import {useDispatch, useSelector} from 'react-redux';
+import {setAddress, getBalance, setProvider} from '../../store/Actions/action';
+import { walletProvider } from '../../Utils/Provider';
+import { getAccountDetails } from '../../Utils/ImportWallet';
+import { setAccountInfo } from '../../Utils/AsyncStorage';
 
 const RestoreFromSeedPhrase = ({navigation}) => {
   const [phrase, setPhrase] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const dispatch = useDispatch();
-  const fetchAddress = address => dispatch(getAddress(address));
-  const fetchWallets = address => dispatch(getWallets(address));
-  const fetchBalance = balance => dispatch(getBalance(balance));
-
-  var provider;
-
-  // React.useEffect(() => {
-  //   provider = new ethers.providers.JsonRpcProvider(
-  //     'https://rinkeby.infura.io/v3/d02fb37024ef430b8f15fdacf9134ccc',
-  //   );
-  //   //fetchPrivateKey();
-  // }, []);
+  const setLocalProvider = provider => dispatch(setProvider(provider))
+  const fetchAddress = address => dispatch(setAddress(address));
 
   const formatString = () => {
     var string = '';
@@ -46,19 +39,17 @@ const RestoreFromSeedPhrase = ({navigation}) => {
   };
 
   const fetchPrivateKey = async () => {
-    provider = new ethers.providers.JsonRpcProvider(
-      'https://rinkeby.infura.io/v3/d02fb37024ef430b8f15fdacf9134ccc',
-    );
-    setLoading(true);
+    const provider = await walletProvider();
+    
     try {
       var string = formatString();
-      const walletfromPhrase = new ethers.Wallet.fromMnemonic(string);
-      const wallet = new ethers.Wallet(walletfromPhrase.privateKey, provider);
-      console.log(wallet);
-      const balance = await provider.getBalance(wallet.address);
-      fetchAddress(wallet.address);
-      fetchWallets(wallet.address)
-      fetchBalance(balance);
+      const sp = "clean gossip jar often rent coconut detect gossip crush invest vicious weapon"
+      const WalletInfo = await getAccountDetails(sp);
+      if(WalletInfo) {
+        fetchAddress(WalletInfo);
+        setAccountInfo(WalletInfo);
+        alert(WalletInfo?.accountAddress?.first)
+      }
       navigation.navigate('Dashboard');
       setLoading(false);
     } catch (error) {
@@ -74,7 +65,7 @@ const RestoreFromSeedPhrase = ({navigation}) => {
         padding: 30,
         backgroundColor: themeColor.primaryBlack,
       }}>
-      <Header navigation={navigation} />
+      <Header navigation={navigation}/>
       <View style={{marginVertical: 40}}>
         <Text
           style={{
@@ -156,7 +147,7 @@ const RestoreFromSeedPhrase = ({navigation}) => {
       </View>
       <View style={{alignItems: 'center'}}>
         {loading ? (
-          <ActivityIndicator />
+          <ActivityIndicator size="small" color="#0000ff" />
         ) : (
           <GradientButton
             text={'Confirm'}

@@ -9,6 +9,7 @@ import {Divider, Card} from '@ui-kitten/components';
 import {ActivityIndicator} from 'react-native-paper';
 
 import {getNativeByChain} from '../../helpers/networks';
+import { typography } from '../../../src/common/typography';
 
 const NFTAssets = () => {
   const {NFTBalance, isLoading} = useNFTBalance();
@@ -71,10 +72,6 @@ const NFTAssets = () => {
   };
   return (
     <View style={{flex: 1}}>
-      <Text style={styles.headerText} category="h4">
-        🦧 NFT Assets
-      </Text>
-
       {!isLoading && NFTBalance.length > 0 ? (
         <FlatList
           style={styles.assetsViewer}
@@ -83,7 +80,10 @@ const NFTAssets = () => {
           renderItem={renderItem}
           keyExtractor={(item, index) => index.toString()}
         />
-      ) : (
+      ) : 
+      !isLoading && NFTBalance.length==0?
+      <Text style={{alignItems:'center',alignSelf:'center',fontFamily:typography.medium,color:'white'}}>No Assets Found</Text>:
+      (
         <ActivityIndicator />
       )}
     </View>

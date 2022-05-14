@@ -9,46 +9,46 @@ import {
   Modal,
   TextInput,
   KeyboardAvoidingView,
-  Linking,
+  RefreshControl,
   ToastAndroid
 } from 'react-native';
 import { themeColor } from '../../common/theme';
 import { typography } from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import ScanIcon from '../../../assets/svg/ScanIcon.svg';
+import ReceiveIcon from '../../../assets/svg/ReceiveIcon.svg';
+import Send from '../../../assets/svg/Send.svg';
+import HistoryIcon from '../../../assets/svg/HistoryIcon.svg';
 import { useDispatch, useSelector } from 'react-redux';
 //import ScanIcon from '../../../assets/svg/ScanIcon.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import Entypo from 'react-native-vector-icons/Entypo';
-import AntDesign from 'react-native-vector-icons/AntDesign'
 import { ethers } from 'ethers';
 const { width, height } = Dimensions.get('screen');
 import DropDownPicker from 'react-native-dropdown-picker';
 import BorderButton from '../../components/BorderButton';
 import Header from '../../components/Header';
 import { getAccountDetails } from '../../Utils/ImportWallet';
-import { getAccountInfo, getDataLocally } from '../../Utils/AsyncStorage';
-import { getOtherWalletAddress, getWallets, setAddress, setEoaBalance } from '../../store/Actions/action';
+import { getDataLocally } from '../../Utils/AsyncStorage';
+import { setAddress, setVaultBalance } from '../../store/Actions/action';
 import AlertConfirm from '../../components/Alert';
 import Clipboard from '@react-native-community/clipboard';
 import { eoa2Balance } from '../../Utils/Balance';
 import { walletProvider } from '../../Utils/Provider';
-import { createSmartWallet, isVault } from '../../Utils/SmartWallet';
 import { Locations } from '../../Utils/StorageLocations';
-import { useWalletConnect } from "../../../frontend/WalletConnect";
-import { useMoralis } from 'react-moralis';
+import { getSmartWalletBalance } from '../../Utils/SmartWallet';
 
 const Home = ({ navigation, route }) => {
-
   const address = useSelector(state => state.address);
-  const eoaBalance = useSelector(state => state.eoaBalance);
+  const vaultBalance = useSelector(state => state.vaultBalance);
   const dispatch = useDispatch();
   const fetchAddress = address => dispatch(setAddress(address));
-  const setEOABalance = balance => dispatch(setEoaBalance(balance));
-  const [balance, setBalance] = useState(eoaBalance || 0);
-  const [vault, setVault] = useState(false);
-  const fetchOtherWallet=(add)=>dispatch(getOtherWalletAddress(add))
-  const fetchWallets=(add)=>dispatch((getWallets(add)))
-  const [value, setValue] = useState('Polygon Testnet');
+  const setVAULTBalance = balance => dispatch(setVaultBalance(balance));
+  const [balance, setBalance] = useState(0);
+  const [sdata, setSData] = React.useState();
+  console.log(address?.balance?.first)
+  var provider;
+  const [value, setValue] = useState('Ethereum Mainnet');
   const [open, setOpen] = useState(false);
   const [networkModal, setNetworkModal] = useState(false);
   const [networks, setNetworks] = useState([
@@ -56,177 +56,144 @@ const Home = ({ navigation, route }) => {
     'Binance Smart Chain',
     'Polygon Smart Chain Mainnet',
     'Polygon Mainnet',
-    'Polygon Testnet'
   ]);
 
 
-  const connector = useWalletConnect();
-  const {
-    authenticate,
-    authError,
-    isAuthenticating,
-    isAuthenticated,
-    logout,
-    Moralis,
-    user,
-    refetchUserData, isUserUpdating, userError
-  } = useMoralis();
+  const [refreshing, setRefreshing] = React.useState(false);
 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getSWallet();
+    setTimeout(() => setRefreshing(false), 1000);
+  }, []);
 
   React.useEffect(() => {
-    getDataFromTheLocally()
     getSWallet()
   }, [])
 
-  useEffect(() => {
-    //console.log(user);
-    fetchOtherWallet(user?.attributes.accounts[0])
-    fetchWallets(user?.attributes.accounts[0])
-  }, [isAuthenticated]);
 
+  // const createSW = () => {
+  //   if (balance < 0.2) {
+  //     AlertConfirm(
+  //       'Insufficient funds',
+  //       'You Need At least 0.002 Matic from create smart wallet \n\n',
+  //       () => {
+  //         Clipboard.setString(address?.accountAddress?.second?.toString())
+  //         ToastAndroid.showWithGravity(
+  //           "Address Coped in Clipboard",
+  //           ToastAndroid.LONG,
+  //           ToastAndroid.CENTER
+  //         );
+  //         setTimeout(() => Linking.openURL("https://faucet.polygon.technology/"), 500)
 
-  const handleCryptoLogin = async() => {
-    await authenticate({ connector })
-      .then(() => {
-        //navigation.navigate('Profile')
-        if (authError) {
-          //setErrortext(authError.message);
-          console.log(authError)
-          //setVisible(true);
-        } else {
-          if (isAuthenticated) {
-            navigation.navigate("Profile");
-          }
-        }
-      })
-      .catch(() => {});
-  };
+  //       },
+  //       () => console.log('dismiss')
+  //     );
+  //   } else {
+  //     navigation.navigate('vault')
+  //   }
+  // }
 
+  // const getDataFromTheLocally = async () => {
+  //   try {
+  //     const value = await getAccountInfo();
+  //     // console.log(value);
+  //     fetchAddress(value);
+  //     listenBalance('0x4bAecAd2C2ad9AD8B06Be25D7B83A5C0aCdE816E')
+  //     // value?.accountAddress?.second;
+  //   } catch (err) {
+  //     alert(err.message)
+  //   }
+  // }
 
-  const createSW = async() => {
+  // const listenBalance = async (address) => {
+  //   try {
+  //     const provider = walletProvider();
+  //     let lastBalance = ethers.constants.Zero
+  //     // const address = address?.accountAddress?.second;
+  //     provider.on("block", () => {
+  //       provider.getBalance(address).then((balance) => {
+  //         if (!balance.eq(lastBalance)) {
+  //           lastBalance = balance
+  //           console.log("last Balance" + balance);
+  //           // convert a currency unit from wei to ether
+  //           const balanceInEth = ethers.utils.formatEther(balance)
+  //           setBalance(balanceInEth)
+  //           console.log(`balance: ${balanceInEth} ETH`)
+  //         }
+  //       })
+  //     })
+  //   } catch (err) {
+  //     alert(err.message)
+  //   }
+  // }
 
+  const getSWallet = async () => {
     try {
-
-      if (vault) {
-        navigation.navigate('Vault')
-      } else {
-  
-        if (eoaBalance < 0.2) {
-          AlertConfirm(
-            'Insufficient funds',
-            'You Need At least 0.002 Matic from create smart wallet \n\n',
-            () => {
-              Clipboard.setString(address?.accountAddress?.second?.toString())
-              ToastAndroid.showWithGravity(
-                "Address Coped in Clipboard",
-                ToastAndroid.LONG,
-                ToastAndroid.CENTER
-              );
-              setTimeout(() => Linking.openURL("https://faucet.polygon.technology/"), 500)
-  
-            },
-            () => console.log('dismiss')
-          );
-        } else {
-          const options = {
-            privateKey : address?.privateKey?.first,
-            address : address?.accountAddress?.first,
-            name : 'eth_surya_kant_sharma'
-          }
-          alert(options.privateKey + "  " + options.address)
-          await createSmartWallet(options);
-        }
+      const data = await getDataLocally(Locations.SMARTACCOUNTS);
+      // alert(data.address)
+      if (data.address) {
+        getBalance(data)
       }
     } catch (err) {
       alert(err.message)
     }
-
   }
 
-  const getDataFromTheLocally = async () => {
+  const getBalance = async (data) => {
     try {
-      const value = await getAccountInfo();
-      // console.log(value);
-      fetchAddress(value);
-      listenBalance('0x4bAecAd2C2ad9AD8B06Be25D7B83A5C0aCdE816E')
-      // const options = {
-      //   privateKey: value?.privateKey?.first,
-      //   address: value?.accountAddress?.first
-      // }
-      // vaultStatus(options)
-      // value?.accountAddress?.second;
-    } catch (err) {
-      alert(err.message)
-    }
-  }
-
-  const listenBalance = async (address) => {
-    try {
-      const provider = walletProvider();
-      console.log(provider)
-      let lastBalance = ethers.constants.Zero
-      // const address = address?.accountAddress?.second;
-      provider.on("block", () => {
-        provider.getBalance(address).then((balance) => {
-          if (!balance.eq(lastBalance)) {
-            lastBalance = balance
-            const balanceInEth = ethers.utils.formatEther(balance)
-            console.log(`balance: ${balanceInEth} ETH`)
-            setBalance(balanceInEth)
-            setEOABalance(balanceInEth)
-          }
-        })
-      })
-    } catch (err) {
-      alert(err.message)
-    }
-  }
-
-  const vaultStatus = async (options) => {
-    try {
-      const status = await isVault(options);
-      console.log('status', status)
-      setVault(status)
+      const options = {
+        privateKey: address?.privateKey?.first,
+        address: data?.address
+      }
+      const balance = await getSmartWalletBalance(options);
+      setBalance(balance)
+      setVAULTBalance(balance)
+      // console.log(balance);
     } catch (err) {
       console.log(err)
       alert(err.message)
     }
   }
 
-  const getSWallet = async (options) => {
-    try {
-      const data = await getDataLocally(Locations.SMARTACCOUNTS);
-      console.log(data)
-      if(data?.address) {
-        setVault(true)
-      }
-      return data
-    } catch (err) {
-      alert(err.message)
-    }
-  }
-
   return (
     <View style={{ flex: 1, backgroundColor: themeColor.primaryBlack }}>
-      <ScrollView nestedScrollEnabled>
-        <View style={styles.headerContainer}>
-          <LinearGradient
+      <ScrollView nestedScrollEnabled
+       refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
+      >
+        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 26 }}>
+          {/* <LinearGradient
             style={{ borderRadius: 20 }}
             colors={['#FE85F2', '#B02FA4']}>
             <TouchableOpacity style={{ ...styles.headerDropdownContainer }} onPress={createSW}>
               <Entypo name={'wallet'} size={20} />
-              <Text style={styles.dropDownText}>{(vault) ? 'open vault' : 'Create Smart Vault'}</Text>
+              <Text style={styles.dropDownText}>Create Smart Vault</Text>
             </TouchableOpacity>
-          </LinearGradient>
-          <TouchableOpacity
-            onPress={() => handleCryptoLogin()}
+          </LinearGradient> */}
+          {/* <TouchableOpacity
+            //onPress={() => handleCryptoLogin()}
             style={{
               ...styles.headerDropdownContainer,
               backgroundColor: '#343153',
             }}>
-            <AntDesign name={'qrcode'} color={'white'} size={28} />
-            <Text style={styles.dropDownText}> {!isAuthenticated?'Connect Wallet':'Open Other Wallet'} </Text>
-          </TouchableOpacity>
+            <ScanIcon />
+            <Text style={styles.dropDownText}>Connect Wallet</Text>
+          </TouchableOpacity> */}
+          <Text
+            fontSize={20}
+            numberOfLines={1}
+            ellipsizeMode={'tail'}
+            style={{
+              fontSize: 20,
+              ...styles.addressText
+            }}>
+            {"Welcome to Vault"}
+          </Text>
         </View>
         <View style={styles.textContainer}>
           <Modal
@@ -315,9 +282,7 @@ const Home = ({ navigation, route }) => {
                 flex: 1,
                 backgroundColor: themeColor.primaryBlack,
                 padding: 30,
-              }}>
-              <Header navigation={navigation}/>
-              <View>
+              }}><Header navigation={navigation}/><View>
                 <Text
                   style={{
                     fontSize: 12,
@@ -434,48 +399,23 @@ const Home = ({ navigation, route }) => {
           <Text style={styles.balanceText}>
             $ {parseFloat(balance).toPrecision(2)}
           </Text>
-          <TouchableOpacity style={styles.addressContainer}>
+          <TouchableOpacity style={styles.addressContainer} onPress={() => Clipboard.setString(sdata?.address?.toString())}>
             <Text
               numberOfLines={1}
               ellipsizeMode={'tail'}
               style={styles.addressText}>
-              {address?.accountAddress?.second?.substring(0, 8) + "..." + address?.accountAddress?.second?.substring(34, address?.accountAddress?.second?.length)}
+              {sdata?.address?.substring(0,8) + "..." + sdata?.address?.substring(34, sdata?.address?.length)}
             </Text>
+            <MaterialIcons name='content-copy' size={14} style={{marginLeft : 20}}/>
           </TouchableOpacity>
           <View style={{ height: 50 }} />
           <View
             style={{
-              flexDirection: 'row',
-              justifyContent: 'space-around',
+              justifyContent: 'center',
+              alignItems: 'center',
               width: '80%',
             }}>
-            <TouchableOpacity onPress={() => navigation.navigate('Send')}>
-              <LinearGradient
-                colors={['#FF84F3', '#B02FA4']}
-                style={{
-                  height: 64,
-                  width: 64,
-                  alignItems: 'center',
-                  borderRadius: 64,
-                  justifyContent: 'center',
-                }}>
-                <TouchableOpacity
-                  style={{ alignItems: 'center', justifyContent: 'center' }}>
-<AntDesign name={'arrowup'} color={'white'} size={28} />
-                </TouchableOpacity>
-              </LinearGradient>
-              <Text
-                style={{
-                  alignSelf: 'center',
-                  fontSize: 12,
-                  fontFamily: typography.medium,
-                  color: 'white',
-                }}>
-                Send
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('ReceiveToken')}>
+            <TouchableOpacity onPress={() => navigation.navigate('SwapToken', { path : 'vault'})}>
               <LinearGradient
                 colors={['#FF84F3', '#B02FA4']}
                 style={{
@@ -487,32 +427,7 @@ const Home = ({ navigation, route }) => {
                 }}>
                 <TouchableOpacity
                   style={{ alignItems: 'center', justifyContent: 'center' }}>
-<AntDesign name={'arrowdown'} color={'white'} size={28} />
-                </TouchableOpacity>
-              </LinearGradient>
-              <Text
-                style={{
-                  alignSelf: 'center',
-                  fontSize: 12,
-                  fontFamily: typography.medium,
-                  color: 'white',
-                }}>
-                Receive
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('SwapToken', { path : 'home'})}>
-              <LinearGradient
-                colors={['#FF84F3', '#B02FA4']}
-                style={{
-                  height: 64,
-                  width: 64,
-                  borderRadius: 64,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <TouchableOpacity
-                  style={{ alignItems: 'center', justifyContent: 'center' }}>
-<AntDesign name={'swap'} color={'white'} size={28} />
+                  <HistoryIcon />
                 </TouchableOpacity>
               </LinearGradient>
               <Text
@@ -558,7 +473,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1.6,
-    margin: 20,
+    margin: 6,
     justifyContent: 'space-around',
     paddingVertical: 30,
     alignItems: 'center',
@@ -582,7 +497,7 @@ const styles = StyleSheet.create({
   },
   addressText: {
     fontFamily: typography.regular,
-    fontSize: 12,
+    // fontSize: 12,
     color: 'white',
   },
 });
