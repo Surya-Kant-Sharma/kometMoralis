@@ -7,6 +7,6 @@ export const walletProvider = () => {
         // 'https://rinkeby.infura.io/v3/d02fb37024ef430b8f15fdacf9134ccc'
         "https://matic-mumbai.chainstacklabs.com"
     );
-    console.log('provider', provider)
+    // console.log('provider', provider)
     return provider
 }

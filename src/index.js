@@ -25,14 +25,17 @@ import Settings from './screens/Profile/Settings';
 import SendToken from './screens/Home/SendToken';
 import ReceiveToken from './screens/Home/ReceiveToken';
 import SwapToken from './screens/Home/SwapToken';
-import { getAccountsInfo } from './Utils/AsyncStorage';
+import { getAccountsInfo, getDataLocally } from './Utils/AsyncStorage';
 import Vault from './screens/Home/vault';
 // import SendToken from './screens/Home/Send'
 import SendScreen from './screens/Home/Send';
-import SendTokenFinalize from './screens/Home/sendTokenFinalize';
+import SendTokenFinalize from './screens/Home/SendTokenFinalize';
 import { Provider } from 'react-redux';
 import appStore from './store/store';
 import Collections from './screens/MarketPlace/Collections';
+import { Locations } from './Utils/StorageLocations';
+
+console.ignoredYellowBox = ['Setting a timer'];
 
 const RootNavigation = () => {
   const Stack = createStackNavigator();
@@ -41,7 +44,7 @@ const RootNavigation = () => {
 
   const userLogin = async () => {
     try {
-      const data = await getAccountsInfo() 
+      const data = await getDataLocally(Locations.ACCOUNTS) 
       console.log(data)
       setUserInfo(true);
       return data;
@@ -52,11 +55,13 @@ const RootNavigation = () => {
     }
   }
 
+  React.useState(() => userLogin(), [])
+
   return (
     <Provider store={appStore}>
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName={(!userInfo) ? 'Splash' : 'Dashboard'}
+        initialRouteName={(userInfo) ? 'Splash' : 'Dashboard'}
         screenOptions={{
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
           headerShown: false,

@@ -24,6 +24,7 @@ import AssetsLog from '../../components/AssetsLog';
 import { ActivityIndicator } from 'react-native-paper';
 import { useNFTBalance } from '../../../frontend/hooks/useNFTBalance';
 import NFTAssets from '../../../frontend/Components/NFT/NFTAssets'
+import { useMoralis } from 'react-moralis';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -126,7 +127,7 @@ const Profile = ({ navigation }) => {
         image={'https://ffnews.com/wp-content/uploads/2021/07/q4itcBEb_400x400-300x300.jpg'}
         coinName={'Polygon'}
         symbol={'MATIC'}
-        value={parseFloat(address.balance.second).toPrecision(4)}
+        value={'parseFloat(address.balance.second).toPrecision(4)'}
         price={'$1.34'}
         change={1.3} 
         chain={'rinkeby'}

@@ -67,7 +67,7 @@ const SwapToken = ({ navigation, route }) => {
       console.log(balance);
     } catch (err) {
       console.log(err)
-      alert(err.message)
+      alert("you don't have any Vault")
     }
   }
 
