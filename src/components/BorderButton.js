@@ -3,11 +3,11 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {typography} from '../common/typography';
 
-const BorderButton = ({borderColor, text, onPress}) => {
+const BorderButton = ({borderColor, text, onPress,size}) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={{...styles.borderButton, borderColor: borderColor}}>
+      style={{...styles.borderButton, borderColor: borderColor,size:size || 243}}>
       <Text style={styles.buttonText}>{text}</Text>
     </TouchableOpacity>
   );

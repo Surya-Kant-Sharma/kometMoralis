@@ -24,6 +24,7 @@ import AssetsLog from '../../components/AssetsLog';
 import { ActivityIndicator } from 'react-native-paper';
 import { useNFTBalance } from '../../../frontend/hooks/useNFTBalance';
 import NFTAssets from '../../../frontend/Components/NFT/NFTAssets'
+import { useMoralis } from 'react-moralis';
 
 const { width, height } = Dimensions.get('screen');
 

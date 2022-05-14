@@ -400,7 +400,7 @@ const SwapToken = ({ navigation, route }) => {
               {/* <MaterialIcons name={'keyboard-arrow-down'} size={24} /> */}
             </View>
 
-            <View style={{ alignItems: 'center' }}>
+            <View style={{ alignItems: 'center',justifyContent:'space-around',width:'100%' }}>
               <GradientButton
                 text={'Transfer'}
                 colors={['#FF8DF4', '#89007C']}
@@ -523,12 +523,12 @@ const SwapToken = ({ navigation, route }) => {
               alignItems: 'center'
             }}>
 
-              <View style={{ alignItems: 'center' }}>
+              <View style={{ alignItems: 'center',width:'100%',flexDirection:'row',justifyContent:'space-around' }}>
                 <GradientButton
                   text={'Confirm'}
                   disabled={(gasFees <= 0) ? true : false}
                   colors={['#FF8DF4', '#89007C']}
-
+                  size={150}
 
                   onPress={() => {
                     clearInterval(timeRef.current)
@@ -541,10 +541,8 @@ const SwapToken = ({ navigation, route }) => {
                     setConfirm(false);
                   }}
                 />
-              </View>
-
-              <View style={{ alignItems: 'center' }}>
-                <GradientButton
+                                <GradientButton
+                  size={150}
                   text={'Cancel'}
                   colors={['#FF8DF4', '#89007C']}
                   onPress={() => {
@@ -554,6 +552,8 @@ const SwapToken = ({ navigation, route }) => {
                   }}
                 />
               </View>
+
+
             </View>
           </View>
         </View>

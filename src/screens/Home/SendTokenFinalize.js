@@ -399,9 +399,10 @@ const SendTokenFinalize = ({ navigation, route }) => {
                             flexDirection: 'column'
                         }}>
 
-                            <View style={{ alignItems: 'center' }}>
+                            <View style={{ alignItems: 'center',flexDirection:'row',justifyContent:'space-around',width:'100%'}}>
                                 <GradientButton
                                     text={'Confirm'}
+                                    size={150}
                                     disabled={(gasFees <= 0) ? true : false}
                                     colors={['#FF8DF4', '#89007C']}
                                     onPress={() => {
@@ -411,11 +412,9 @@ const SendTokenFinalize = ({ navigation, route }) => {
                                         setConfirm(false);
                                     }}
                                 />
-                            </View>
-
-                            <View style={{ alignItems: 'center' }}>
-                                <GradientButton
+                                                                <GradientButton
                                     text={'Cancel'}
+                                    size={150}
                                     colors={['#FF8DF4', '#89007C']}
                                     onPress={() => {
                                         //            navigation.navigate('RestoreFromPhrase');
@@ -423,7 +422,9 @@ const SendTokenFinalize = ({ navigation, route }) => {
                                         setConfirm(false)
                                     }}
                                 />
+
                             </View>
+
                         </View>
                     </View>
                 </View>

@@ -50,6 +50,7 @@ const Home = ({ navigation, route }) => {
   const fetchWallets=(add)=>dispatch((getWallets(add)))
   const [value, setValue] = useState('Polygon Testnet');
   const [open, setOpen] = useState(false);
+  const [vaultModal,setVaultModal]=useState(false)
   const [networkModal, setNetworkModal] = useState(false);
   const [networks, setNetworks] = useState([
     'Ethereum Mainnet',
@@ -163,7 +164,7 @@ const Home = ({ navigation, route }) => {
   const listenBalance = async (address) => {
     try {
       const provider = walletProvider();
-      console.log(provider)
+//      console.log(provider)
       let lastBalance = ethers.constants.Zero
       // const address = address?.accountAddress?.second;
       provider.on("block", () => {
@@ -213,7 +214,7 @@ const Home = ({ navigation, route }) => {
           <LinearGradient
             style={{ borderRadius: 20 }}
             colors={['#FE85F2', '#B02FA4']}>
-            <TouchableOpacity style={{ ...styles.headerDropdownContainer }} onPress={createSW}>
+            <TouchableOpacity style={{ ...styles.headerDropdownContainer }} onPress={(vault)?()=>setVaultModal(true):()=>createSW()}>
               <Entypo name={'wallet'} size={20} />
               <Text style={styles.dropDownText}>{(vault) ? 'open vault' : 'Create Smart Vault'}</Text>
             </TouchableOpacity>
@@ -305,6 +306,62 @@ const Home = ({ navigation, route }) => {
               </View>
             </View>
           </Modal>
+          {/*Vault Modal*/}
+          <Modal
+            visible={vaultModal}
+            transparent
+            onRequestClose={() => setVaultModal(false)}>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'flex-end',
+              }}>
+              <View
+                style={{
+                  borderTopRightRadius: 10,
+                  borderTopLeftRadius: 10,
+                  backgroundColor: '#2F2F3A',
+                  alignItems: 'flex-start',
+                  padding: 15,
+                }}>
+                <View
+                  style={{
+                    height: 2,
+                    width: 40,
+                    backgroundColor: '#B02FA4',
+                    marginBottom: 30,
+                    alignSelf: 'center',
+                  }}></View>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontFamily: typography.medium,
+                    color: 'white',
+                  }}>
+                    Do you want to create a Secret Vault?
+                </Text>
+
+                <View style={{ alignSelf: 'center' }}>
+                  <BorderButton
+                  size={150}
+                    borderColor={'#FF8DF4'}
+                    text={'Confirm'}
+                    onPress={()=>createSW()}
+                  />
+                  <BorderButton
+                  size={150}
+                    borderColor={'#FF8DF4'}
+                    text={'Cancel'}
+                    onPress={() => {
+                      setVaultModal(false);
+                      //navigation.navigate('RestoreFromDevice');
+                    }}
+                  />
+                </View>
+              </View>
+            </View>
+          </Modal>
+          {/* EO Vault Modal*/}
           <Modal
             visible={networkModal}
             transparent

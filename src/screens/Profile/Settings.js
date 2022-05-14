@@ -1,10 +1,10 @@
 import React from 'react';
-import {View, Text, ScrollView} from 'react-native';
+import {View, Text, ScrollView, Image} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {themeColor} from '../../common/theme';
 import {typography} from '../../common/typography';
 import Header from '../../components/Header';
-import ProfileIcons from '../../../assets/svg/ProfileIcons.svg';
+//import ProfileIcons from '../../../assets/svg/ProfileIcons.svg';
 
 const Settings = ({navigation}) => {
   return (
@@ -47,7 +47,7 @@ const Settings = ({navigation}) => {
             Komet Wallet
           </Text>
         </View>
-        <ProfileIcons />
+        <Image source={require('../../../assets/images/ProfileImage.png')} />
       </LinearGradient>
     </ScrollView>
   );
