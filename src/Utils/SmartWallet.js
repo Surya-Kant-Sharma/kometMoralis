@@ -19,7 +19,7 @@ const KometWalletInit = async (options) => {
     return contractInstance
 }
 export const createSmartWallet = async (options) => {
-    // console.log(options)
+     console.log(options)
     const contractInit = await ContractInit(options)
     await contractInit.createWallet(options.name)
 

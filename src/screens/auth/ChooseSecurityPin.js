@@ -233,6 +233,13 @@ const ChooseSecurityPin = ({navigation, route}) => {
           onPress={() => {
             //navigation.navigate('Dashboard');
             processText();
+            ToastAndroid.showWithGravityAndOffset(
+              'We are trying to create your wallet with security and safety. So this process may take a while. So be with us.',
+              ToastAndroid.LONG,
+              ToastAndroid.TOP,
+              25,
+              50
+            );
             
             //_signIn();
             //decryptText();

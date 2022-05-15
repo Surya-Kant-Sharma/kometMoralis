@@ -12,7 +12,7 @@ const useERC20Balance = (props) => {
     if (isInitialized) {
       fetchERC20Balance()
         .then((balance) => setAssets(balance))
-        .catch((e) => alert(e.message));
+        .catch((e) => console.log(e.message));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInitialized, chainId, walletAddress]);
@@ -24,7 +24,7 @@ const useERC20Balance = (props) => {
         chain: props?.chain || chainId,
       })
       .then((result) => result)
-      .catch((e) => alert(e.message));
+      .catch((e) => console.log(e.message));
   };
 
   return { fetchERC20Balance, assets };

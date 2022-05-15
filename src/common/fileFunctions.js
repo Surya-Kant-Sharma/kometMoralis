@@ -28,7 +28,7 @@ export const encryptText = async(text, key, navigation) => {
     .then(success => {
       
       ToastAndroid.showWithGravityAndOffset(
-        'Wallet Created',
+        'Wallet Created. Fetching Address from blockchain....',
         ToastAndroid.LONG,
         ToastAndroid.BOTTOM,
         25,

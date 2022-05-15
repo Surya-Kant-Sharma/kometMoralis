@@ -111,17 +111,15 @@ const Home = ({ navigation, route }) => {
 
 
   const createSW = async () => {
-
     try {
-
       if (vault) {
         navigation.navigate('Vault')
       } else {
-
-        if (eoaOneBalance > 0.2) {
+        console.log('Balance',eoaOneBalance)
+        if (eoaOneBalance < 0.002) {
           AlertConfirm(
             'Insufficient funds',
-            'You Need At least 0.002 Matic from create smart wallet \n\n',
+            'You Need At least 0.002 Matic to create smart wallet \n\n',
             () => {
               Clipboard.setString(address?.accountAddress?.second?.toString())
               ToastAndroid.showWithGravity(
@@ -135,7 +133,17 @@ const Home = ({ navigation, route }) => {
             () => console.log('dismiss')
           );
         } else {
-          setVaultInfo(true);
+          async () => {
+            //setVaultInfo(false)
+            const options = {
+              privateKey: address?.privateKey?.first,
+              address: address?.accountAddress?.first,
+              name: 'eth_surya_kant_sharma'
+            }
+            alert(options.privateKey + "  " + options.address)
+            await createSmartWallet(options);
+            // navigation.navigate('SendTokenFinalize', { to: selectedData?.to, name: selectedData?.name })
+          }
         }
       }
     } catch (err) {
@@ -230,13 +238,13 @@ const Home = ({ navigation, route }) => {
           <LinearGradient
             style={{ borderRadius: 20 }}
             colors={['#FE85F2', '#B02FA4']}>
-            <TouchableOpacity style={{ ...styles.headerDropdownContainer }} onPress={(vault)?()=>setVaultModal(true):()=>createSW()}>
+            <TouchableOpacity style={{ ...styles.headerDropdownContainer }} onPress={(!vault)?()=>setVaultModal(true):()=>createSW()}>
               <Entypo name={'wallet'} size={20} />
               <Text style={styles.dropDownText}>{(vault) ? 'Open Vault' : 'Create Smart Vault'}</Text>
             </TouchableOpacity>
           </LinearGradient>
           <TouchableOpacity
-            onPress={() => handleCryptoLogin()}
+            onPress={() => isAuthenticated? handleCryptoLogin():navigation.navigate('Profile')}
             style={{
               ...styles.headerDropdownContainer,
               backgroundColor: '#343153',

@@ -109,14 +109,14 @@ const ChooseSeedPhrase = ({navigation}) => {
             navigation.navigate('AuthenticateWallet', {phrase: string});
           }}
         />
-        <BorderButton
+        {/* <BorderButton
           borderColor={'#FF8DF4'}
           text={'  Skip for Now  '}
           onPress={() => {
             fetchSecretKey();
             //console.log('BorderPressed');
           }}
-        />
+        /> */}
       </View>
 
       {/* {phrase.map((item, index) => (

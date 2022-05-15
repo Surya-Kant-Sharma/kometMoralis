@@ -194,13 +194,13 @@ const AuthenticateWallet = ({navigation, route}) => {
       </View>
 
       <View style={{alignItems: 'center', alignItems: 'center'}}>
-        <GradientButton
+        {/* <GradientButton
           text={' Next '}
           colors={['#FF8DF4', '#89007C']}
           onPress={() => {
             navigation.navigate('Dashboard');
           }}
-        />
+        /> */}
       </View>
     </View>
   );

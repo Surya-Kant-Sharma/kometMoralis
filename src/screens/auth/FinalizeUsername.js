@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  ToastAndroid,
 } from 'react-native';
 import {themeColor} from '../../common/theme';
 
@@ -14,8 +15,33 @@ import GradientButton from '../../components/GradientButton';
 import BorderButton from '../../components/BorderButton';
 import ETH from '../../../assets/svg/ETH.svg';
 import Header from '../../components/Header';
+import axios from 'axios';
 const FinalizeUserName = ({navigation, route}) => {
   console.log(route.params);
+
+  const requestUserName=async()=>{
+    await axios.post(`http://staging.komet.me/api/v1/user/v1/nick/request_reservation`,{headers: {
+      'Content-Type': 'application/json',
+      'X-USER-ID': '123'
+  }},
+  {
+    "nickName": route.params.name,
+    "timeToHold": "2"
+  }).then((res)=>{
+      if(res.data.available==true){
+        console.log(res.data)
+        navigation.navigate('ChooseSeedPhrase')
+        
+      }
+      else{
+        Alert.alert('Username not Available')
+        
+      }
+    }).catch((error)=>{
+      navigation.navigate('ChooseSeedPhrase')
+        ToastAndroid.showWithGravity('Error while requesting the username',1500,ToastAndroid.BOTTOM)
+      console.log(error)})
+  }
 
   return (
     <View
@@ -73,16 +99,17 @@ const FinalizeUserName = ({navigation, route}) => {
           text={"Let's get it ! "}
           colors={['#453D9F', '#453D9F']}
           onPress={() => {
-            navigation.navigate('ChooseSeedPhrase');
+            requestUserName();
+            
           }}
         />
-        <BorderButton
+        {/* <BorderButton
           borderColor={'#453D9F'}
           text={'Skip for Now'}
           onPress={() => {
             console.log('BorderPressed');
           }}
-        />
+        /> */}
       </View>
     </View>
   );

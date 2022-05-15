@@ -1,13 +1,27 @@
 import React from 'react';
-import {View, Text, Image, TextInput, TouchableOpacity} from 'react-native';
+import {View, Text, Image, TextInput, TouchableOpacity, Alert} from 'react-native';
 import {themeColor} from '../../common/theme';
 
 import {typography} from '../../common/typography';
 import {useState} from 'react';
 import Header from '../../components/Header';
+import axios from 'axios';
 
 const SelectUsername = ({navigation}) => {
   const [name, setName] = useState('');
+
+  const checkUserName=async()=>{
+    await axios.get(`http://staging.komet.me/api/v1/user/v1/nick/check_availability?nick=${name}`).then((res)=>{
+      if(res.data.available==true){
+        console.log(res.data.available)
+         navigation.navigate('FinalizeUserName', {name});
+      }
+      else{
+        Alert.alert('Username not Available')
+      }
+    }).catch((error)=>console.log(error))
+  }
+
   console.log(name);
   return (
     <View
@@ -53,7 +67,7 @@ const SelectUsername = ({navigation}) => {
             placeholderTextColor={'#8F8F8F'}
           />
           <TouchableOpacity
-            onPress={() => navigation.navigate('FinalizeUserName', {name})}
+            onPress={()=>checkUserName()}
             style={{
               width: 97,
               height: 40,

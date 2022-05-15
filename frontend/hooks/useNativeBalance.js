@@ -24,7 +24,8 @@ const useNativeBalance = chain => {
           const balanceFormatted = `${n4.format(balanceInWei)} ${native}`;
           setNativeBalance(balanceFormatted);
         })
-        .catch(e => alert(e.message));
+        .catch(e =>  console.log(e)//calert(e.message)
+        );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInitialized, chainId, walletAddress]);
@@ -37,7 +38,7 @@ const useNativeBalance = chain => {
     return await account
       .getNativeBalance(options)
       .then(result => result)
-      .catch(e => alert(e.message));
+      .catch(e => console.log(e.message));
   };
 
   return {fetchNativeBalance, nativeBalance};
