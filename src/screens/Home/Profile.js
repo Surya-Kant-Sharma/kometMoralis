@@ -33,6 +33,7 @@ import { getDataLocally } from '../../Utils/AsyncStorage';
 import { Locations } from '../../Utils/StorageLocations';
 import useNativeBalance from '../../../frontend/hooks/useNativeBalance';
 import { setAddress } from '../../store/Actions/action';
+import { copyToClipboard } from '../../Utils/CopytoClipboard';
 
 console.ignoredYellowBox = ['Setting a timer'];
 
@@ -179,6 +180,7 @@ const Profile = ({ navigation }) => {
                 Victoria
               </Text>
               <Text
+                onPress={()=>copyToClipboard(selectedAddress)}
                 numberOfLines={1}
                 ellipsizeMode={'middle'}
                 style={{

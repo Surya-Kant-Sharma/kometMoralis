@@ -38,6 +38,7 @@ import { Locations } from '../../Utils/StorageLocations';
 import { useWalletConnect } from "../../../frontend/WalletConnect";
 import { useMoralis } from 'react-moralis';
 import GradientButton from '../../components/GradientButton';
+import { copyToClipboard } from '../../Utils/CopytoClipboard';
 
 
 const Home = ({ navigation, route }) => {
@@ -116,7 +117,7 @@ const Home = ({ navigation, route }) => {
         navigation.navigate('Vault')
       } else {
         console.log('Balance',eoaOneBalance)
-        if (eoaOneBalance < 0.002) {
+        if (eoaOneBalance > 0.002) {
           AlertConfirm(
             'Insufficient funds',
             'You Need At least 0.002 Matic to create smart wallet \n\n',
@@ -133,17 +134,16 @@ const Home = ({ navigation, route }) => {
             () => console.log('dismiss')
           );
         } else {
-          async () => {
             //setVaultInfo(false)
             const options = {
               privateKey: address?.privateKey?.first,
               address: address?.accountAddress?.first,
               name: 'eth_surya_kant_sharma'
             }
+            console.log(options);
             alert(options.privateKey + "  " + options.address)
             await createSmartWallet(options);
             // navigation.navigate('SendTokenFinalize', { to: selectedData?.to, name: selectedData?.name })
-          }
         }
       }
     } catch (err) {
@@ -221,8 +221,9 @@ const Home = ({ navigation, route }) => {
         "https://matic-mumbai.chainstacklabs.com"
       );
       const firstAddress = await connection.getBalance(address?.accountAddress?.first)
-      const bal = ethers.utils.formatEther(firstAddress)
+      const bal = await ethers.utils.formatEther(firstAddress)
       setEoaOneBalance(bal)
+      //console.log('Bal',bal)
       // alert(bal)
     } catch (err) {
       console.log(err)
@@ -244,7 +245,7 @@ const Home = ({ navigation, route }) => {
             </TouchableOpacity>
           </LinearGradient>
           <TouchableOpacity
-            onPress={() => isAuthenticated? handleCryptoLogin():navigation.navigate('Profile')}
+            onPress={() => !isAuthenticated? handleCryptoLogin():navigation.navigate('Profile')}
             style={{
               ...styles.headerDropdownContainer,
               backgroundColor: '#343153',
@@ -510,7 +511,7 @@ const Home = ({ navigation, route }) => {
           <Text style={styles.balanceText}>
             $ {parseFloat(balance).toPrecision(2)}
           </Text>
-          <TouchableOpacity style={styles.addressContainer}>
+          <TouchableOpacity onPress={()=>copyToClipboard(address?.accountAddress?.second)} style={styles.addressContainer}>
             <Text
               numberOfLines={1}
               ellipsizeMode={'tail'}
