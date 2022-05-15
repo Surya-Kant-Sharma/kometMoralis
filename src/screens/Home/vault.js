@@ -18,7 +18,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ScanIcon from '../../../assets/svg/ScanIcon.svg';
 import ReceiveIcon from '../../../assets/svg/ReceiveIcon.svg';
 import Send from '../../../assets/svg/Send.svg';
-import HistoryIcon from '../../../assets/svg/HistoryIcon.svg';
+// import HistoryIcon from '../../../assets/svg/HistoryIcon.svg';
+import Ionicons from 'react-native-vector-icons/Ionicons'
 import { useDispatch, useSelector } from 'react-redux';
 //import ScanIcon from '../../../assets/svg/ScanIcon.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -37,6 +38,7 @@ import { eoa2Balance } from '../../Utils/Balance';
 import { walletProvider } from '../../Utils/Provider';
 import { Locations } from '../../Utils/StorageLocations';
 import { getSmartWalletBalance } from '../../Utils/SmartWallet';
+import GradientButton from '../../components/GradientButton';
 
 const Home = ({ navigation, route }) => {
   const address = useSelector(state => state.address);
@@ -48,7 +50,7 @@ const Home = ({ navigation, route }) => {
   const [sdata, setSData] = React.useState();
   console.log(address?.balance?.first)
   var provider;
-  const [value, setValue] = useState('Ethereum Mainnet');
+  const [value, setValue] = useState('Polygon Testnet');
   const [open, setOpen] = useState(false);
   const [networkModal, setNetworkModal] = useState(false);
   const [networks, setNetworks] = useState([
@@ -56,6 +58,7 @@ const Home = ({ navigation, route }) => {
     'Binance Smart Chain',
     'Polygon Smart Chain Mainnet',
     'Polygon Mainnet',
+    'Polygon Testnet'
   ]);
 
 
@@ -157,7 +160,7 @@ const Home = ({ navigation, route }) => {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: themeColor.primaryBlack }}>
+    <View style={{ flex: 1, backgroundColor: themeColor.primaryBlack,padding:30 }}>
       <ScrollView nestedScrollEnabled
        refreshControl={
           <RefreshControl
@@ -166,7 +169,8 @@ const Home = ({ navigation, route }) => {
           />
         }
       >
-        <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 26 }}>
+        <Header/>
+        <View style={{ justifyContent: 'center', alignItems: 'center', }}>
           {/* <LinearGradient
             style={{ borderRadius: 20 }}
             colors={['#FE85F2', '#B02FA4']}>
@@ -184,15 +188,34 @@ const Home = ({ navigation, route }) => {
             <ScanIcon />
             <Text style={styles.dropDownText}>Connect Wallet</Text>
           </TouchableOpacity> */}
+          <TouchableOpacity onPress={() => navigation.navigate('SwapToken', { path : 'vault'})}>
+              <LinearGradient
+                colors={['#FF84F3', '#B02FA4']}
+                style={{
+                  height: 64,
+                  width: 64,
+                  borderRadius: 64,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <TouchableOpacity
+                  style={{ alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name={'wallet'} color={'white'} size={32} />
+                </TouchableOpacity>
+              </LinearGradient>
+              
+            </TouchableOpacity>
           <Text
             fontSize={20}
             numberOfLines={1}
             ellipsizeMode={'tail'}
             style={{
+             
+              ...styles.addressText,
               fontSize: 20,
-              ...styles.addressText
+              fontFamily:typography.semiBold,
             }}>
-            {"Welcome to Vault"}
+            {"Komet Smart Vault"}
           </Text>
         </View>
         <View style={styles.textContainer}>
@@ -415,31 +438,13 @@ const Home = ({ navigation, route }) => {
               alignItems: 'center',
               width: '80%',
             }}>
-            <TouchableOpacity onPress={() => navigation.navigate('SwapToken', { path : 'vault'})}>
-              <LinearGradient
-                colors={['#FF84F3', '#B02FA4']}
-                style={{
-                  height: 64,
-                  width: 64,
-                  borderRadius: 64,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <TouchableOpacity
-                  style={{ alignItems: 'center', justifyContent: 'center' }}>
-                  <HistoryIcon />
-                </TouchableOpacity>
-              </LinearGradient>
-              <Text
-                style={{
-                  alignSelf: 'center',
-                  fontSize: 12,
-                  fontFamily: typography.medium,
-                  color: 'white',
-                }}>
-                Swap
-              </Text>
-            </TouchableOpacity>
+           <TouchableOpacity style={{alignItems: 'center', alignItems: 'center'}} onPress={() => navigation.navigate('SwapToken', { path : 'vault'})}>
+        <GradientButton
+          text={' Swap '}
+          colors={['#FF8DF4', '#89007C']}
+          onPress={() => navigation.navigate('SwapToken', { path : 'vault'})}
+        />
+      </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

@@ -14,7 +14,7 @@ import GradientButton from '../../components/GradientButton';
 import { useSelector } from 'react-redux';
 
 
-import HistoryIcon from '../../../assets/svg/HistoryIcon.svg';
+
 import { getDataLocally, setDataLocally } from '../../Utils/AsyncStorage';
 import { Locations } from '../../Utils/StorageLocations';
 import { getSmartWalletBalance, smartWalletToEoa, transferToSmartWallet } from '../../Utils/SmartWallet';
@@ -360,7 +360,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                                 fontFamily: typography.medium,
                                 color: 'white',
                             }}>
-                            Trasaction Info
+                            Transaction Info
                         </Text>
                         <View style={{
                             width: '100%',

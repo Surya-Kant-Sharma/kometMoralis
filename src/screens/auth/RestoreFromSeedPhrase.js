@@ -43,12 +43,12 @@ const RestoreFromSeedPhrase = ({navigation}) => {
     
     try {
       var string = formatString();
-      const sp = "clean gossip jar often rent coconut detect gossip crush invest vicious weapon"
-      const WalletInfo = await getAccountDetails(sp);
+      //const sp = "clean gossip jar often rent coconut detect gossip crush invest vicious weapon"
+      const WalletInfo = await getAccountDetails(string);
       if(WalletInfo) {
         fetchAddress(WalletInfo);
         setAccountInfo(WalletInfo);
-        alert(WalletInfo?.accountAddress?.first)
+        //alert(WalletInfo?.accountAddress?.first)
       }
       navigation.navigate('Dashboard');
       setLoading(false);

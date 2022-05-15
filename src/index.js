@@ -29,11 +29,12 @@ import { getAccountsInfo, getDataLocally } from './Utils/AsyncStorage';
 import Vault from './screens/Home/vault';
 // import SendToken from './screens/Home/Send'
 import SendScreen from './screens/Home/Send';
-import SendTokenFinalize from './screens/Home/SendTokenFinalize';
+import SendTokenFinalize from './screens/Home/sendTokenFinalize';
 import { Provider } from 'react-redux';
 import appStore from './store/store';
 import Collections from './screens/MarketPlace/Collections';
 import { Locations } from './Utils/StorageLocations';
+import ViewSeedPhrase from './screens/Profile/ViewSeedPhrase';
 
 console.ignoredYellowBox = ['Setting a timer'];
 
@@ -61,10 +62,11 @@ const RootNavigation = () => {
     <Provider store={appStore}>
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName={(false) ? 'Splash' : 'Dashboard'}
+        initialRouteName={(true) ? 'Splash' : 'Dashboard'}
         screenOptions={{
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          cardStyleInterpolator: CardStyleInterpolators.forNoAnimation,
           headerShown: false,
+          animationEnabled: true
         }}>
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="OnBoarding" component={OnboardingScreen} />
@@ -92,6 +94,7 @@ const RootNavigation = () => {
         <Stack.Screen name="SendToken" component={SendToken} />
         <Stack.Screen name="ReceiveToken" component={ReceiveToken} />
         <Stack.Screen name="SwapToken" component={SwapToken} />
+        <Stack.Screen name="ViewSeedPhrase" component={ViewSeedPhrase} />
       </Stack.Navigator>
     </NavigationContainer>
     </Provider>

@@ -1,6 +1,6 @@
 import React from 'react';
 import {useState, useEffect} from 'react';
-import {View, Text, ScrollView, Alert} from 'react-native';
+import {View, Text, ScrollView, Alert, ToastAndroid} from 'react-native';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import {themeColor} from '../../common/theme';
 import {typography} from '../../common/typography';
@@ -14,6 +14,12 @@ import {
   GoogleSigninButton,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
+import { walletProvider } from '../../Utils/Provider';
+import { getAccountDetails } from '../../Utils/ImportWallet';
+import { setAccountInfo } from '../../Utils/AsyncStorage';
+import { useDispatch } from 'react-redux';
+import { setAddress } from '../../store/Actions/action';
+import { ActivityIndicator } from 'react-native-paper';
 
 var RNFS = require('react-native-fs');
 
@@ -21,6 +27,29 @@ const ChooseSecurityPin = ({navigation, route}) => {
   const [pin, setPin] = useState('');
   const [confirmed, setConfirmed] = useState(false);
   const [confirmedPin, setConfirmedPin] = useState('');
+  const [loading,setLoading]=useState(false)
+  const dispatch = useDispatch();
+
+  const processText=async()=>{
+    setLoading(true)
+    const text=await encryptText(route.params.phrase, pin, navigation);
+    console.log('Text',text)
+    if(text==false || text==undefined){
+      setLoading(false)
+      ToastAndroid.showWithGravityAndOffset(
+        'Error while creating file',
+        ToastAndroid.LONG,
+        ToastAndroid.BOTTOM,
+        25,
+        50
+      );
+    }
+    else{
+      fetchPrivateKey();
+    }
+  }
+  
+  const fetchAddress = address => dispatch(setAddress(address));
 
   useEffect(() => {
     // Initial configuration
@@ -42,6 +71,33 @@ const ChooseSecurityPin = ({navigation, route}) => {
     // Check if user is already signed in
     _isSignedIn();
   }, []);
+
+  const fetchPrivateKey = async () => {
+    const provider = await walletProvider();
+    
+    try {
+      //const sp = "clean gossip jar often rent coconut detect gossip crush invest vicious weapon"
+      const WalletInfo = await getAccountDetails(route.params.phrase);
+      if(WalletInfo) {
+
+        fetchAddress(WalletInfo);
+        setAccountInfo(WalletInfo);
+        //alert(WalletInfo?.accountAddress?.first)
+      }
+      ToastAndroid.showWithGravityAndOffset(
+        'Account created Successfully',
+        ToastAndroid.LONG,
+        ToastAndroid.BOTTOM,
+        25,
+        50
+      );
+      navigation.navigate('Dashboard');
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
 
   const _signIn = async () => {
     try {
@@ -168,19 +224,22 @@ const ChooseSecurityPin = ({navigation, route}) => {
         )}
       </View>
       <View></View>
+      {loading?<ActivityIndicator size={'large'}/>:
+      <>
       {confirmed && (
         <GradientButton
           text={' Confirm '}
           colors={['#FF8DF4', '#89007C']}
           onPress={() => {
             //navigation.navigate('Dashboard');
-            encryptText(route.params.phrase, pin, navigation);
+            processText();
+            
             //_signIn();
             //decryptText();
           }}
         />
       )}
-
+</>}
       <View></View>
     </View>
   );

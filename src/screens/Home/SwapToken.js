@@ -483,7 +483,7 @@ const SwapToken = ({ navigation, route }) => {
                 fontFamily: typography.medium,
                 color: 'white',
               }}>
-              Trasaction Info
+              Transaction Info
             </Text>
             <View style={{
               width: '100%',
@@ -542,7 +542,7 @@ const SwapToken = ({ navigation, route }) => {
                     setConfirm(false);
                   }}
                 />
-                                <GradientButton
+                <GradientButton
                   size={150}
                   text={'Cancel'}
                   colors={['#FF8DF4', '#89007C']}

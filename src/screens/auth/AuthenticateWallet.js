@@ -104,13 +104,13 @@ const AuthenticateWallet = ({navigation, route}) => {
             </Text>
 
             <TouchableOpacity
-              onPress={
-                (() => setPinModal(false),
-                () =>
+              onPress={()=>{
+                
                   navigation.navigate('ChooseSecurityPin', {
                     phrase: route.params.phrase,
-                  }))
-              }>
+                  });
+                  setPinModal(false)
+              }}>
               <Text
                 style={{
                   color: '#1951EC',

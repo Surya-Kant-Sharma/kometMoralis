@@ -6,7 +6,8 @@ import Send from '../../../assets/svg/Send.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import {typography} from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import ReceiveIcon from '../../../assets/svg/ReceiveIcon.svg';
+import AntDesign from 'react-native-vector-icons/AntDesign'
+// import ReceiveIcon from '../../../assets/svg/ReceiveIcon.svg';
 const ReceiveToken = ({navigation}) => {
   return (
     <View
@@ -26,7 +27,7 @@ const ReceiveToken = ({navigation}) => {
           }}>
           <TouchableOpacity
             style={{alignItems: 'center', justifyContent: 'center'}}>
-            <ReceiveIcon />
+            <AntDesign name={'arrowup'} size={28} color={'white'} />
           </TouchableOpacity>
         </LinearGradient>
         <Text

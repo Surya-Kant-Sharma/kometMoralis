@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 
-import {View, Text, ScrollView, Alert, ToastAndroid} from 'react-native';
+import {View, Text, ScrollView, Alert, ToastAndroid,FlatList} from 'react-native';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import {themeColor} from '../../common/theme';
 import {typography} from '../../common/typography';
@@ -9,81 +9,63 @@ import Header from '../../components/Header';
 import {ethers} from 'ethers';
 import {useDispatch, useSelector} from 'react-redux';
 import {setAddress, setBalance} from '../../store/Actions/action';
-import LottieView from 'lottie-react-native';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
+
 import {decryptText} from '../../common/fileFunctions';
 import { walletProvider } from '../../Utils/Provider';
-import ProgressDialog from '../../components/ProgressDialog';
-import { getAccountDetails } from '../../Utils/ImportWallet';
-import { setAccountInfo } from '../../Utils/AsyncStorage';
+import { decode } from 'punycode';
+import {  TouchableOpacity } from 'react-native-gesture-handler';
+import Clipboard from '@react-native-community/clipboard';
+import { text } from 'stream/consumers';
+import SeedPhraseButton from '../../components/SeedPhraseButton';
 var RNFS = require('react-native-fs');
 
-const RestoreFromDevice = ({navigation, route}) => {
+const ViewSeedPhrase = ({navigation, route}) => {
   const [pin, setPin] = useState('');
   const [confirmed, setConfirmed] = useState(false);
   const [confirmedPin, setConfirmedPin] = useState('');
-  const [open, setOpen] = useState(false);
+  const [phrase,setPhrase]=useState('')
+  const [decoded,setDecoded]=useState(false)
   const dispatch = useDispatch();
-  const [loading,setLoading]=useState(false)
   var provider;
-
   const fetchAddress = address => dispatch(setAddress(address));
-  const fetchBalance = balance => dispatch(setBalance(balance));
 
-  const fetchPrivateKey = async (text) => {
-    console.log(text.length)
-    
-  
-      try {
-        // var string = formatString();
-        setOpen(true);
-        const WalletInfo = await getAccountDetails(text);
-        if(WalletInfo) {
-          fetchAddress(WalletInfo);
-          setAccountInfo(WalletInfo);
-          //alert(WalletInfo?.accountAddress?.first)
-        }
-        ToastAndroid.showWithGravityAndOffset(
-          'Account fetched Successfully',
-          ToastAndroid.LONG,
-          ToastAndroid.BOTTOM,
-          25,
-          50
-        );
-        setLoading(false)
-        navigation.navigate('Dashboard');
-        setOpen(false);
-      } catch (error) {
-        console.log(error); 
-        setOpen(false);
-      }
-    
-    
+  const fetchPrivateKey = async string => {
+     provider = new ethers.providers.JsonRpcProvider(
+       'https://rinkeby.infura.io/v3/d02fb37024ef430b8f15fdacf9134ccc',
+     );
+
+    try {
+      const walletfromPhrase = new ethers.Wallet.fromMnemonic(string);
+      const wallet = new ethers.Wallet(walletfromPhrase.privateKey, provider);
+      console.log(wallet);
+      const balance = await provider.getBalance(wallet.address);
+      fetchAddress(wallet.address);
+      //fetchBalance(balance);
+      navigation.navigate('Dashboard');
+    } catch (error) {
+      console.log(error);
+      //alert(err.message)
+    }
   };
 
-
   const decryptFromDevice = async () => {
-    const text = await decryptText(pin);
-    if (text.length > 0) {
-      ToastAndroid.showWithGravityAndOffset(
-        'Wallet Fetched from device',
-        ToastAndroid.LONG,
-        ToastAndroid.BOTTOM,
-        25,
-        50
-      );
-      //alert(text)
-      fetchPrivateKey(text);
-    }
-    else{
-      setLoading(false)
-      ToastAndroid.showWithGravityAndOffset(
-        'Wrong Pincode',
-        ToastAndroid.LONG,
-        ToastAndroid.BOTTOM,
-        25,
-        50
-      );
-    }
+      console.log(pin)
+      try{
+        const text = await decryptText(pin);
+        if (text.length > 0) {
+          //Alert.alert(text)
+          setDecoded(true)
+          setPhrase(text);
+    //      fetchPrivateKey(text);
+        }
+        else{
+            Alert.alert('Incorrect Password')
+        }
+      }
+      catch (error){
+          console.log(error)
+      }
   };
 
   const authorizePin = () => {
@@ -106,20 +88,41 @@ const RestoreFromDevice = ({navigation, route}) => {
         backgroundColor: themeColor.primaryBlack,
       }}>
       <Header navigation={navigation}/>
-      {loading?
-      <View style={{flex:1}}>
-      <Text style={{
-            color: 'white',
-            fontFamily: typography.medium,
-            fontSize: 20,
-            textAlign: 'center',
-            marginBottom: 40,
-          }}>Please wait while we verify your credentials with the Blockchain</Text>
-      <LottieView source={require('../../../assets/chain.json')} autoPlay loop />
-      </View>
-      :<>
+      {decoded &&
       <View>
+          <TouchableOpacity onPress={()=>{Clipboard.setString(phrase); ToastAndroid.show('Copied Successfully', ToastAndroid.SHORT)}}>
+          <FontAwesome5 name={'copy'} size={25} color={'white'} style={{alignSelf:'flex-end',marginBottom:20}}/>
+
+          </TouchableOpacity>
+          {/* <Text style={{fontSize:25,fontFamily:typography.medium,color:'white',textAlign:'center'}}>{phrase}</Text> */}
+          
+          <View style={{alignSelf:'center'}}>
+          <GradientButton
+        text={!decoded?'Show':'Hide'}
+        colors={['#FF8DF4', '#89007C']}
+        onPress={() => {
+          //
+        !decoded?
+          decryptFromDevice():setDecoded(false)
+          //decryptText();
+        }}
+      />
+      </View>
+
+          <FlatList
+          data={phrase.split(' ')}
+          numColumns={2}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({item, index}) => (
+            <SeedPhraseButton item={item} index={index} />
+          )}
+        />
+          
+      </View>
+  }
       
+      {!decoded &&
+      <View>
         <Text
           style={{
             color: 'white',
@@ -164,28 +167,23 @@ const RestoreFromDevice = ({navigation, route}) => {
           onTextChange={password => setPin(password)}
         />
       </View>
+      }
       <View></View>
 
       <GradientButton
-        text={' Confirm '}
+        text={!decoded?'Show':'Hide'}
         colors={['#FF8DF4', '#89007C']}
         onPress={() => {
           //
-          setLoading(true)
-          decryptFromDevice();
+        !decoded?
+          decryptFromDevice():setDecoded(false)
           //decryptText();
         }}
-      /></>}
-
+      />
+      
       <View></View>
-
-      {/* <ProgressDialog 
-        open={open}
-        setOpen={setOpen}
-        completed={false}
-      /> */}
     </View>
   );
 };
 
-export default RestoreFromDevice;
+export default ViewSeedPhrase;

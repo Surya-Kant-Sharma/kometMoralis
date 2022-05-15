@@ -10,7 +10,8 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Linking,
-  ToastAndroid
+  ToastAndroid,
+  Image
 } from 'react-native';
 import { themeColor } from '../../common/theme';
 import { typography } from '../../common/typography';
@@ -36,6 +37,7 @@ import { createSmartWallet, isVault } from '../../Utils/SmartWallet';
 import { Locations } from '../../Utils/StorageLocations';
 import { useWalletConnect } from "../../../frontend/WalletConnect";
 import { useMoralis } from 'react-moralis';
+import GradientButton from '../../components/GradientButton';
 
 
 const Home = ({ navigation, route }) => {
@@ -230,7 +232,7 @@ const Home = ({ navigation, route }) => {
             colors={['#FE85F2', '#B02FA4']}>
             <TouchableOpacity style={{ ...styles.headerDropdownContainer }} onPress={(vault)?()=>setVaultModal(true):()=>createSW()}>
               <Entypo name={'wallet'} size={20} />
-              <Text style={styles.dropDownText}>{(vault) ? 'open vault' : 'Create Smart Vault'}</Text>
+              <Text style={styles.dropDownText}>{(vault) ? 'Open Vault' : 'Create Smart Vault'}</Text>
             </TouchableOpacity>
           </LinearGradient>
           <TouchableOpacity
@@ -328,14 +330,16 @@ const Home = ({ navigation, route }) => {
             <View
               style={{
                 flex: 1,
-                justifyContent: 'flex-end',
+                justifyContent: 'flex-start',
+
               }}>
               <View
                 style={{
                   borderTopRightRadius: 10,
                   borderTopLeftRadius: 10,
-                  backgroundColor: '#2F2F3A',
-                  alignItems: 'flex-start',
+                  width:'100%',
+                  backgroundColor:themeColor.primaryBlack,
+                  height:'100%',
                   padding: 15,
                 }}>
                 <View
@@ -346,26 +350,19 @@ const Home = ({ navigation, route }) => {
                     marginBottom: 30,
                     alignSelf: 'center',
                   }}></View>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: typography.medium,
-                    color: 'white',
-                  }}>
-                    Do you want to create a Secret Vault?
-                </Text>
-
+                <Image source={require('../../../assets/images/E-wallet.png')} style={{alignSelf:'center'}}/>
+                <Text style={{fontFamily:typography.medium,fontSize:24,color:'white',alignSelf:'center',marginVertical:15}}>Create Komet smart vault</Text>
+                <Text style={{textAlign:'center',fontFamily:typography.medium,fontSize:16,color:'rgba(255,255,255,0.60)',alignSelf:'center',marginVertical:15}}>lorem ispusm jhiredf rwid wkeof uiofr poustyr quedro multia</Text>
                 <View style={{ alignSelf: 'center' }}>
-                  <BorderButton
-                  size={150}
-                    borderColor={'#FF8DF4'}
-                    text={'Confirm'}
-                    onPress={()=>createSW()}
+                  <GradientButton
+                  text={'Create Vault'}
+                  colors={['#FF8DF4', '#89007C']}
+                  onPress={()=>{setVaultModal(false);createSW()}}
                   />
                   <BorderButton
                   size={150}
                     borderColor={'#FF8DF4'}
-                    text={'Cancel'}
+                    text={'Not Now'}
                     onPress={() => {
                       setVaultModal(false);
                       //navigation.navigate('RestoreFromDevice');

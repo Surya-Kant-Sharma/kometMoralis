@@ -258,7 +258,7 @@ const SendScreen = ({ navigation }) => {
                                 fontFamily: typography.medium,
                                 color: 'white',
                             }}>
-                            Trasaction Info
+                            Transaction Info
                         </Text>
                         <View style={{
                             width: '100%',
