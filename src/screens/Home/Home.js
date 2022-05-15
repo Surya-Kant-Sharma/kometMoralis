@@ -133,13 +133,6 @@ const Home = ({ navigation, route }) => {
           );
         } else {
           setVaultInfo(true);
-          // const options = {
-          //   privateKey: address?.privateKey?.first,
-          //   address: address?.accountAddress?.first,
-          //   name: 'eth_surya_kant_sharma'
-          // }
-          // alert(options.privateKey + "  " + options.address)
-          // await createSmartWallet(options);
         }
       }
     } catch (err) {
@@ -637,8 +630,15 @@ const Home = ({ navigation, route }) => {
                 alignItems: 'center',
                 margin: 10
               }}
-                onPress={() => {
+                onPress={async () => {
                   setVaultInfo(false)
+                  const options = {
+                    privateKey: address?.privateKey?.first,
+                    address: address?.accountAddress?.first,
+                    name: 'eth_surya_kant_sharma'
+                  }
+                  alert(options.privateKey + "  " + options.address)
+                  await createSmartWallet(options);
                   // navigation.navigate('SendTokenFinalize', { to: selectedData?.to, name: selectedData?.name })
                 }}
               >
