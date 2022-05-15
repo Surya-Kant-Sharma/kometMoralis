@@ -31,18 +31,22 @@ const { width, height } = Dimensions.get('screen');
 import { ethers } from 'ethers';
 import { getDataLocally } from '../../Utils/AsyncStorage';
 import { Locations } from '../../Utils/StorageLocations';
+import useNativeBalance from '../../../frontend/hooks/useNativeBalance';
+import { setAddress } from '../../store/Actions/action';
 
 console.ignoredYellowBox = ['Setting a timer'];
 
 const Profile = ({ navigation }) => {
   const eoaTwo = useSelector(state => state.address);
-  const [assets, setAssets] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState('');
   const [otherAssets, setOtherAssets] = useState([]);
   const [balance, setBalance] = useState(0);
   const [selectedMode, setSelectedMode] = useState();
   const [open, setOpen] = useState();
   const [value, setValue] = useState('EOA2')
+  const [Modes, setModes] = useState(['EOA2'])
   const address = useSelector(state => state.address);
+  const otherWalletAddress = useSelector(state => state.otherWallet);
   const eoaBalance = useSelector(state => state.eoaBalance);
   const {
     authenticate,
@@ -57,7 +61,8 @@ const Profile = ({ navigation }) => {
 
   let MODES = ['EOA2'];
 
-  console.log(eoaBalance)
+  const { nativeBalance } = useNativeBalance('0x13881');
+  console.log("matic ",nativeBalance)
 
   const fetchAssets = async () => {
     await fetch('https://api.opensea.io/api/v1/collections?offset=0&limit=300')
@@ -71,19 +76,19 @@ const Profile = ({ navigation }) => {
   useEffect(() => {
     getSelectedItemInfo()
     getModesBalance()
-
-  }, [value])
+    getExternalWallet()
+  }, [value, isAuthenticated])
 
   const getSelectedItemInfo = () => {
     switch (value) {
       case 'EOA2':
-        setSelectedMode(address?.accountAddress?.second)
+        setSelectedAddress(address?.accountAddress?.second)
         getModesBalance(address?.accountAddress?.second)
         break
       case 'Vault':
         break
       case 'External Wallet':
-        setSelectedMode(address)
+        getOtherWalletBalance()
         break
       default:
         alert('no such feild are present')
@@ -104,8 +109,18 @@ const Profile = ({ navigation }) => {
 
   const getExternalWallet = () => {
     if (isAuthenticated) {
-      MODES.push('External Wallet')
+      console.log(Modes.indexOf('External Wallet'))        
+      if (Modes.indexOf('External Wallet') == -1) {
+        setModes(pre => [...pre, 'External Wallet'])
+      }
+      
+      
     }
+  }
+
+  const getOtherWalletBalance = () => {
+    setSelectedAddress(otherWalletAddress)
+    setBalance(nativeBalance)
   }
 
   const getModesBalance = async (address) => {
@@ -172,7 +187,7 @@ const Profile = ({ navigation }) => {
                   color: 'rgba(255,255,255,0.80)',
                   fontSize: 10,
                 }}>
-                {address.accountAddress.second || '0xff4533223454'}
+                {selectedAddress || '0xff4533223454'}
               </Text>
             </View>
           </View>
@@ -206,12 +221,12 @@ const Profile = ({ navigation }) => {
 
 
 
-      {(isAuthenticated) ? 
+      {(isAuthenticated) ?
         <AssetsLog
           image={'https://ffnews.com/wp-content/uploads/2021/07/q4itcBEb_400x400-300x300.jpg'}
           coinName={'Polygon'}
           symbol={'MATIC'}
-          value={'parseFloat(address.balance.second).toPrecision(4)'}
+          value={parseFloat(balance).toPrecision(4)}
           price={'0.6'}
           change={balance}
           chain={'polygon'}
@@ -235,7 +250,7 @@ const Profile = ({ navigation }) => {
         <TouchableOpacity style={{ borderRadius: 15, padding: 10, flexDirection: 'row', alignItems: 'center' }}><Text style={{ fontFamily: typography.medium, color: 'white', fontSize: 14, color: 'white' }}>Showcase</Text></TouchableOpacity>
         <TouchableOpacity style={{ borderRadius: 15, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, height: 35 }}><MaterialIcons name={'keyboard-arrow-down'} size={16} color={'white'} /></TouchableOpacity>
       </View>
-      <NFTAssets />
+      <NFTAssets chain={'0x13881'}/>
 
       {/* {'Account Select Modal'} */}
       <Modal
@@ -273,7 +288,7 @@ const Profile = ({ navigation }) => {
               }}>
               Select Modes
             </Text>
-            {MODES.map((item, index) => (
+            {Modes.map((item, index) => (
               <TouchableOpacity
                 key={item.toString()}
                 onPress={() => {

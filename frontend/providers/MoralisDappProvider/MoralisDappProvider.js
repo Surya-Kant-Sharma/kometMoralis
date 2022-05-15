@@ -37,7 +37,7 @@ function MoralisDappProvider({children}) {
     // </MoralisDappContext.Provider>
 
     //USE THIS DURING PRODUCTION
-    <MoralisDappContext.Provider value={{walletAddress, chainId: '0x1'}}>
+    <MoralisDappContext.Provider value={{walletAddress, chainId: '0x13881'}}>
       {children}
     </MoralisDappContext.Provider>
   );

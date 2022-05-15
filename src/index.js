@@ -55,13 +55,13 @@ const RootNavigation = () => {
     }
   }
 
-  React.useState(() => userLogin(), [])
+  // React.useState(() => userLogin(), [])
 
   return (
     <Provider store={appStore}>
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName={(userInfo) ? 'Splash' : 'Dashboard'}
+        initialRouteName={(false) ? 'Splash' : 'Dashboard'}
         screenOptions={{
           cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
           headerShown: false,

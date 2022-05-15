@@ -331,7 +331,8 @@ const SwapToken = ({ navigation, route }) => {
             <View style={{ alignItems: 'center' }}>
               <GradientButton
                 text={'Transfer'}
-                colors={['#FF8DF4', '#89007C']}
+                colors={ (balanceVault > 0) ? ['#FF8DF4', '#89007C'] : ['rgba(0,0,0, 0.2)', 'rgba(0,0,0, 0.2)']}
+                disabled={(balanceVault > 0) ? false : true}
                 onPress={() => {
                   if ((selectedData.from != '') && (selectedData.to != '') && amount != '') {
                     const object = {
@@ -345,7 +346,7 @@ const SwapToken = ({ navigation, route }) => {
                     }, 6000)
                     setConfirm(true)
                   } else {
-                    alert('Please Fill The Amount')
+                    alert('Please fill the amount')
                   }
                 }}
               />

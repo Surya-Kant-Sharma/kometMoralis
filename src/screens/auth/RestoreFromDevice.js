@@ -51,7 +51,7 @@ const RestoreFromDevice = ({navigation, route}) => {
   const decryptFromDevice = async () => {
     const text = await decryptText(pin);
     if (text.length > 0) {
-      // Alert.alert(text)
+      alert(text)
       fetchPrivateKey(text);
     }
   };
