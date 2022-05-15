@@ -29,7 +29,7 @@ import { getAccountDetails } from '../../Utils/ImportWallet';
 import { getAccountInfo, getDataLocally } from '../../Utils/AsyncStorage';
 import { getOtherWalletAddress, getWallets, setAddress, setEoaBalance } from '../../store/Actions/action';
 import AlertConfirm from '../../components/Alert';
-import Clipboard from '@react-native-community/clipboard';
+// import Clipboard from '@react-native-community/clipboard';
 import { eoa2Balance } from '../../Utils/Balance';
 import { walletProvider } from '../../Utils/Provider';
 import { createSmartWallet, isVault } from '../../Utils/SmartWallet';
@@ -37,21 +37,24 @@ import { Locations } from '../../Utils/StorageLocations';
 import { useWalletConnect } from "../../../frontend/WalletConnect";
 import { useMoralis } from 'react-moralis';
 
+
 const Home = ({ navigation, route }) => {
 
   const address = useSelector(state => state.address);
-  const eoaBalance = useSelector(state => state.eoaBalance);
+  // const eoaBalance = useSelector(state => state.eoaBalance);
   const dispatch = useDispatch();
   const fetchAddress = address => dispatch(setAddress(address));
   const setEOABalance = balance => dispatch(setEoaBalance(balance));
-  const [balance, setBalance] = useState(eoaBalance || 0);
+  const [balance, setBalance] = useState(0);
+  const [eoaOneBalance, setEoaOneBalance] = useState(0);
   const [vault, setVault] = useState(false);
-  const fetchOtherWallet=(add)=>dispatch(getOtherWalletAddress(add))
-  const fetchWallets=(add)=>dispatch((getWallets(add)))
+  const fetchOtherWallet = (add) => dispatch(getOtherWalletAddress(add))
+  const fetchWallets = (add) => dispatch((getWallets(add)))
   const [value, setValue] = useState('Polygon Testnet');
   const [open, setOpen] = useState(false);
   const [vaultModal,setVaultModal]=useState(false)
   const [networkModal, setNetworkModal] = useState(false);
+  const [vaultInfo, setVaultInfo] = useState(false);
   const [networks, setNetworks] = useState([
     'Ethereum Mainnet',
     'Binance Smart Chain',
@@ -77,6 +80,7 @@ const Home = ({ navigation, route }) => {
   React.useEffect(() => {
     getDataFromTheLocally()
     getSWallet()
+    getEoaBalance()
   }, [])
 
   useEffect(() => {
@@ -86,7 +90,7 @@ const Home = ({ navigation, route }) => {
   }, [isAuthenticated]);
 
 
-  const handleCryptoLogin = async() => {
+  const handleCryptoLogin = async () => {
     await authenticate({ connector })
       .then(() => {
         //navigation.navigate('Profile')
@@ -100,19 +104,19 @@ const Home = ({ navigation, route }) => {
           }
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
 
-  const createSW = async() => {
+  const createSW = async () => {
 
     try {
 
       if (vault) {
         navigation.navigate('Vault')
       } else {
-  
-        if (eoaBalance < 0.2) {
+
+        if (eoaOneBalance > 0.2) {
           AlertConfirm(
             'Insufficient funds',
             'You Need At least 0.002 Matic from create smart wallet \n\n',
@@ -124,18 +128,12 @@ const Home = ({ navigation, route }) => {
                 ToastAndroid.CENTER
               );
               setTimeout(() => Linking.openURL("https://faucet.polygon.technology/"), 500)
-  
+
             },
             () => console.log('dismiss')
           );
         } else {
-          const options = {
-            privateKey : address?.privateKey?.first,
-            address : address?.accountAddress?.first,
-            name : 'eth_surya_kant_sharma'
-          }
-          alert(options.privateKey + "  " + options.address)
-          await createSmartWallet(options);
+          setVaultInfo(true);
         }
       }
     } catch (err) {
@@ -149,7 +147,7 @@ const Home = ({ navigation, route }) => {
       const value = await getAccountInfo();
       // console.log(value);
       fetchAddress(value);
-      listenBalance('0x4bAecAd2C2ad9AD8B06Be25D7B83A5C0aCdE816E')
+      listenBalance(address?.accountAddress?.second?.toString())
       // const options = {
       //   privateKey: value?.privateKey?.first,
       //   address: value?.accountAddress?.first
@@ -198,13 +196,29 @@ const Home = ({ navigation, route }) => {
     try {
       const data = await getDataLocally(Locations.SMARTACCOUNTS);
       console.log(data)
-      if(data?.address) {
+      if (data?.address) {
         setVault(true)
       }
       return data
     } catch (err) {
       alert(err.message)
     }
+  }
+
+  const getEoaBalance = async () => {
+    try {
+      const connection = await new ethers.providers.JsonRpcProvider(
+        "https://matic-mumbai.chainstacklabs.com"
+      );
+      const firstAddress = await connection.getBalance(address?.accountAddress?.first)
+      const bal = ethers.utils.formatEther(firstAddress)
+      setEoaOneBalance(bal)
+      // alert(bal)
+    } catch (err) {
+      console.log(err)
+      alert(err.message)
+    }
+
   }
 
   return (
@@ -226,7 +240,7 @@ const Home = ({ navigation, route }) => {
               backgroundColor: '#343153',
             }}>
             <AntDesign name={'qrcode'} color={'white'} size={28} />
-            <Text style={styles.dropDownText}> {!isAuthenticated?'Connect Wallet':'Open Other Wallet'} </Text>
+            <Text style={styles.dropDownText}> {!isAuthenticated ? 'Connect Wallet' : 'Open Other Wallet'} </Text>
           </TouchableOpacity>
         </View>
         <View style={styles.textContainer}>
@@ -373,7 +387,7 @@ const Home = ({ navigation, route }) => {
                 backgroundColor: themeColor.primaryBlack,
                 padding: 30,
               }}>
-              <Header navigation={navigation}/>
+              <Header navigation={navigation} />
               <View>
                 <Text
                   style={{
@@ -518,7 +532,7 @@ const Home = ({ navigation, route }) => {
                 }}>
                 <TouchableOpacity
                   style={{ alignItems: 'center', justifyContent: 'center' }}>
-<AntDesign name={'arrowup'} color={'white'} size={28} />
+                  <AntDesign name={'arrowup'} color={'white'} size={28} />
                 </TouchableOpacity>
               </LinearGradient>
               <Text
@@ -544,7 +558,7 @@ const Home = ({ navigation, route }) => {
                 }}>
                 <TouchableOpacity
                   style={{ alignItems: 'center', justifyContent: 'center' }}>
-<AntDesign name={'arrowdown'} color={'white'} size={28} />
+                  <AntDesign name={'arrowdown'} color={'white'} size={28} />
                 </TouchableOpacity>
               </LinearGradient>
               <Text
@@ -557,7 +571,7 @@ const Home = ({ navigation, route }) => {
                 Receive
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('SwapToken', { path : 'home'})}>
+            <TouchableOpacity onPress={() => navigation.navigate('SwapToken', { path: 'home' })}>
               <LinearGradient
                 colors={['#FF84F3', '#B02FA4']}
                 style={{
@@ -569,7 +583,7 @@ const Home = ({ navigation, route }) => {
                 }}>
                 <TouchableOpacity
                   style={{ alignItems: 'center', justifyContent: 'center' }}>
-<AntDesign name={'swap'} color={'white'} size={28} />
+                  <AntDesign name={'swap'} color={'white'} size={28} />
                 </TouchableOpacity>
               </LinearGradient>
               <Text
@@ -584,6 +598,124 @@ const Home = ({ navigation, route }) => {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* FOR CREATE WALLET APP */}
+
+        <Modal
+          visible={vaultInfo}
+          transparent
+          onRequestClose={() => setVaultInfo(false)}
+        >
+
+          <View
+            style={{
+              flex: 1,
+              zIndex: 0,
+              justifyContent: 'flex-start',
+              backgroundColor: 'rgba(14,14,14,0.6)'
+            }}>
+            <TouchableOpacity style={{ flex: 1 }} ></TouchableOpacity>
+            <View
+              style={{
+                flex: 1,
+                borderTopRightRadius: 10,
+                borderTopLeftRadius: 10,
+                backgroundColor: '#2F2F3A',
+                alignItems: 'flex-start',
+                padding: 15,
+              }}>
+
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontFamily: typography.medium,
+                  color: 'white',
+                }}>
+                Waht Is Vault ?
+              </Text>
+
+              <View style={{
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+                <MaterialIcons style={{ width: '80%', alignItems: 'center', marginLeft: 120, margin: 40 }} name="account-balance" size={120} />
+              </View>
+
+              <View style={{
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontFamily: typography.thin,
+                    color: 'white',
+                  }}>
+                  This is a vault for storing your assets with three layers of security with our wallet.
+                </Text>
+              </View>
+
+            </View>
+          </View>
+          <View>
+            <View style={{
+              flexDirection: 'row'
+            }}>
+
+              <TouchableOpacity style={{
+                width: '50%',
+                height: 40,
+                backgroundColor: '#B02FA4',
+                borderRadius: 20,
+                justifyContent: 'center',
+                alignItems: 'center',
+                margin: 10
+              }}
+                onPress={() => {
+                  setVaultInfo(false)
+                  // Linking.openURL("https://mumbai.polygonscan.com/tx/" + selectedData?.hash)
+                }}
+              >
+                <Text style={{ fontWeight: 'bold', color: 'white' }}>Create Vault</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{
+                width: '50%',
+                height: 40,
+                backgroundColor: '#B02FA4',
+                borderRadius: 20,
+                justifyContent: 'center',
+                alignItems: 'center',
+                margin: 10
+              }}
+                onPress={async () => {
+                  setVaultInfo(false)
+                  const options = {
+                    privateKey: address?.privateKey?.first,
+                    address: address?.accountAddress?.first,
+                    name: 'eth_surya_kant_sharma'
+                  }
+                  alert(options.privateKey + "  " + options.address)
+                  await createSmartWallet(options);
+                  // navigation.navigate('SendTokenFinalize', { to: selectedData?.to, name: selectedData?.name })
+                }}
+              >
+                <Text style={{ fontWeight: 'bold', color: 'white' }}> Cancel </Text>
+              </TouchableOpacity>
+
+              {/* <View style={{ alignItems: 'center' }}>
+                                    <GradientButton
+                                        text={'Cancel'}
+                                        colors={['#FF8DF4', '#89007C']}
+                                        onPress={() => {
+                                            //            navigation.navigate('RestoreFromPhrase');
+                                            setConfirm(false)
+                                        }}
+                                    />
+                                </View> */}
+            </View>
+          </View>
+        </Modal>
+
       </ScrollView>
     </View>
   );

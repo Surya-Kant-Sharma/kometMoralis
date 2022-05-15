@@ -12,42 +12,46 @@ import {setAddress, setBalance} from '../../store/Actions/action';
 
 import {decryptText} from '../../common/fileFunctions';
 import { walletProvider } from '../../Utils/Provider';
+import ProgressDialog from '../../components/ProgressDialog';
+import { getAccountDetails } from '../../Utils/ImportWallet';
+import { setAccountInfo } from '../../Utils/AsyncStorage';
 var RNFS = require('react-native-fs');
 
 const RestoreFromDevice = ({navigation, route}) => {
   const [pin, setPin] = useState('');
   const [confirmed, setConfirmed] = useState(false);
   const [confirmedPin, setConfirmedPin] = useState('');
+  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   var provider;
+
   const fetchAddress = address => dispatch(setAddress(address));
   const fetchBalance = balance => dispatch(setBalance(balance));
 
-  const fetchPrivateKey = async string => {
-     provider = new ethers.providers.JsonRpcProvider(
-       'https://rinkeby.infura.io/v3/d02fb37024ef430b8f15fdacf9134ccc',
-     );
-
-    
-
+  const fetchPrivateKey = async (text) => {
+    console.log('start fetching')
     try {
-      const walletfromPhrase = new ethers.Wallet.fromMnemonic(string);
-      const wallet = new ethers.Wallet(walletfromPhrase.privateKey, provider);
-      console.log(wallet);
-      const balance = await provider.getBalance(wallet.address);
-      fetchAddress(wallet.address);
-      //fetchBalance(balance);
+      // var string = formatString();
+      setOpen(true);
+      const WalletInfo = await getAccountDetails(text);
+      if(WalletInfo) {
+        fetchAddress(WalletInfo);
+        setAccountInfo(WalletInfo);
+        alert(WalletInfo?.accountAddress?.first)
+      }
       navigation.navigate('Dashboard');
+      setOpen(false);
     } catch (error) {
-      console.log(error);
-      //alert(err.message)
+      console.log(error); 
+      setOpen(false);
     }
   };
+
 
   const decryptFromDevice = async () => {
     const text = await decryptText(pin);
     if (text.length > 0) {
-      Alert.alert(text)
+      alert(text)
       fetchPrivateKey(text);
     }
   };
@@ -130,6 +134,12 @@ const RestoreFromDevice = ({navigation, route}) => {
       />
 
       <View></View>
+
+      <ProgressDialog 
+        open={open}
+        setOpen={setOpen}
+        completed={false}
+      />
     </View>
   );
 };

@@ -1,17 +1,20 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {typography} from '../common/typography';
+import { typography } from '../common/typography';
 
-const GradientButton = ({colors, text, onPress, disabled,size}) => {
+const GradientButton = ({ colors, text, onPress, disabled }) => {
   return (
     <TouchableOpacity onPress={onPress} disabled={disabled || false}>
       <LinearGradient
         colors={colors}
-        start={{x: 0, y: 1}}
-        end={{x: 1, y: 0}}
-        style={{...styles.gradientButton,width:size || 243}}>
-        <Text style={styles.buttonText}>{text}</Text>
+        start={{ x: 0, y: 1 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.gradientButton}>
+        <Text style={{
+          ...styles.buttonText,
+          color: (disabled) ? 'gray' : 'white'
+        }}>{text}</Text>
       </LinearGradient>
     </TouchableOpacity>
   );
@@ -30,5 +33,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 243,
   },
-  buttonText: {color: 'white', fontFamily: typography.semiBold},
+  buttonText: { color: 'white', fontFamily: typography.semiBold },
 });

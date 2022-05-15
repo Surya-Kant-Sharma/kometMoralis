@@ -18,7 +18,7 @@ const getAccountDetails = async (mnemonic) => {
         return {
             privateKey:{first: twoAccounts[0].privateKey, second: twoAccounts[1].privateKey},
             accountAddress: { first: twoAccounts[0].address, second: twoAccounts[1].address },
-            balance: { first: ethers.utils.formatEther(firstAddress), second: ethers.utils.formatEther(secondAddress) }
+            // balance: { first: ethers.utils.formatEther(firstAddress), second: ethers.utils.formatEther(secondAddress) }
         }
     } catch (err) {
         alert(err?.message)

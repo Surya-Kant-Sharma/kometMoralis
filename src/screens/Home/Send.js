@@ -22,9 +22,6 @@ const SendScreen = ({ navigation }) => {
     const [data, setData] = useState([]);
     const [selectedData, setSelectedData] = useState();
 
-    const tryRunAtATime = React.useCallback(() => {
-        getTransactionList();
-    }, [])
 
     useEffect(() => {
         getTransactionList();
@@ -38,7 +35,6 @@ const SendScreen = ({ navigation }) => {
     const getTransactionList = async () => {
         try {
             const data = await getDataLocally(Locations.SENDTRANSACTIONS);
-            // console.log(data)
             setData(data);
         } catch (err) {
             alert(err.message)
@@ -330,17 +326,6 @@ const SendScreen = ({ navigation }) => {
                                 >
                                     <Text style={{ fontWeight: 'bold', color: 'white' }} >Send Again</Text>
                                 </TouchableOpacity>
-
-                                {/* <View style={{ alignItems: 'center' }}>
-                                    <GradientButton
-                                        text={'Cancel'}
-                                        colors={['#FF8DF4', '#89007C']}
-                                        onPress={() => {
-                                            //            navigation.navigate('RestoreFromPhrase');
-                                            setConfirm(false)
-                                        }}
-                                    />
-                                </View> */}
                             </View>
                         </View>
 
