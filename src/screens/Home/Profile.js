@@ -32,8 +32,8 @@ import { ethers } from 'ethers';
 import { getDataLocally } from '../../Utils/AsyncStorage';
 import { Locations } from '../../Utils/StorageLocations';
 import useNativeBalance from '../../../frontend/hooks/useNativeBalance';
-import { setAddress } from '../../store/Actions/action';
-import { copyToClipboard } from '../../Utils/CopytoClipboard';
+import { getWallets, setAddress } from '../../store/Actions/action';
+import { getSmartWalletBalance } from '../../Utils/SmartWallet';
 
 console.ignoredYellowBox = ['Setting a timer'];
 
@@ -43,9 +43,9 @@ const Profile = ({ navigation }) => {
   const [otherAssets, setOtherAssets] = useState([]);
   const [balance, setBalance] = useState(0);
   const [selectedMode, setSelectedMode] = useState();
-  const [open, setOpen] = useState();
-  const [value, setValue] = useState('EOA2')
-  const [Modes, setModes] = useState(['EOA2'])
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState('Komet Wallet')
+  const [Modes, setModes] = useState(['Komet Wallet'])
   const address = useSelector(state => state.address);
   const otherWalletAddress = useSelector(state => state.otherWallet);
   const eoaBalance = useSelector(state => state.eoaBalance);
@@ -82,17 +82,18 @@ const Profile = ({ navigation }) => {
 
   const getSelectedItemInfo = () => {
     switch (value) {
-      case 'EOA2':
+      case 'Komet Wallet':
         setSelectedAddress(address?.accountAddress?.second)
         getModesBalance(address?.accountAddress?.second)
         break
       case 'Vault':
+        getVaultDetails();
         break
       case 'External Wallet':
         getOtherWalletBalance()
         break
       default:
-        alert('no such feild are present')
+        alert('No such feild are present')
     }
   }
 
@@ -100,13 +101,47 @@ const Profile = ({ navigation }) => {
   const getVaultInfo = async () => {
     try {
       const info = await getDataLocally(Locations.SMARTACCOUNTS);
-      if (info)
-        MODES.push("Vault")
-      alert(info);
+      if (info?.address)
+        // MODES.push("Vault")
+        if (Modes.indexOf('Vault') == -1) {
+          setModes(pre => [...pre, 'Vault'])
+        }
+      // alert(info);
     } catch (err) {
-      alert(err.message)
+      // alert(err.message)
     }
   }
+
+  const getVaultDetails = async() => {
+    try {
+      const info = await getDataLocally(Locations.SMARTACCOUNTS);
+      if (info?.address){
+        setSelectedAddress(info?.address)
+        const bal = await getVaultBalance({
+          privateKey: address?.privateKey?.first,
+          address: info?.address
+        })
+        // setBalance(0)
+      }
+      
+      // alert(info);
+    } catch (err) {
+      // alert(err.message)
+    }
+  }
+  
+  const getVaultBalance = async (options) => {
+    try {
+      const balance = await getSmartWalletBalance(options);
+      setBalance(balance)
+      // console.log(balance);
+    } catch (err) {
+      console.log(err.message)
+    //   alert(err.message)
+    }
+  }
+
+
 
   const getExternalWallet = () => {
     if (isAuthenticated) {
@@ -135,7 +170,7 @@ const Profile = ({ navigation }) => {
       // alert(bal)
     } catch (err) {
       console.log(err)
-      alert(err.message)
+      // alert(err.message)
     }
 
   }
@@ -180,7 +215,6 @@ const Profile = ({ navigation }) => {
                 Victoria
               </Text>
               <Text
-                onPress={()=>copyToClipboard(selectedAddress)}
                 numberOfLines={1}
                 ellipsizeMode={'middle'}
                 style={{
@@ -217,7 +251,7 @@ const Profile = ({ navigation }) => {
             </Text>
 
             <MaterialIcons name={'keyboard-arrow-down'} size={16} color={'#453E9F'} /></TouchableOpacity>
-          <Text style={{ fontFamily: typography.semiBold, color: 'white', fontSize: 18 }}>$ 1400.99</Text>
+          <Text style={{ fontFamily: typography.semiBold, color: 'white', fontSize: 18 }}>$ {(parseFloat(balance).toPrecision(4) * 0.6).toPrecision(2) * 0.6}</Text>
         </View>
       </View>
 

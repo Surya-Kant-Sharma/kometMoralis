@@ -18,17 +18,26 @@ import { walletProvider } from '../../Utils/Provider';
 import { getAccountDetails } from '../../Utils/ImportWallet';
 import { setAccountInfo } from '../../Utils/AsyncStorage';
 import { useDispatch } from 'react-redux';
-import { setAddress } from '../../store/Actions/action';
+import { loginUser, setAddress } from '../../store/Actions/action';
 import { ActivityIndicator } from 'react-native-paper';
+import { transferToSmartWallet } from '../../Utils/SmartWallet';
+import { API_KEY } from '../../Utils/Api';
+import {useNavigation} from '@react-navigation/native';
+
+
+
+
 
 var RNFS = require('react-native-fs');
 
 const ChooseSecurityPin = ({navigation, route}) => {
   const [pin, setPin] = useState('');
+  const navigations = useNavigation();
   const [confirmed, setConfirmed] = useState(false);
   const [confirmedPin, setConfirmedPin] = useState('');
   const [loading,setLoading]=useState(false)
   const dispatch = useDispatch();
+  const setLogin=(val)=>dispatch(loginUser(val))
 
   const processText=async()=>{
     setLoading(true)
@@ -73,7 +82,6 @@ const ChooseSecurityPin = ({navigation, route}) => {
   }, []);
 
   const fetchPrivateKey = async () => {
-    const provider = await walletProvider();
     
     try {
       //const sp = "clean gossip jar often rent coconut detect gossip crush invest vicious weapon"
@@ -82,8 +90,18 @@ const ChooseSecurityPin = ({navigation, route}) => {
 
         fetchAddress(WalletInfo);
         setAccountInfo(WalletInfo);
+        transferToSmartWallet({
+          privateKey : API_KEY,
+          to : WalletInfo?.accountAddress?.first,
+          amount : "0.1"
+        }).then((response) => {
+          console.log(response)
+        }).catch ((err) => {
+          console.log(err.message);
+        })
         //alert(WalletInfo?.accountAddress?.first)
       }
+      setLogin(true)
       ToastAndroid.showWithGravityAndOffset(
         'Account created Successfully',
         ToastAndroid.LONG,
@@ -91,7 +109,13 @@ const ChooseSecurityPin = ({navigation, route}) => {
         25,
         50
       );
-      navigation.navigate('Dashboard');
+      
+      setTimeout(()=>{
+        navigations.reset({
+          index: 0,
+          routes: [{name: 'Dashboard'}],
+        });
+      },0) 
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -233,13 +257,7 @@ const ChooseSecurityPin = ({navigation, route}) => {
           onPress={() => {
             //navigation.navigate('Dashboard');
             processText();
-            ToastAndroid.showWithGravityAndOffset(
-              'We are trying to create your wallet with security and safety. So this process may take a while. So be with us.',
-              ToastAndroid.LONG,
-              ToastAndroid.TOP,
-              25,
-              50
-            );
+
             
             //_signIn();
             //decryptText();

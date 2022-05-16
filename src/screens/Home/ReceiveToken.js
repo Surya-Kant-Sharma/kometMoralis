@@ -1,18 +1,24 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, TextInput} from 'react-native';
-import {themeColor} from '../../common/theme';
+import { View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { themeColor } from '../../common/theme';
 import Header from '../../components/Header';
 import Send from '../../../assets/svg/Send.svg';
 import LinearGradient from 'react-native-linear-gradient';
-import {typography} from '../../common/typography';
+import { typography } from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign'
 // import ReceiveIcon from '../../../assets/svg/ReceiveIcon.svg';
-const ReceiveToken = ({navigation}) => {
+import QRCode from 'react-native-qrcode-generator';
+import { useSelector } from 'react-redux';
+
+const ReceiveToken = ({ navigation }) => {
+
+  const address = useSelector(state => state.address);
+
   return (
     <View
-      style={{flex: 1, backgroundColor: themeColor.primaryBlack, padding: 30}}>
-     <Header navigation={navigation}/>
+      style={{ flex: 1, backgroundColor: themeColor.primaryBlack, padding: 30 }}>
+      <Header navigation={navigation} />
       <View>
         <LinearGradient
           colors={['#FF84F3', '#B02FA4']}
@@ -26,8 +32,8 @@ const ReceiveToken = ({navigation}) => {
             marginBottom: 20,
           }}>
           <TouchableOpacity
-            style={{alignItems: 'center', justifyContent: 'center'}}>
-            <AntDesign name={'arrowup'} size={28} color={'white'} />
+            style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <AntDesign name={'arrowdown'} size={28} color={'white'} />
           </TouchableOpacity>
         </LinearGradient>
         <Text
@@ -40,7 +46,7 @@ const ReceiveToken = ({navigation}) => {
           Receive
         </Text>
       </View>
-      <View
+      {/* <View
         style={{
           borderRadius: 10,
           borderColor: '#C445B8',
@@ -61,7 +67,7 @@ const ReceiveToken = ({navigation}) => {
             flex: 1,
           }}
         />
-      </View>
+      </View> */}
       <View
         style={{
           borderRadius: 10,
@@ -85,6 +91,53 @@ const ReceiveToken = ({navigation}) => {
           {'  '}Receive via my QR code
         </Text>
       </View>
+
+      <View style={{
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+        <QRCode
+          value={address?.accountAddress?.second}
+          size={200}
+          bgColor='#232732'
+          fgColor='white' />
+      </View>
+      <View style={{
+        width: '100%',
+        justifyContent : 'center',
+        alignItems : 'center'
+      }}>
+
+
+        <Text
+          numberOfLines={1}
+          ellipsizeMode={'tail'}
+          style={{
+            fontFamily: typography.regular,
+            fontSize: 14,
+            color: 'white',
+            marginTop : 20
+          }}>
+          {address?.accountAddress?.second?.substring(0, 8) + "..." + address?.accountAddress?.second?.substring(34, address?.accountAddress?.second?.length)}
+        </Text>
+
+        <Text
+          numberOfLines={1}
+          ellipsizeMode={'tail'}
+          style={{
+            fontFamily: typography.regular,
+            fontSize: 12,
+            color: 'white',
+            marginTop : 160,
+          }}>
+          Share Qr-Code to Receive Matic On Testnet
+        </Text>
+
+
+      </View>
+
+
     </View>
   );
 };

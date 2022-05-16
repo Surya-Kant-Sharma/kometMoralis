@@ -30,39 +30,51 @@ import Vault from './screens/Home/vault';
 // import SendToken from './screens/Home/Send'
 import SendScreen from './screens/Home/Send';
 import SendTokenFinalize from './screens/Home/sendTokenFinalize';
-import { Provider } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import appStore from './store/store';
 import Collections from './screens/MarketPlace/Collections';
 import { Locations } from './Utils/StorageLocations';
 import ViewSeedPhrase from './screens/Profile/ViewSeedPhrase';
+import { loginUser } from './store/Actions/action';
 
 console.ignoredYellowBox = ['Setting a timer'];
 
 const RootNavigation = () => {
   const Stack = createStackNavigator();
+  const setLogin=(val)=>dispatch(loginUser(val))
+  const loggedIn=useSelector((state)=>state.logIn)
+  const dispatch=useDispatch();
 
   const [userInfo, setUserInfo] = React.useState(false);
 
   const userLogin = async () => {
     try {
       const data = await getDataLocally(Locations.ACCOUNTS) 
-      console.log(data)
-      setUserInfo(true);
+        setUserInfo(true);
+        console.log(userInfo)
+        setLogin(true)
       return data;
     } catch (err) {
+      setLogin(true)
       console.log(err)
       alert(err.message)
       return undefined
     }
   }
 
+  React.useEffect(()=>{
+    userLogin()
+    //console.log('Index',loggedIn)
+  },[])
+  
+
   // React.useState(() => userLogin(), [])
 
   return (
-    <Provider store={appStore}>
+    
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName={(true) ? 'Splash' : 'Dashboard'}
+        <Stack.Navigator
+        initialRouteName={'Splash'}
         screenOptions={{
           cardStyleInterpolator: CardStyleInterpolators.forNoAnimation,
           headerShown: false,
@@ -95,9 +107,10 @@ const RootNavigation = () => {
         <Stack.Screen name="ReceiveToken" component={ReceiveToken} />
         <Stack.Screen name="SwapToken" component={SwapToken} />
         <Stack.Screen name="ViewSeedPhrase" component={ViewSeedPhrase} />
-      </Stack.Navigator>
+        
+        </Stack.Navigator>
     </NavigationContainer>
-    </Provider>
+    
   );
 };
 

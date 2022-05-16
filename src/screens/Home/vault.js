@@ -136,6 +136,7 @@ const Home = ({ navigation, route }) => {
       const data = await getDataLocally(Locations.SMARTACCOUNTS);
       // alert(data.address)
       if (data.address) {
+        setSData(data)
         getBalance(data)
       }
     } catch (err) {
@@ -160,16 +161,16 @@ const Home = ({ navigation, route }) => {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: themeColor.primaryBlack,padding:30 }}>
+    <View style={{ flex: 1, backgroundColor: themeColor.primaryBlack, padding: 30 }}>
       <ScrollView nestedScrollEnabled
-       refreshControl={
+        refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
           />
         }
       >
-        <Header/>
+        <Header navigation={navigation}/>
         <View style={{ justifyContent: 'center', alignItems: 'center', }}>
           {/* <LinearGradient
             style={{ borderRadius: 20 }}
@@ -188,32 +189,32 @@ const Home = ({ navigation, route }) => {
             <ScanIcon />
             <Text style={styles.dropDownText}>Connect Wallet</Text>
           </TouchableOpacity> */}
-          <TouchableOpacity onPress={() => navigation.navigate('SwapToken', { path : 'vault'})}>
-              <LinearGradient
-                colors={['#FF84F3', '#B02FA4']}
-                style={{
-                  height: 64,
-                  width: 64,
-                  borderRadius: 64,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <TouchableOpacity
-                  style={{ alignItems: 'center', justifyContent: 'center' }}>
-                  <Ionicons name={'wallet'} color={'white'} size={32} />
-                </TouchableOpacity>
-              </LinearGradient>
-              
-            </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('SwapToken', { path: 'vault' })}>
+            <LinearGradient
+              colors={['#FF84F3', '#B02FA4']}
+              style={{
+                height: 64,
+                width: 64,
+                borderRadius: 64,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <TouchableOpacity
+                style={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name={'wallet'} color={'white'} size={32} />
+              </TouchableOpacity>
+            </LinearGradient>
+
+          </TouchableOpacity>
           <Text
             fontSize={20}
             numberOfLines={1}
             ellipsizeMode={'tail'}
             style={{
-             
+
               ...styles.addressText,
               fontSize: 20,
-              fontFamily:typography.semiBold,
+              fontFamily: typography.semiBold,
             }}>
             {"Komet Smart Vault"}
           </Text>
@@ -305,7 +306,7 @@ const Home = ({ navigation, route }) => {
                 flex: 1,
                 backgroundColor: themeColor.primaryBlack,
                 padding: 30,
-              }}><Header navigation={navigation}/><View>
+              }}><Header navigation={navigation} /><View>
                 <Text
                   style={{
                     fontSize: 12,
@@ -420,16 +421,27 @@ const Home = ({ navigation, route }) => {
           </TouchableOpacity>
 
           <Text style={styles.balanceText}>
-            $ {parseFloat(balance).toPrecision(2)}
+            $ {parseFloat(balance).toPrecision(2) * 0.6}
           </Text>
-          <TouchableOpacity style={styles.addressContainer} onPress={() => Clipboard.setString(sdata?.address?.toString())}>
+
+          <Text style={{
+            ...styles.addressText,
+            fontSize: 16,
+            margin: 4
+          }}>
+            {parseFloat(balance).toPrecision(2)} Matic
+          </Text>
+          <TouchableOpacity style={styles.addressContainer} onPress={() => {
+            Clipboard.setString(sdata?.address?.toString())
+            ToastAndroid.showWithGravity('Address Copied', ToastAndroid.LONG, ToastAndroid.CENTER)
+          }}>
             <Text
               numberOfLines={1}
               ellipsizeMode={'tail'}
               style={styles.addressText}>
-              {sdata?.address?.substring(0,8) + "..." + sdata?.address?.substring(34, sdata?.address?.length)}
+              {sdata?.address?.substring(0, 8) + "..." + sdata?.address?.substring(34, sdata?.address?.length)}
             </Text>
-            <MaterialIcons name='content-copy' size={14} style={{marginLeft : 20}}/>
+            <MaterialIcons name='content-copy' size={14} style={{ marginLeft: 20 }} />
           </TouchableOpacity>
           <View style={{ height: 50 }} />
           <View
@@ -438,13 +450,13 @@ const Home = ({ navigation, route }) => {
               alignItems: 'center',
               width: '80%',
             }}>
-           <TouchableOpacity style={{alignItems: 'center', alignItems: 'center'}} onPress={() => navigation.navigate('SwapToken', { path : 'vault'})}>
-        <GradientButton
-          text={' Swap '}
-          colors={['#FF8DF4', '#89007C']}
-          onPress={() => navigation.navigate('SwapToken', { path : 'vault'})}
-        />
-      </TouchableOpacity>
+            <TouchableOpacity style={{ alignItems: 'center', alignItems: 'center' }} onPress={() => navigation.navigate('SwapToken', { path: 'vault' })}>
+              <GradientButton
+                text={' Swap '}
+                colors={['#FF8DF4', '#89007C']}
+                onPress={() => navigation.navigate('SwapToken', { path: 'vault' })}
+              />
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

@@ -16,6 +16,7 @@ import ProgressDialog from '../../components/ProgressDialog';
 import { getAccountDetails } from '../../Utils/ImportWallet';
 import { setAccountInfo } from '../../Utils/AsyncStorage';
 var RNFS = require('react-native-fs');
+const setLogin=(val)=>dispatch(loginUser(val))
 
 const RestoreFromDevice = ({navigation, route}) => {
   const [pin, setPin] = useState('');
@@ -50,7 +51,10 @@ const RestoreFromDevice = ({navigation, route}) => {
           50
         );
         setLoading(false)
-        navigation.navigate('Dashboard');
+        navigation.goBack();
+        navigation.goBack();
+        navigation.goBack();
+        navigation.replace('Dashboard');
         setOpen(false);
       } catch (error) {
         console.log(error); 

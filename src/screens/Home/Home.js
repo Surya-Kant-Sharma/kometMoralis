@@ -38,11 +38,12 @@ import { Locations } from '../../Utils/StorageLocations';
 import { useWalletConnect } from "../../../frontend/WalletConnect";
 import { useMoralis } from 'react-moralis';
 import GradientButton from '../../components/GradientButton';
-import { copyToClipboard } from '../../Utils/CopytoClipboard';
+import Clipboard from '@react-native-community/clipboard';
+import ProgressDialog from '../../components/ProgressDialog';
+import { MaticPrice } from '../../Utils/Api';
 
 
 const Home = ({ navigation, route }) => {
-
   const address = useSelector(state => state.address);
   // const eoaBalance = useSelector(state => state.eoaBalance);
   const dispatch = useDispatch();
@@ -55,7 +56,8 @@ const Home = ({ navigation, route }) => {
   const fetchWallets = (add) => dispatch((getWallets(add)))
   const [value, setValue] = useState('Polygon Testnet');
   const [open, setOpen] = useState(false);
-  const [vaultModal,setVaultModal]=useState(false)
+  const [progress, setProgress] = useState(false);
+  const [vaultModal, setVaultModal] = useState(false)
   const [networkModal, setNetworkModal] = useState(false);
   const [vaultInfo, setVaultInfo] = useState(false);
   const [networks, setNetworks] = useState([
@@ -84,6 +86,7 @@ const Home = ({ navigation, route }) => {
     getDataFromTheLocally()
     getSWallet()
     getEoaBalance()
+    vaultStatus()
   }, [])
 
   useEffect(() => {
@@ -113,14 +116,15 @@ const Home = ({ navigation, route }) => {
 
   const createSW = async () => {
     try {
+      await getEoaBalance();
       if (vault) {
         navigation.navigate('Vault')
       } else {
-        console.log('Balance',eoaOneBalance)
-        if (eoaOneBalance > 0.002) {
+
+        if (eoaOneBalance < 0.1) {
           AlertConfirm(
             'Insufficient funds',
-            'You Need At least 0.002 Matic to create smart wallet \n\n',
+            'You Need At least 0.002 Matic from create smart wallet \n\n',
             () => {
               Clipboard.setString(address?.accountAddress?.second?.toString())
               ToastAndroid.showWithGravity(
@@ -134,20 +138,24 @@ const Home = ({ navigation, route }) => {
             () => console.log('dismiss')
           );
         } else {
-            //setVaultInfo(false)
-            const options = {
-              privateKey: address?.privateKey?.first,
-              address: address?.accountAddress?.first,
-              name: 'eth_surya_kant_sharma'
-            }
-            console.log(options);
-            alert(options.privateKey + "  " + options.address)
-            await createSmartWallet(options);
-            // navigation.navigate('SendTokenFinalize', { to: selectedData?.to, name: selectedData?.name })
+          setVaultInfo(true);
+          setProgress(true)
+          const options = {
+            privateKey: address?.privateKey?.first,
+            address: address?.accountAddress?.first,
+            name: 'eth_Komet_me'
+          }
+          // alert(options.privateKey + "  " + options.address)
+          await createSmartWallet(options);
+          setTimeout(() => { 
+            setVault(true) 
+            setProgress(false)
+          }, 4000)
         }
       }
     } catch (err) {
-      alert(err.message)
+      console.log(err.message)
+      // alert(err.message)
     }
 
   }
@@ -158,21 +166,19 @@ const Home = ({ navigation, route }) => {
       // console.log(value);
       fetchAddress(value);
       listenBalance(address?.accountAddress?.second?.toString())
-      // const options = {
-      //   privateKey: value?.privateKey?.first,
-      //   address: value?.accountAddress?.first
-      // }
-      // vaultStatus(options)
+
+      // vaultStatus()
       // value?.accountAddress?.second;
     } catch (err) {
-      alert(err.message)
+      console.log(err.message)
+      // alert(err.message)
     }
   }
 
   const listenBalance = async (address) => {
     try {
       const provider = walletProvider();
-//      console.log(provider)
+      //      console.log(provider)
       let lastBalance = ethers.constants.Zero
       // const address = address?.accountAddress?.second;
       provider.on("block", () => {
@@ -187,18 +193,19 @@ const Home = ({ navigation, route }) => {
         })
       })
     } catch (err) {
-      alert(err.message)
+      console.log(err.message)
     }
   }
 
   const vaultStatus = async (options) => {
     try {
-      const status = await isVault(options);
-      console.log('status', status)
-      setVault(status)
+      const data = await getDataLocally(Locations.SMARTACCOUNTS);
+      console.log('status', data)
+      if (data.address)
+        setVault(true)
     } catch (err) {
       console.log(err)
-      alert(err.message)
+      console.log(err.message)
     }
   }
 
@@ -211,7 +218,7 @@ const Home = ({ navigation, route }) => {
       }
       return data
     } catch (err) {
-      alert(err.message)
+      console.log(err.message)
     }
   }
 
@@ -221,13 +228,12 @@ const Home = ({ navigation, route }) => {
         "https://matic-mumbai.chainstacklabs.com"
       );
       const firstAddress = await connection.getBalance(address?.accountAddress?.first)
-      const bal = await ethers.utils.formatEther(firstAddress)
+      const bal = ethers.utils.formatEther(firstAddress)
       setEoaOneBalance(bal)
-      //console.log('Bal',bal)
       // alert(bal)
     } catch (err) {
       console.log(err)
-      alert(err.message)
+      console.log(err.message)
     }
 
   }
@@ -239,13 +245,13 @@ const Home = ({ navigation, route }) => {
           <LinearGradient
             style={{ borderRadius: 20 }}
             colors={['#FE85F2', '#B02FA4']}>
-            <TouchableOpacity style={{ ...styles.headerDropdownContainer }} onPress={(!vault)?()=>setVaultModal(true):()=>createSW()}>
+            <TouchableOpacity style={{ ...styles.headerDropdownContainer }} onPress={(!vault) ? () => setVaultModal(true) : () => createSW()}>
               <Entypo name={'wallet'} size={20} />
               <Text style={styles.dropDownText}>{(vault) ? 'Open Vault' : 'Create Smart Vault'}</Text>
             </TouchableOpacity>
           </LinearGradient>
           <TouchableOpacity
-            onPress={() => !isAuthenticated? handleCryptoLogin():navigation.navigate('Profile')}
+            onPress={() => !isAuthenticated?handleCryptoLogin():navigation.navigate('Profile')}
             style={{
               ...styles.headerDropdownContainer,
               backgroundColor: '#343153',
@@ -346,9 +352,9 @@ const Home = ({ navigation, route }) => {
                 style={{
                   borderTopRightRadius: 10,
                   borderTopLeftRadius: 10,
-                  width:'100%',
-                  backgroundColor:themeColor.primaryBlack,
-                  height:'100%',
+                  width: '100%',
+                  backgroundColor: themeColor.primaryBlack,
+                  height: '100%',
                   padding: 15,
                 }}>
                 <View
@@ -359,17 +365,20 @@ const Home = ({ navigation, route }) => {
                     marginBottom: 30,
                     alignSelf: 'center',
                   }}></View>
-                <Image source={require('../../../assets/images/E-wallet.png')} style={{alignSelf:'center'}}/>
-                <Text style={{fontFamily:typography.medium,fontSize:24,color:'white',alignSelf:'center',marginVertical:15}}>Create Komet smart vault</Text>
-                <Text style={{textAlign:'center',fontFamily:typography.medium,fontSize:16,color:'rgba(255,255,255,0.60)',alignSelf:'center',marginVertical:15}}>lorem ispusm jhiredf rwid wkeof uiofr poustyr quedro multia</Text>
+                <Image source={require('../../../assets/images/E-wallet.png')} style={{ alignSelf: 'center' }} />
+                <Text style={{ fontFamily: typography.medium, fontSize: 24, color: 'white', alignSelf: 'center', marginVertical: 15 }}>Create Komet smart vault</Text>
+                <Text style={{ textAlign: 'center', fontFamily: typography.medium, fontSize: 16, color: 'rgba(255,255,255,0.60)', alignSelf: 'center', marginVertical: 15 }}>lorem ispusm jhiredf rwid wkeof uiofr poustyr quedro multia</Text>
                 <View style={{ alignSelf: 'center' }}>
                   <GradientButton
-                  text={'Create Vault'}
-                  colors={['#FF8DF4', '#89007C']}
-                  onPress={()=>{setVaultModal(false);createSW()}}
+                    text={'Create Vault'}
+                    colors={['#FF8DF4', '#89007C']}
+                    onPress={() => {
+                      setVaultModal(false);
+                      createSW()
+                    }}
                   />
                   <BorderButton
-                  size={150}
+                    size={150}
                     borderColor={'#FF8DF4'}
                     text={'Not Now'}
                     onPress={() => {
@@ -509,15 +518,26 @@ const Home = ({ navigation, route }) => {
           </TouchableOpacity>
 
           <Text style={styles.balanceText}>
-            $ {parseFloat(balance).toPrecision(2)}
+            $ {parseFloat(balance).toPrecision(2) * 0.6}
           </Text>
-          <TouchableOpacity onPress={()=>copyToClipboard(address?.accountAddress?.second)} style={styles.addressContainer}>
+          <Text style={{
+            ...styles.addressText,
+            fontSize: 16,
+            margin: 4
+          }}>
+            {parseFloat(balance).toPrecision(2)} Matic
+          </Text>
+          <TouchableOpacity style={styles.addressContainer} onPress={() => {
+            Clipboard.setString(address?.accountAddress?.second?.toString())
+            ToastAndroid.showWithGravity('Address Copied', ToastAndroid.LONG, ToastAndroid.CENTER)
+          }}>
             <Text
               numberOfLines={1}
               ellipsizeMode={'tail'}
               style={styles.addressText}>
               {address?.accountAddress?.second?.substring(0, 8) + "..." + address?.accountAddress?.second?.substring(34, address?.accountAddress?.second?.length)}
             </Text>
+            <MaterialIcons name='content-copy' size={14} style={{ marginLeft: 20 }} />
           </TouchableOpacity>
           <View style={{ height: 50 }} />
           <View
@@ -608,120 +628,168 @@ const Home = ({ navigation, route }) => {
         {/* FOR CREATE WALLET APP */}
 
         <Modal
-          visible={vaultInfo}
+          visible={vaultModal}
           transparent
-          onRequestClose={() => setVaultInfo(false)}
-        >
-
+          onRequestClose={() => setVaultModal(false)}>
           <View
             style={{
               flex: 1,
-              zIndex: 0,
               justifyContent: 'flex-start',
-              backgroundColor: 'rgba(14,14,14,0.6)'
+
             }}>
-            <TouchableOpacity style={{ flex: 1 }} ></TouchableOpacity>
             <View
               style={{
-                flex: 1,
                 borderTopRightRadius: 10,
                 borderTopLeftRadius: 10,
-                backgroundColor: '#2F2F3A',
-                alignItems: 'flex-start',
+                width: '100%',
+                backgroundColor: themeColor.primaryBlack,
+                height: '100%',
                 padding: 15,
               }}>
-
-              <Text
+              <View
                 style={{
-                  fontSize: 16,
-                  fontFamily: typography.medium,
-                  color: 'white',
-                }}>
-                Waht Is Vault ?
-              </Text>
-
-              <View style={{
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}>
-                <MaterialIcons style={{ width: '80%', alignItems: 'center', marginLeft: 120, margin: 40 }} name="account-balance" size={120} />
+                  height: 2,
+                  width: 40,
+                  backgroundColor: '#B02FA4',
+                  marginBottom: 30,
+                  alignSelf: 'center',
+                }}></View>
+              <Image source={require('../../../assets/images/E-wallet.png')} style={{ alignSelf: 'center' }} />
+              <Text style={{ fontFamily: typography.medium, fontSize: 24, color: 'white', alignSelf: 'center', marginVertical: 15 }}>Create Komet smart vault</Text>
+              <Text style={{ textAlign: 'center', fontFamily: typography.medium, fontSize: 16, color: 'rgba(255,255,255,0.60)', alignSelf: 'center', marginVertical: 15 }}>lorem ispusm jhiredf rwid wkeof uiofr poustyr quedro multia</Text>
+              <View style={{ alignSelf: 'center' }}>
+                <GradientButton
+                  text={'Create Vault'}
+                  colors={['#FF8DF4', '#89007C']}
+                  onPress={() => {
+                    createSW()
+                    setVaultModal(false);
+                  }}
+                />
+                <BorderButton
+                  size={150}
+                  borderColor={'#FF8DF4'}
+                  text={'Not Now'}
+                  onPress={() => {
+                    setVaultModal(false);
+                    //navigation.navigate('RestoreFromDevice');
+                  }}
+                />
               </View>
-
-              <View style={{
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: typography.thin,
-                    color: 'white',
-                  }}>
-                  This is a vault for storing your assets with three layers of security with our wallet.
-                </Text>
-              </View>
-
-            </View>
-          </View>
-          <View>
-            <View style={{
-              flexDirection: 'row'
-            }}>
-
-              <TouchableOpacity style={{
-                width: '50%',
-                height: 40,
-                backgroundColor: '#B02FA4',
-                borderRadius: 20,
-                justifyContent: 'center',
-                alignItems: 'center',
-                margin: 10
-              }}
-                onPress={() => {
-                  setVaultInfo(false)
-                  // Linking.openURL("https://mumbai.polygonscan.com/tx/" + selectedData?.hash)
-                }}
-              >
-                <Text style={{ fontWeight: 'bold', color: 'white' }}>Create Vault</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={{
-                width: '50%',
-                height: 40,
-                backgroundColor: '#B02FA4',
-                borderRadius: 20,
-                justifyContent: 'center',
-                alignItems: 'center',
-                margin: 10
-              }}
-                onPress={async () => {
-                  setVaultInfo(false)
-                  const options = {
-                    privateKey: address?.privateKey?.first,
-                    address: address?.accountAddress?.first,
-                    name: 'eth_surya_kant_sharma'
-                  }
-                  alert(options.privateKey + "  " + options.address)
-                  await createSmartWallet(options);
-                  // navigation.navigate('SendTokenFinalize', { to: selectedData?.to, name: selectedData?.name })
-                }}
-              >
-                <Text style={{ fontWeight: 'bold', color: 'white' }}> Cancel </Text>
-              </TouchableOpacity>
-
-              {/* <View style={{ alignItems: 'center' }}>
-                                    <GradientButton
-                                        text={'Cancel'}
-                                        colors={['#FF8DF4', '#89007C']}
-                                        onPress={() => {
-                                            //            navigation.navigate('RestoreFromPhrase');
-                                            setConfirm(false)
-                                        }}
-                                    />
-                                </View> */}
             </View>
           </View>
         </Modal>
+        {/* EO Vault Modal*/}
+        <Modal
+          visible={networkModal}
+          transparent
+          onRequestClose={() => setNetworkModal(false)}>
+          <KeyboardAvoidingView
+            behavior="padding"
+            style={{
+              flex: 1,
+              backgroundColor: themeColor.primaryBlack,
+              padding: 30,
+            }}>
+            <Header navigation={navigation} />
+            <View>
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontFamily: typography.regular,
+                  color: 'white',
+                }}>
+                Network Name
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: '#232732',
+                  borderRadius: 10,
+                  marginVertical: 10,
+                }}
+              />
+            </View>
+            {/*2*/}
+            <View>
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontFamily: typography.regular,
+                  color: 'white',
+                }}>
+                New RPC URL
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: '#232732',
+                  borderRadius: 10,
+                  marginVertical: 10,
+                }}
+              />
+            </View>
+            {/*3*/}
+            <View>
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontFamily: typography.regular,
+                  color: 'white',
+                }}>
+                Chain ID
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: '#232732',
+                  borderRadius: 10,
+                  marginVertical: 10,
+                }}
+              />
+            </View>
+            {/*4*/}
+            <View>
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontFamily: typography.regular,
+                  color: 'white',
+                }}>
+                Currency Symbol
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: '#232732',
+                  borderRadius: 10,
+                  marginVertical: 10,
+                }}
+              />
+            </View>
+            {/*5*/}
+            <View>
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontFamily: typography.regular,
+                  color: 'white',
+                }}>
+                Block Explorer URL (optional)
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: '#232732',
+                  borderRadius: 10,
+                  marginVertical: 10,
+                }}
+              />
+            </View>
+            {/**/}
+          </KeyboardAvoidingView>
+        </Modal>
 
+        <ProgressDialog
+          open={progress}
+          setOpen={setProgress}
+          completed={false}
+        />
       </ScrollView>
     </View>
   );

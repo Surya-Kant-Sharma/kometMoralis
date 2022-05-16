@@ -4,11 +4,18 @@ export const VAULTBALANCE = 'VAULTBALANCE';
 export const PROVIDER = 'PROVIDER';
 export const OTHERWALLET = 'OTHERWALLET';
 export const WALLETS='WALLETS'
+export const LOGIN='LOGIN'
 
 export const setAddress = address => {
   return {
     type: ADDRESS,
     payload: address,
+  };
+};
+export const loginUser = val => {
+  return {
+    type: LOGIN,
+    payload: val,
   };
 };
 export const setEoaBalance = balance => {
