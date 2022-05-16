@@ -256,7 +256,7 @@ const ChooseSecurityPin = ({navigation, route}) => {
           colors={['#FF8DF4', '#89007C']}
           onPress={() => {
             //navigation.navigate('Dashboard');
-            processText();
+            confirmedPin == pin ?processText():Alert.alert('Pins does not match');
 
             
             //_signIn();

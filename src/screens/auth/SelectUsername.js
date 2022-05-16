@@ -19,7 +19,10 @@ const SelectUsername = ({navigation}) => {
       else{
         Alert.alert('Username not Available')
       }
-    }).catch((error)=>console.log(error))
+    }).catch((error)=>{
+      Alert.alert('Error');
+      navigation.navigate('FinalizeUserName', {name});
+    })
   }
 
   console.log(name);
