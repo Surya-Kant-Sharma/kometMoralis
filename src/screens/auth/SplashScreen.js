@@ -11,12 +11,21 @@ import { getDataLocally } from '../../Utils/AsyncStorage';
 import { Locations } from '../../Utils/StorageLocations';
 import TouchID from 'react-native-touch-id';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GoogleSignin,GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import axios from 'axios';
 
 const SplashScreen = ({navigation,route}) => {
   const loggedIn=useSelector((state)=>state.logIn)
 
   const [userInfo, setUserInfo] = React.useState(false);
+  const [authenticated, setAuthenticated] = React.useState(false);
+ 
   //console.log(route.params['state'])
+
+  const login=async()=>{
+    await axios.get()
+  }
+
   const userLogin = async () => {
     var bool=false;
     try {
@@ -59,6 +68,8 @@ const SplashScreen = ({navigation,route}) => {
     
   }
 
+  {/*
+
   const onAuthenticate = (navigation,state) => {
     var auth=false;
     TouchID.authenticate(
@@ -66,23 +77,65 @@ const SplashScreen = ({navigation,route}) => {
       optionalConfigObject,
     )
       .then(async(res) => {
-        try {
-          const data = await getDataLocally(Locations.ACCOUNTS) 
-          if(data!=null){
-            navigation.replace('Dashboard')
+        const isSignedIn = await GoogleSignin.isSignedIn();
+        console.log('SignOut',isSignedIn)
+        if(isSignedIn)
+        {
+          await GoogleSignin.signOut();
+          try {
+            const data = await getDataLocally(Locations.ACCOUNTS) 
+            if(data!=null){
+              navigation.replace('Dashboard')
+            }
+            else{
+              navigation.navigate('OnBoarding')
+            }
+          } catch (err) {
+            navigation.navigate('OnBoarding')
+
           }
-          else{
+        }
+        else{
+          return
+        }
+        
+//        navigate(state)
+        //console.log(userInfo)
+       
+        //setAuthenticate(true);
+        //Alert.alert('Authenticated successfully');
+       
+        //onGoogleButtonPress();
+      })
+      .catch(error => {
+        Alert.alert(error.message);
+        return false
+        //setAuthenticate(false);
+       
+      });
+      
+  };
+  */}
+
+  const onAuthenticate = (navigation,state) => {
+    var auth=false;
+    TouchID.authenticate(
+      'Scan your fingerprint on the device scanner to continue',
+      optionalConfigObject,
+    )
+      .then(async(res) => {
+          try {
+            const data = await getDataLocally(Locations.ACCOUNTS) 
+            if(data!=null){
+              navigation.replace('Dashboard')
+            }
+            else{
+              navigation.navigate('OnBoarding')
+            }
+          } catch (err) {
             navigation.navigate('OnBoarding')
           }
-
-          
-        } catch (err) {
-          bool=false;
-          console.log(err)
-          navigation.navigate('OnBoarding')
-          alert(err.message)
-          
-        }
+        
 //        navigate(state)
         //console.log(userInfo)
        
@@ -100,7 +153,68 @@ const SplashScreen = ({navigation,route}) => {
       
   };
 
+  const _signIn = async () => {
+    try {
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
+      const userInfo = await GoogleSignin.signIn();
+      console.log('User Info --> ', userInfo);
+      navigation.replace('OnBoarding')
+      //navigation.replace('HomeScreen', {userInfo: userInfo});
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        alert('User Cancelled the Login Flow');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        alert('Signing In');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        alert('Play Services Not Available or Outdated');
+      } else {
+        console.log('error.message', JSON.stringify(error));
+        alert(error.message);
+      }
+    }
+  };
+
+  // Check if User is signned in or not?
+  const _isSignedIn = async () => {
+    const isSignedIn = await GoogleSignin.isSignedIn();
+    if (isSignedIn) {
+      console.log('User is already signed in');
+      // Get User Info if user is already signed in
+      try {
+        let info = await GoogleSignin.signInSilently();
+        console.log('User Info --> ', info);
+        navigation.replace('OnBoarding')
+        //navigation.replace('HomeScreen', {userInfo: info});
+      } catch (error) {
+        if (error.code === statusCodes.SIGN_IN_REQUIRED) {
+          alert('User has not signed in yet');
+          console.log('User has not signed in yet');
+        } else {
+          alert("Unable to get user's info");
+          console.log("Unable to get user's info", error);
+        }
+      }
+    }
+  };
+
+
+
   React.useEffect(() => {
+
+    GoogleSignin.configure({
+      // Mandatory method to call before calling signIn()
+      scopes: [
+        'https://www.googleapis.com/auth/drive',
+        'https://www.googleapis.com/auth/drive.file',
+        'https://www.googleapis.com/auth/drive.appdata',
+        'https://www.googleapis.com/auth/drive.readonly',
+      ],
+      webClientId:
+        '638019657946-thbc2c24p6phcuir5qfpfs32saa14haf.apps.googleusercontent.com',
+    });
+
     onAuthenticate(navigation,loggedIn);
     // provider = new ethers.providers.JsonRpcProvider(
     //   'https://rinkeby.infura.io/v3/d02fb37024ef430b8f15fdacf9134ccc',
@@ -114,7 +228,7 @@ const SplashScreen = ({navigation,route}) => {
     <View
       style={{
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'space-around',
         alignItems: 'center',
         backgroundColor: themeColor.primaryBlack,
       }}>
@@ -122,7 +236,15 @@ const SplashScreen = ({navigation,route}) => {
       <TouchableOpacity>
         <Image source={require('../../../assets/images/Logo.png')} />
       </TouchableOpacity>
-    </View>
+
+      {/* <GoogleSigninButton
+  style={{ width: 230, height: 48,alignSelf:'center' }}
+  size={GoogleSigninButton.Size.Wide}
+  color={GoogleSigninButton.Color.Dark}
+  onPress={_signIn}
+  //disabled={this.state.isSigninInProgress}
+/> */}
+</View>
   );
 };
 

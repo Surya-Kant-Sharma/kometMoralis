@@ -107,7 +107,7 @@ const RootNavigation = () => {
         <Stack.Screen name="ReceiveToken" component={ReceiveToken} />
         <Stack.Screen name="SwapToken" component={SwapToken} />
         <Stack.Screen name="ViewSeedPhrase" component={ViewSeedPhrase} />
-        
+       
         </Stack.Navigator>
     </NavigationContainer>
     

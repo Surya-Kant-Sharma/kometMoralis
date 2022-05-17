@@ -23,9 +23,10 @@ const MarketPlace = ({navigation}) => {
   const fetchCollections = async () => {
     setLoading(true);
      await axios
-       .get('https://api.opensea.io/api/v1/collections?offset=0&limit=300')
+       .get('http://staging.komet.me/api/v1/market/v1/collections?pageNo=0&pageSize=10')
        .then(res => {
-         setCollections(res.data.collections.filter(a => a.image_url != null));
+         console.log(res.data)
+         setCollections(res.data);
          setLoading(false);
        })
        .catch(error => {
@@ -84,8 +85,8 @@ const MarketPlace = ({navigation}) => {
             <TouchableOpacity
               onPress={() => navigation.navigate('Collections', {item: item})}
               style={styles.cardContainer}>
-              <Image source={{uri: item.image_url}} style={styles.image} />
-              {/* <Text style={styles.imageText}>{item.slug}</Text> */}
+              <Image source={{uri: item.collectionImage}} style={styles.image} />
+               <Text style={styles.imageText}>{item.collectionName}</Text> 
             </TouchableOpacity>
           )}
         />

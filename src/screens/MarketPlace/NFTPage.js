@@ -1,13 +1,158 @@
-import React from 'react';
-import {View, Text} from 'react-native';
-import {themeColor} from '../../common/theme';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  Dimensions,
+  TextInput,
+  Touchable,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  ScrollView,
+  ToastAndroid,
+} from 'react-native';
 
-const NFTPage = ({route}) => {
+import {themeColor} from '../../common/theme';
+import {typography} from '../../common/typography';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import axios from 'axios';
+import Header from '../../components/Header';
+import BorderButton from '../../components/BorderButton';
+import GradientButton from '../../components/GradientButton';
+import Clipboard from '@react-native-community/clipboard';
+
+const {width, height} = Dimensions.get('screen');
+const NFTPage = ({navigation,route}) => {
+  const [collections, setCollections] = useState([]);
+  const [loading, setLoading] = useState(false);
+  //const [loading,setLoading]=useState(false);
+
+    console.log(route.params.item)
+    console.log('Log',route.params.item.mediaUrl)
+
   return (
-    <View style={{flex: 1, backgroundColor: themeColor.primaryBlack}}>
-      <Text></Text>
+    <View style={{flex:1}}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      
+           <View style={{width:'100%',height:400,justifyContent:'center',alignItems:'center',backgroundColor:'rgba(0,0,0,0.5)'}}>
+           <TouchableOpacity onPress={()=>navigation.goBack()} style={{backgroundColor:'rgba(255,255,255,0.2)',borderRadius:40,height:40,width:40,alignItems:'center',justifyContent:'center',position:'absolute',top:20,left:20}}>
+             <MaterialIcons name={'keyboard-arrow-left'} color={'white'} size={28}/>
+           </TouchableOpacity>
+           <Image source={{uri:route.params.item.attributes['image']}} style={{width:'100%',height:200,resizeMode:'cover'}}/>
+           </View>
+           
+           <View style={{borderTopEndRadius:20,backgroundColor:'#1F1E2C',marginTop:-40,paddingVertical:40,paddingHorizontal:20,elevation:20}}>
+           
+          
+           <Text style={styles.header}>{route.params.item.attributes.name}</Text>
+          <Text  style={styles.description}>{route.params.item.attributes.description}</Text> 
+         
+           <View
+        style={styles.summaryTextContainer}>
+         <Text  style={styles.subHeaderText}>Tokens on Sale</Text>
+         <Text style={styles.subHeaderValue}>{route.params.item.attributes.decimals}</Text>
+      </View>
+     
+      <View
+        style={styles.summaryTextContainer}>
+         <Text  style={{...styles.subHeaderText,fontSize:20,color:'#FF8DF4',alignSelf:'center'}}>Floor Price</Text>
+         <View>
+         <Text style={{...styles.price,color:'#FF8DF4',textAlign:'right'}}>{route.params.item.decimals}</Text>
+         <Text style={{...styles.price,color:'white',fontSize:18}}>0 <Text style={{color:'rgba(255,255,255,0.6)',fontFamily:typography.medium}}>MATIC</Text></Text>
+         </View>
+      </View>
+      
+       <View style={{alignSelf:'center'}}>
+      <BorderButton
+          borderColor={'#FF8DF4'}
+          text={'  Buy Using OpenSea  '}
+          onPress={() => {
+            //fetchSecretKey();
+            //console.log('BorderPressed');
+          }}
+        />
+      </View> 
+       <View style={{alignSelf:'center'}}>
+      <GradientButton
+          text={' Buy from KometVerse '}
+          colors={['#FF8DF4', '#89007C']}
+          onPress={() => {
+            //navigation.navigate('Dashboard');
+            //encryptText(route.params.phrase, pin, navigation);
+            
+            //decryptText();
+          }}
+        /> 
+      </View>
+      </View>
+    </ScrollView>
     </View>
   );
 };
 
 export default NFTPage;
+
+const styles = StyleSheet.create({
+  container: {flex: 1, backgroundColor: themeColor.primaryBlack},
+  searchBarContainer: {
+    justifyContent: 'space-around',
+    flexDirection: 'row',
+    margin: 10,
+    
+  },
+  textInputContainer: {
+    flexDirection: 'row',
+    borderColor: 'white',
+    borderWidth: 1,
+    borderRadius: 20,
+    width: width * 0.75,
+    height: 40,
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  cardContainer: {height: width * 0.5, width: width * 0.45, margin: 10,},
+  image: {
+    height: width * 0.45,
+    width: width * 0.45,
+    borderRadius: 5,
+    alignSelf:'flex-start'
+  },
+  imageText: {
+    alignSelf: 'center',
+    textAlign: 'center',
+    color: 'white',
+    fontFamily: typography.medium,
+  },
+  subHeaderText:{fontFamily:typography.medium,color:'rgba(255,255,255,0.6)',marginHorizontal:10,fontSize:16},
+  subHeaderValue:{fontFamily:typography.medium,color:'rgba(255,255,255,1)',marginHorizontal:10,fontSize:16},
+  description:{fontFamily:typography.medium,color:'rgba(255,255,255,0.8)',marginHorizontal:10,fontSize:16},
+  header:{fontFamily:typography.semiBold,color:'rgba(255,255,255,1)',marginHorizontal:10,fontSize:18},
+  price:{fontFamily:typography.bold,color:'rgba(255,255,255,1)',marginHorizontal:10,fontSize:26},
+  summaryTextContainer:{
+    borderRadius: 10,
+    
+    marginVertical: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    
+  },
+  addressText: {
+    fontFamily: typography.regular,
+    fontSize: 12,
+    color: 'white',
+  },
+  addressContainer: {
+    //width: width * 0.5,
+    paddingHorizontal: 10,
+    height: 25,
+    borderRadius: 20,
+    backgroundColor: '#343153',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    marginBottom:15
+  },
+});

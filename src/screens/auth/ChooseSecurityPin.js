@@ -42,7 +42,7 @@ const ChooseSecurityPin = ({navigation, route}) => {
   const processText=async()=>{
     setLoading(true)
     const text=await encryptText(route.params.phrase, pin, navigation);
-    console.log('Text',text)
+    //console.log('Text',text)
     if(text==false || text==undefined){
       setLoading(false)
       ToastAndroid.showWithGravityAndOffset(
@@ -68,17 +68,14 @@ const ChooseSecurityPin = ({navigation, route}) => {
         'https://www.googleapis.com/auth/drive',
         'https://www.googleapis.com/auth/drive.file',
         'https://www.googleapis.com/auth/drive.appdata',
-        'https://www.googleapis.com/auth/drive.metadata',
         'https://www.googleapis.com/auth/drive.readonly',
-        'https://www.googleapis.com/auth/drive.metadata.readonly',
-        'https://www.googleapis.com/auth/drive.apps.readonly',
-        'https://www.googleapis.com/auth/drive.photos.readonly',
       ],
       webClientId:
         '638019657946-thbc2c24p6phcuir5qfpfs32saa14haf.apps.googleusercontent.com',
     });
     // Check if user is already signed in
     _isSignedIn();
+    //GoogleSignin.signOut();
   }, []);
 
   const fetchPrivateKey = async () => {
@@ -130,7 +127,7 @@ const ChooseSecurityPin = ({navigation, route}) => {
       });
       const userInfo = await GoogleSignin.signIn();
       console.log('User Info --> ', userInfo);
-      navigation.replace('HomeScreen', {userInfo: userInfo});
+      //navigation.replace('HomeScreen', {userInfo: userInfo});
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         alert('User Cancelled the Login Flow');
@@ -154,7 +151,7 @@ const ChooseSecurityPin = ({navigation, route}) => {
       try {
         let info = await GoogleSignin.signInSilently();
         console.log('User Info --> ', info);
-        navigation.replace('HomeScreen', {userInfo: info});
+        //navigation.replace('HomeScreen', {userInfo: info});
       } catch (error) {
         if (error.code === statusCodes.SIGN_IN_REQUIRED) {
           alert('User has not signed in yet');
@@ -257,8 +254,6 @@ const ChooseSecurityPin = ({navigation, route}) => {
           onPress={() => {
             //navigation.navigate('Dashboard');
             confirmedPin == pin ?processText():Alert.alert('Pins does not match');
-
-            
             //_signIn();
             //decryptText();
           }}

@@ -11,6 +11,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   ScrollView,
+  ToastAndroid,
 } from 'react-native';
 
 import {themeColor} from '../../common/theme';
@@ -20,38 +21,112 @@ import axios from 'axios';
 import Header from '../../components/Header';
 import BorderButton from '../../components/BorderButton';
 import GradientButton from '../../components/GradientButton';
+import Clipboard from '@react-native-community/clipboard';
 
 const {width, height} = Dimensions.get('screen');
 const Collections = ({navigation,route}) => {
-    console.log(route.params.item)
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(false);
+  //const [loading,setLoading]=useState(false);
+
+  const fetchCollections = async () => {
+    setLoading(true);
+     await axios
+       .get(`http://staging.komet.me/api/v1/market/v1/token?pageNo=0&pageSize=10&collectionId=${route.params.item.collectionId}`,{
+        headers: {
+          'X-USER-ID': '0'
+        }
+      })
+       .then(res => {
+         console.log(res.data)
+         setCollections(res.data);
+         setLoading(false);
+       })
+       .catch(error => {
+         setLoading(false);
+         console.log(error);
+       });
+  };
+
+  useEffect(() => {
+    fetchCollections();
+  }, []);
+
+    console.log(route.params.item)
+  
 
   return (
-    <ScrollView style={styles.container}>
-           <Image source={{uri:route.params.item.image_url}} style={{width:'100%',height:400,resizeMode:'cover'}}/>
-           <View style={{borderTopEndRadius:20,backgroundColor:themeColor.primaryBlack,marginTop:-40,paddingVertical:40,paddingHorizontal:20}}>
-           <Text style={styles.header}>{route.params.item.name}</Text>
-         <Text  style={styles.description}>{route.params.item.description}</Text>
+    <View style={{flex:1}}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      
+           <View style={{width:'100%',height:320,justifyContent:'center',alignItems:'center',backgroundColor:'rgba(0,0,0,0.5)'}}>
+           <TouchableOpacity  onPress={()=>navigation.goBack()} style={{backgroundColor:'rgba(255,255,255,0.2)',borderRadius:40,height:40,width:40,alignItems:'center',justifyContent:'center',position:'absolute',top:20,left:20}}>
+             <MaterialIcons name={'keyboard-arrow-left'} color={'white'} size={28}/>
+           </TouchableOpacity>
+           <Image source={{uri:route.params.item.collectionImage}} style={{width:'50%',height:200,resizeMode:'cover'}}/>
+           </View>
+           
+           <View style={{borderTopEndRadius:20,backgroundColor:'#1F1E2C',marginTop:-40,paddingVertical:40,paddingHorizontal:20,elevation:20}}>
+           
+           <TouchableOpacity style={styles.addressContainer} onPress={() => {
+            Clipboard.setString(route.params.item.collectionContractId)
+            ToastAndroid.showWithGravity('Address Copied', ToastAndroid.LONG, ToastAndroid.CENTER)
+          }}>
+            <Text
+              numberOfLines={1}
+              ellipsizeMode={'tail'}
+              style={styles.addressText}>
+              {route.params.item.collectionContractId}
+            </Text>
+            <MaterialIcons name='content-copy' size={14} style={{ marginLeft: 20 }} />
+          </TouchableOpacity>
+           <Text style={styles.header}>{route.params.item.collectionName}</Text>
+         {/* <Text  style={styles.description}>{route.params.item.description}</Text> */}
+         <View
+        style={styles.summaryTextContainer}>
+         <Text  style={styles.subHeaderText}>Organiser's Name</Text>
+         <Text style={styles.subHeaderValue}>{route.params.item.organiserName}</Text>
+      </View>
            <View
         style={styles.summaryTextContainer}>
-         <Text  style={styles.subHeaderText}>Units Sold</Text>
-         <Text style={styles.subHeaderValue}>{1*5}</Text>
+         <Text  style={styles.subHeaderText}>Tokens on Sale</Text>
+         <Text style={styles.subHeaderValue}>{route.params.item.numberOfTokensOnSale}</Text>
       </View>
-      <View
-        style={styles.summaryTextContainer}>
-         <Text  style={styles.subHeaderText}>Units Left</Text>
-         <Text style={styles.subHeaderValue}>{1*26}</Text>
-      </View>
+     
       <View
         style={styles.summaryTextContainer}>
          <Text  style={{...styles.subHeaderText,fontSize:20,color:'#FF8DF4',alignSelf:'center'}}>Floor Price</Text>
          <View>
-         <Text style={{...styles.price,color:'#FF8DF4',textAlign:'right'}}>$ 120</Text>
+         <Text style={{...styles.price,color:'#FF8DF4',textAlign:'right'}}>{route.params.item.collectionPrice}</Text>
          <Text style={{...styles.price,color:'white',fontSize:18}}>200 <Text style={{color:'rgba(255,255,255,0.6)',fontFamily:typography.medium}}>MATIC</Text></Text>
          </View>
       </View>
-      <View style={{alignSelf:'center'}}>
+      <View
+        style={styles.summaryTextContainer}>
+         <Text  style={{...styles.subHeaderText,color:'white'}}>Check out Collection's NFTs</Text>
+        
+      </View>
+      {loading ? (
+        <ActivityIndicator size={32} style={{margin: 20}} color={'pink'} />
+      ) : (
+        <FlatList
+          data={collections}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          style={{alignSelf: 'flex-start'}}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({item, index}) => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('NFTPage', {item: item})}
+              style={styles.cardContainer}>
+              <Image source={{uri: item.mediaUrl}} style={styles.image} />
+               <Text style={styles.imageText}>{item.attributes.name}</Text> 
+            </TouchableOpacity>
+          )}
+        />
+      )}
+      
+      {/* <View style={{alignSelf:'center'}}>
       <BorderButton
           borderColor={'#FF8DF4'}
           text={'  Buy Using OpenSea  '}
@@ -60,8 +135,8 @@ const Collections = ({navigation,route}) => {
             //console.log('BorderPressed');
           }}
         />
-      </View>
-      <View style={{alignSelf:'center'}}>
+      </View> */}
+       {/*<View style={{alignSelf:'center'}}>
       <GradientButton
           text={' Buy from KometVerse '}
           colors={['#FF8DF4', '#89007C']}
@@ -71,10 +146,11 @@ const Collections = ({navigation,route}) => {
             
             //decryptText();
           }}
-        />
-      </View>
+        /> 
+      </View>*/}
       </View>
     </ScrollView>
+    </View>
   );
 };
 
@@ -98,11 +174,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 10,
   },
-  cardContainer: {height: width * 0.5, width: width * 0.45, margin: 10},
+  cardContainer: {height: width * 0.5, width: width * 0.45, margin: 10,},
   image: {
     height: width * 0.45,
     width: width * 0.45,
     borderRadius: 5,
+    alignSelf:'flex-start'
   },
   imageText: {
     alignSelf: 'center',
@@ -123,5 +200,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     
-  }
+  },
+  addressText: {
+    fontFamily: typography.regular,
+    fontSize: 12,
+    color: 'white',
+  },
+  addressContainer: {
+    //width: width * 0.5,
+    paddingHorizontal: 10,
+    height: 25,
+    borderRadius: 20,
+    backgroundColor: '#343153',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    marginBottom:15
+  },
 });

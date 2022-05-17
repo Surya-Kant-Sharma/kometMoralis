@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, ScrollView, Image, ToastAndroid} from 'react-native';
+import {View, Text, ScrollView, Image, ToastAndroid, Alert} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {themeColor} from '../../common/theme';
 import {typography} from '../../common/typography';
@@ -9,9 +9,40 @@ import FontAwesomeFive from 'react-native-vector-icons/FontAwesome5'
 import ProfileButton from '../../components/ProfileButton';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+  
+
 //import ProfileIcons from '../../../assets/svg/ProfileIcons.svg';
 
 const Settings = ({navigation}) => {
+
+const navigations =useNavigation();
+const logOut=async()=>{
+  const keys = await AsyncStorage.getAllKeys()
+  await AsyncStorage.multiRemove(keys).then(()=>{
+    navigations.reset({
+      index: 0,
+      routes: [{name: 'OnBoarding'}],
+    });
+  })
+}
+
+const onLogoutPressed=()=>{
+  Alert.alert(  
+    'Are you sure, you want to logout? ',  
+    'You can access your account by importing from device',  
+    [  
+        {  
+            text: 'Logout',  
+            onPress: () => logOut(),  
+            style: 'cancel',  
+        },  
+        
+    ]  
+);  
+}
+
   const comingSoon=()=>{
     return ToastAndroid.showWithGravityAndOffset(
       'Feature Coming Soon',
@@ -83,7 +114,7 @@ const Settings = ({navigation}) => {
           <ProfileButton  icon={<MaterialIcons name={'support-agent'} color={'white'} size={20}/>} leftIcon={true} title={'Feedback and Support'}margin={false}/>
 
           </View>
-          <ProfileButton subTitle={''} leftIcon={false} title={'Logout'} margin={true}/>
+          <ProfileButton subTitle={''} leftIcon={false} title={'Logout'} margin={true} onPress={()=>onLogoutPressed()}/>
             <View style={{height:50}}></View>
     </ScrollView>
   );
