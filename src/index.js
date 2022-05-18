@@ -36,6 +36,7 @@ import Collections from './screens/MarketPlace/Collections';
 import { Locations } from './Utils/StorageLocations';
 import ViewSeedPhrase from './screens/Profile/ViewSeedPhrase';
 import { loginUser } from './store/Actions/action';
+import Drive from './screens/auth/Drive';
 
 console.ignoredYellowBox = ['Setting a timer'];
 
@@ -101,6 +102,10 @@ const RootNavigation = () => {
         <Stack.Screen
           name="RestoreFromPhrase"
           component={RestoreFromSeedPhrase}
+        />
+                <Stack.Screen
+          name="Drive"
+          component={Drive}
         />
         <Stack.Screen name="RestoreFromDevice" component={RestoreFromDevice} />
         <Stack.Screen name="SendToken" component={SendToken} />
