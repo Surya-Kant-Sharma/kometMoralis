@@ -174,10 +174,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 10,
   },
-  cardContainer: {height: width * 0.5, width: width * 0.45, margin: 10,},
+  cardContainer: {height: width * 0.5, width: width * 0.40, margin: 10,},
   image: {
-    height: width * 0.45,
-    width: width * 0.45,
+    height: width * 0.40,
+    width: '100%',
     borderRadius: 5,
     alignSelf:'flex-start'
   },

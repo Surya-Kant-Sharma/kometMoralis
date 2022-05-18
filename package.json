@@ -88,6 +88,7 @@
     "react-native-safe-area-context": "3.2.0",
     "react-native-screens": "~3.4.0",
     "react-native-smooth-pincode-input": "^1.0.9",
+    "react-native-splash-screen": "^3.3.0",
     "react-native-stream": "0.1.9",
     "react-native-svg": "9.6.4",
     "react-native-svg-transformer": "^1.0.0",

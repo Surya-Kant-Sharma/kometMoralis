@@ -15,6 +15,7 @@ import { GoogleSignin,GoogleSigninButton } from '@react-native-google-signin/goo
 import axios from 'axios';
 import { saveUserData } from '../../common/Storage';
 import { ActivityIndicator } from 'react-native-paper';
+import SplashScreens from 'react-native-splash-screen'
 
 const SplashScreen = ({navigation,route}) => {
   const loggedIn=useSelector((state)=>state.logIn)
@@ -255,6 +256,7 @@ const SplashScreen = ({navigation,route}) => {
   };
 
   React.useEffect(() => {
+    SplashScreens.hide()
   //  setLoading(true)
     GoogleSignin.configure({
       // Mandatory method to call before calling signIn()
