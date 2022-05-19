@@ -11,7 +11,8 @@ import {
   KeyboardAvoidingView,
   Linking,
   ToastAndroid,
-  Image
+  Image,
+  Alert
 } from 'react-native';
 import { themeColor } from '../../common/theme';
 import { typography } from '../../common/typography';
@@ -113,6 +114,7 @@ const Home = ({ navigation, route }) => {
   const createSW = async () => {
     try {
       await getEoaBalance();
+
       if (vault) {
         navigation.navigate('Vault')
       } else {
@@ -122,7 +124,7 @@ const Home = ({ navigation, route }) => {
             'Insufficient funds',
             'You Need At least 0.1 Matic from create smart wallet \n\n',
             () => {
-              Clipboard.setString(address?.accountAddress?.second?.toString())
+              Clipboard.setString(address?.accountAddress?.first?.toString())
               ToastAndroid.showWithGravity(
                 "Address Coped in Clipboard",
                 ToastAndroid.LONG,
@@ -142,12 +144,17 @@ const Home = ({ navigation, route }) => {
             name: 'eth_Komet_me'
           }
           // alert(options.privateKey + "  " + options.address)
+          try{
           await createSmartWallet(options);
-          setTimeout(() => { 
+           setTimeout(() => { 
             setVault(true) 
             setProgress(false)
-          }, 4000)
+           }, 5000)
         }
+      catch{
+        console.log('Error')
+      }
+    }
       }
     } catch (err) {
       console.log(err.message)

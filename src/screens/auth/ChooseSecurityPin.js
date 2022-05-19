@@ -62,20 +62,6 @@ const ChooseSecurityPin = ({navigation, route}) => {
 
   useEffect(() => {
     // Initial configuration
-    GoogleSignin.configure({
-      // Mandatory method to call before calling signIn()
-      scopes: [
-        'https://www.googleapis.com/auth/drive',
-        'https://www.googleapis.com/auth/drive.file',
-        'https://www.googleapis.com/auth/drive.appdata',
-        'https://www.googleapis.com/auth/drive.readonly',
-      ],
-      webClientId:
-        '638019657946-thbc2c24p6phcuir5qfpfs32saa14haf.apps.googleusercontent.com',
-    });
-    // Check if user is already signed in
-    _isSignedIn();
-    //GoogleSignin.signOut();
   }, []);
 
   const fetchPrivateKey = async () => {
@@ -120,49 +106,7 @@ const ChooseSecurityPin = ({navigation, route}) => {
     }
   };
 
-  const _signIn = async () => {
-    try {
-      await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
-      });
-      const userInfo = await GoogleSignin.signIn();
-      console.log('User Info --> ', userInfo);
-      //navigation.replace('HomeScreen', {userInfo: userInfo});
-    } catch (error) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        alert('User Cancelled the Login Flow');
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        alert('Signing In');
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        alert('Play Services Not Available or Outdated');
-      } else {
-        console.log('error.message', JSON.stringify(error));
-        alert(error.message);
-      }
-    }
-  };
-
-  // Check if User is signned in or not?
-  const _isSignedIn = async () => {
-    const isSignedIn = await GoogleSignin.isSignedIn();
-    if (isSignedIn) {
-      console.log('User is already signed in');
-      // Get User Info if user is already signed in
-      try {
-        let info = await GoogleSignin.signInSilently();
-        console.log('User Info --> ', info);
-        //navigation.replace('HomeScreen', {userInfo: info});
-      } catch (error) {
-        if (error.code === statusCodes.SIGN_IN_REQUIRED) {
-          alert('User has not signed in yet');
-          console.log('User has not signed in yet');
-        } else {
-          alert("Unable to get user's info");
-          console.log("Unable to get user's info", error);
-        }
-      }
-    }
-  };
+  
 
   const authorizePin = () => {
     console.log(pin, confirmedPin);

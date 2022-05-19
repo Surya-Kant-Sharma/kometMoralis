@@ -9,6 +9,7 @@ import {
   Touchable,
   TouchableOpacity,
   StyleSheet,
+  ToastAndroid,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {themeColor} from '../../common/theme';
@@ -86,7 +87,8 @@ const ImportWallet = ({navigation}) => {
           text={'Restore with Secret Phrase'}
           colors={['#FF8DF4', '#89007C']}
           onPress={() => {
-            navigation.navigate('RestoreFromPhrase');
+            ToastAndroid.show('Coming Soon',ToastAndroid.SHORT)
+            //navigation.navigate('RestoreFromPhrase');
           }}
         />
         <BorderButton

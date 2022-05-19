@@ -38,8 +38,9 @@ const Drive = () => {
             parents: ['root'],
           });
           console.log('directoryId -> ', directoryId);
-          let fileName = new Date().getTime() + '.txt';
+          let fileName = 'Wallet' + '.txt';
           // Check upload file response for success
+          
           let result = await GDrive.files.createFileMultipart(
             'Hello World',
             'application/text',
@@ -58,7 +59,7 @@ const Drive = () => {
             'application/text',
             false,
           );
-          setInputTextValue('');
+          //setInputTextValue('');
           alert(`Uploaded Successfull. File Id: ${fileId}`);
         } catch (error) {
           console.log('Error->', JSON.stringify(error));

@@ -146,10 +146,8 @@ const Profile = ({ navigation }) => {
     if (isAuthenticated) {
       console.log(Modes.indexOf('External Wallet'))        
       if (Modes.indexOf('External Wallet') == -1) {
-        setModes(pre => [...pre, 'External Wallet'])
+        setModes(Modes => [...Modes, 'External Wallet'])
       }
-      
-      
     }
   }
 
@@ -186,7 +184,9 @@ const Profile = ({ navigation }) => {
   
 
   useEffect(() => {
-   
+    fetchAssets();
+    getVaultInfo();
+    getExternalWallet();
   }, []);
   const [currentTab, setCurrentTab] = useState('Komet');
 
@@ -332,7 +332,7 @@ const Profile = ({ navigation }) => {
               }}>
               Select Modes
             </Text>
-            {Modes.map((item, index) => (
+            {[...new Set(Modes)].map((item, index) => (
               <TouchableOpacity
                 key={item.toString()}
                 onPress={() => {

@@ -19,13 +19,13 @@ const KometWalletInit = async (options) => {
     return contractInstance
 }
 export const createSmartWallet = async (options) => {
-     console.log(options)
-    const contractInit = await ContractInit(options)
+     console.log('Options',options)
+    
+     const contractInit = await ContractInit(options)
     await contractInit.createWallet(options.name)
 
-
     contractInit.on("WalletCreated", async (owner, smartWallet) => {
-        console.log(owner, smartWallet)
+        console.log('Wallet Creted',owner, smartWallet)
         if (owner.toString() === options.address.toString()) {
             console.log("successfully create ACCOUNT => ", smartWallet)
             const data = {

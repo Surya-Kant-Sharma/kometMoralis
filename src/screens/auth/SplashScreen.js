@@ -11,7 +11,7 @@ import { getDataLocally } from '../../Utils/AsyncStorage';
 import { Locations } from '../../Utils/StorageLocations';
 import TouchID from 'react-native-touch-id';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GoogleSignin,GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import { GoogleSignin,GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
 import axios from 'axios';
 import { saveUserData } from '../../common/Storage';
 import { ActivityIndicator } from 'react-native-paper';
@@ -261,13 +261,14 @@ const SplashScreen = ({navigation,route}) => {
     GoogleSignin.configure({
       // Mandatory method to call before calling signIn()
       scopes: [
-        'https://www.googleapis.com/auth/drive',
-        'https://www.googleapis.com/auth/drive.file',
-        'https://www.googleapis.com/auth/drive.appdata',
-        'https://www.googleapis.com/auth/drive.readonly',
+       'https://www.googleapis.com/auth/drive.file',
+         //'https://www.googleapis.com/auth/drive',
+        // 'https://www.googleapis.com/auth/drive.file',
+        // 'https://www.googleapis.com/auth/drive.appdata',
+        // 'https://www.googleapis.com/auth/drive.readonly',
       ],
       webClientId:
-        '638019657946-thbc2c24p6phcuir5qfpfs32saa14haf.apps.googleusercontent.com',
+        '277296107198-d50chhens1hleigr5kdi9evbpv99oacg.apps.googleusercontent.com',
     });
 
     //onAuthenticate(navigation,loggedIn);

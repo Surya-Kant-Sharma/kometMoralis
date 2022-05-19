@@ -134,6 +134,7 @@ const Home = ({ navigation, route }) => {
   const getSWallet = async () => {
     try {
       const data = await getDataLocally(Locations.SMARTACCOUNTS);
+      console.log('SWData',data)
       // alert(data.address)
       if (data.address) {
         setSData(data)
