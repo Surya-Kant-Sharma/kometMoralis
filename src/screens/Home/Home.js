@@ -41,11 +41,12 @@ import GradientButton from '../../components/GradientButton';
 import Clipboard from '@react-native-community/clipboard';
 import ProgressDialog from '../../components/ProgressDialog';
 import { MaticPrice } from '../../Utils/Api';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 
 const Home = ({ navigation, route }) => {
   const address = useSelector(state => state.address);
-  // const eoaBalance = useSelector(state => state.eoaBalance);
   const dispatch = useDispatch();
   const fetchAddress = address => dispatch(setAddress(address));
   const setEOABalance = balance => dispatch(setEoaBalance(balance));
@@ -82,12 +83,7 @@ const Home = ({ navigation, route }) => {
   } = useMoralis();
 
 
-  React.useEffect(() => {
-    getDataFromTheLocally()
-    getSWallet()
-    getEoaBalance()
-    vaultStatus()
-  }, [])
+  
 
   useEffect(() => {
     //console.log(user);
@@ -124,7 +120,7 @@ const Home = ({ navigation, route }) => {
         if (eoaOneBalance < 0.1) {
           AlertConfirm(
             'Insufficient funds',
-            'You Need At least 0.002 Matic from create smart wallet \n\n',
+            'You Need At least 0.1 Matic from create smart wallet \n\n',
             () => {
               Clipboard.setString(address?.accountAddress?.second?.toString())
               ToastAndroid.showWithGravity(
@@ -223,13 +219,20 @@ const Home = ({ navigation, route }) => {
   }
 
   const getEoaBalance = async () => {
+    console.log('insideEOA')
+    //console.log('insideEOA',address?.accountAddress)
+    //console.log('insideEOA',address?.accountAddress?.first)
+
+    
     try {
+      const address=await getDataLocally(Locations.ACCOUNTS)
       const connection = await new ethers.providers.JsonRpcProvider(
         "https://matic-mumbai.chainstacklabs.com"
       );
-      const firstAddress = await connection.getBalance(address?.accountAddress?.first)
+      const firstAddress = await connection.getBalance(address?.accountAddress?.second)
       const bal = ethers.utils.formatEther(firstAddress)
       setEoaOneBalance(bal)
+      console.log('bal',bal)
       // alert(bal)
     } catch (err) {
       console.log(err)
@@ -237,6 +240,25 @@ const Home = ({ navigation, route }) => {
     }
 
   }
+
+  const initHome=async()=>{
+    await getDataFromTheLocally()
+    getSWallet()
+    getEoaBalance()
+    vaultStatus()
+  }
+
+  React.useEffect(() => {
+    initHome()
+  }, [])
+
+  // useFocusEffect(
+    
+  //   React.useCallback(() => {
+  //     console.log('Inside Focus')
+  //     getEoaBalance()
+  //   }, [])
+  // )
 
   return (
     <View style={{ flex: 1, backgroundColor: themeColor.primaryBlack }}>
@@ -518,14 +540,14 @@ const Home = ({ navigation, route }) => {
           </TouchableOpacity>
 
           <Text style={styles.balanceText}>
-            $ {parseFloat(balance).toPrecision(2) * 0.6}
+            $ {parseFloat(parseFloat(eoaOneBalance).toPrecision(2) * 0.6).toPrecision(1)}
           </Text>
           <Text style={{
             ...styles.addressText,
             fontSize: 16,
             margin: 4
           }}>
-            {parseFloat(balance).toPrecision(2)} Matic
+            {parseFloat(eoaOneBalance).toPrecision(2)} Matic
           </Text>
           <TouchableOpacity style={styles.addressContainer} onPress={() => {
             Clipboard.setString(address?.accountAddress?.second?.toString())

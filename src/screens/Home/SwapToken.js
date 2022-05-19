@@ -8,6 +8,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { typography } from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import ShimmerPlaceHolder from 'react-native-shimmer-placeholder'
 
 //import HistoryIcon from '../../../assets/svg/HistoryIcon.svg';
 import { getDataLocally } from '../../Utils/AsyncStorage';
@@ -44,6 +45,7 @@ const SwapToken = ({ navigation, route }) => {
       const provider = walletProvider();
       const balance = await provider.getBalance(address?.accountAddress?.second);
       getVaultBalance(data);
+      
       const hex = Object.values(balance);
       const ether = ethers.utils.formatEther(balance)
 
@@ -156,7 +158,7 @@ const SwapToken = ({ navigation, route }) => {
   return (
     <View
       style={{ flex: 1, backgroundColor: themeColor.primaryBlack, padding: 30 }}>
-      <Header navigation={navigation}/>
+      <Header navigation={navigation} />
       <View>
         <LinearGradient
           colors={['#FF84F3', '#B02FA4']}
@@ -331,8 +333,8 @@ const SwapToken = ({ navigation, route }) => {
             <View style={{ alignItems: 'center' }}>
               <GradientButton
                 text={'Transfer'}
-                colors={ (balanceVault > 0) ? ['#FF8DF4', '#89007C'] : ['rgba(0,0,0, 0.2)', 'rgba(0,0,0, 0.2)']}
-                disabled={(balanceVault > 0) ? false : true}
+                colors={(balanceEoa > 0) ? ['#FF8DF4', '#89007C'] : ['rgba(0,0,0, 0.2)', 'rgba(0,0,0, 0.2)']}
+                disabled={(balanceEoa > 0) ? false : true}
                 onPress={() => {
                   if ((selectedData.from != '') && (selectedData.to != '') && amount != '') {
                     const object = {
@@ -401,7 +403,7 @@ const SwapToken = ({ navigation, route }) => {
               {/* <MaterialIcons name={'keyboard-arrow-down'} size={24} /> */}
             </View>
 
-            <View style={{ alignItems: 'center',justifyContent:'space-around',width:'100%' }}>
+            <View style={{ alignItems: 'center', justifyContent: 'space-around', width: '100%' }}>
               <GradientButton
                 text={'Transfer'}
                 colors={['#FF8DF4', '#89007C']}
@@ -504,18 +506,20 @@ const SwapToken = ({ navigation, route }) => {
               <View
                 style={styles.summaryTextContainer}>
                 <Text style={styles.subHeaderText}>Gas Fees</Text>
-                <Text style={styles.subHeaderText}> {utils.formatUnits(gasFees, "wei")} Wei</Text>
+                {(gasFees > 0) ?
+                  <Text style={styles.subHeaderText}> {gasFees + " wei"}</Text>
+                  : <ShimmerPlaceHolder style={{ width: '40%', borderRadius: 10 }} LinearGradient={LinearGradient} />}
               </View>
               <View
                 style={styles.summaryTextContainer}>
                 <Text style={styles.subHeaderText}>Transaction</Text>
                 <Text style={styles.subHeaderText}>{selectedData?.amount} Matic</Text>
               </View>
-              <View
+              {/* <View
                 style={styles.summaryTextContainer}>
                 <Text style={styles.subHeaderText}>Total</Text>
                 <Text style={styles.subHeaderText}> {parseFloat(amount) + parseFloat(gasFees)} wei</Text>
-              </View>
+              </View> */}
             </View>
 
             <View style={{
@@ -524,7 +528,7 @@ const SwapToken = ({ navigation, route }) => {
               alignItems: 'center'
             }}>
 
-              <View style={{ alignItems: 'center',width:'100%',flexDirection:'row',justifyContent:'space-around' }}>
+              <View style={{ alignItems: 'center', width: '100%', flexDirection: 'row', justifyContent: 'space-around' }}>
                 <GradientButton
                   text={'Confirm'}
                   disabled={(gasFees <= 0) ? true : false}
@@ -538,7 +542,7 @@ const SwapToken = ({ navigation, route }) => {
                     } else {
                       transferVaultToEoa()
                     }
-                    // transferAmount();
+                    setGasFees(0)
                     setConfirm(false);
                   }}
                 />
@@ -549,6 +553,7 @@ const SwapToken = ({ navigation, route }) => {
                   onPress={() => {
                     //            navigation.navigate('RestoreFromPhrase');
                     clearInterval(timeRef.current)
+                    setGasFees(0)
                     setConfirm(false)
                   }}
                 />

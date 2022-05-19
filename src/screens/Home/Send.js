@@ -2,13 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Modal, StyleSheet, Linking } from 'react-native';
 import { themeColor } from '../../common/theme';
 import Header from '../../components/Header';
-//import Send from '../../../assets/svg/Send.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { typography } from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import QRCodeScanner from 'react-native-qrcode-scanner';
-import { RNCamera } from 'react-native-camera';
 import AssetsLog from '../../components/AssetsLog';
 import { getDataLocally } from '../../Utils/AsyncStorage';
 import { Locations } from '../../Utils/StorageLocations';
@@ -27,14 +25,16 @@ const SendScreen = ({ navigation }) => {
         getTransactionList();
     }, [])
 
-    // useFocusEffect(() => {
-    //     console.log("list tranasction")
-    //     // tryRunAtATime()
-    // })
+    useFocusEffect(
+        React.useCallback(() => {
+            getTransactionList();
+        }, []))
+    
 
     const getTransactionList = async () => {
         try {
             const data = await getDataLocally(Locations.SENDTRANSACTIONS);
+            console.log(data)
             setData(data);
         } catch (err) {
             alert(err.message)

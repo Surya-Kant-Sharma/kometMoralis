@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -34,6 +34,7 @@ import { Locations } from '../../Utils/StorageLocations';
 import useNativeBalance from '../../../frontend/hooks/useNativeBalance';
 import { getWallets, setAddress } from '../../store/Actions/action';
 import { getSmartWalletBalance } from '../../Utils/SmartWallet';
+import { useFocusEffect } from '@react-navigation/native';
 
 console.ignoredYellowBox = ['Setting a timer'];
 
@@ -77,7 +78,7 @@ const Profile = ({ navigation }) => {
   useEffect(() => {
     getSelectedItemInfo()
     getModesBalance()
-    getExternalWallet()
+    // getExternalWallet()
   }, [value, isAuthenticated])
 
   const getSelectedItemInfo = () => {
@@ -102,11 +103,9 @@ const Profile = ({ navigation }) => {
     try {
       const info = await getDataLocally(Locations.SMARTACCOUNTS);
       if (info?.address)
-        // MODES.push("Vault")
         if (Modes.indexOf('Vault') == -1) {
           setModes(pre => [...pre, 'Vault'])
         }
-      // alert(info);
     } catch (err) {
       // alert(err.message)
     }
@@ -175,10 +174,19 @@ const Profile = ({ navigation }) => {
 
   }
 
+  useFocusEffect(
+    
+     React.useCallback(() => {
+      fetchAssets();
+      getVaultInfo();
+      getExternalWallet();
+     }, [])
+   )
+
+  
+
   useEffect(() => {
-    fetchAssets();
-    getVaultInfo();
-    getExternalWallet();
+   
   }, []);
   const [currentTab, setCurrentTab] = useState('Komet');
 
@@ -251,7 +259,7 @@ const Profile = ({ navigation }) => {
             </Text>
 
             <MaterialIcons name={'keyboard-arrow-down'} size={16} color={'#453E9F'} /></TouchableOpacity>
-          <Text style={{ fontFamily: typography.semiBold, color: 'white', fontSize: 18 }}>$ {(parseFloat(balance).toPrecision(4) * 0.6).toPrecision(2) * 0.6}</Text>
+          <Text style={{ fontFamily: typography.semiBold, color: 'white', fontSize: 18 }}>$ {(parseFloat(balance).toPrecision(4) * 0.6).toPrecision(2)}</Text>
         </View>
       </View>
 
@@ -397,7 +405,6 @@ const styles = StyleSheet.create({
     fontFamily: typography.medium,
   },
 });
-
 
 
 

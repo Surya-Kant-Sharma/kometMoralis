@@ -97,16 +97,22 @@ const ReceiveToken = ({ navigation }) => {
         justifyContent: 'center',
         alignItems: 'center'
       }}>
-        <QRCode
-          value={address?.accountAddress?.second}
-          size={200}
-          bgColor='#232732'
-          fgColor='white' />
+        <View style={{
+          backgroundColor : 'white',
+          padding : 10,
+          borderRadius : 10
+        }}>
+          <QRCode
+            value={address?.accountAddress?.second}
+            size={200}
+            bgColor='black'
+            fgColor='white' />
+        </View>
       </View>
       <View style={{
         width: '100%',
-        justifyContent : 'center',
-        alignItems : 'center'
+        justifyContent: 'center',
+        alignItems: 'center'
       }}>
 
 
@@ -117,7 +123,7 @@ const ReceiveToken = ({ navigation }) => {
             fontFamily: typography.regular,
             fontSize: 14,
             color: 'white',
-            marginTop : 20
+            marginTop: 20
           }}>
           {address?.accountAddress?.second?.substring(0, 8) + "..." + address?.accountAddress?.second?.substring(34, address?.accountAddress?.second?.length)}
         </Text>
@@ -129,7 +135,7 @@ const ReceiveToken = ({ navigation }) => {
             fontFamily: typography.regular,
             fontSize: 12,
             color: 'white',
-            marginTop : 160,
+            marginTop: 160,
           }}>
           Share Qr-Code to Receive Matic On Testnet
         </Text>

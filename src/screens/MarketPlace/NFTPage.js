@@ -79,6 +79,7 @@ const NFTPage = ({navigation,route}) => {
           text={' Buy from KometVerse '}
           colors={['#FF8DF4', '#89007C']}
           onPress={() => {
+            ToastAndroid.show('Coming Soon',ToastAndroid.SHORT)
             //navigation.navigate('Dashboard');
             //encryptText(route.params.phrase, pin, navigation);
             

@@ -12,6 +12,7 @@ import { RNCamera } from 'react-native-camera';
 import { ScrollView } from 'react-native-gesture-handler';
 import GradientButton from '../../components/GradientButton';
 import { useSelector } from 'react-redux';
+import ShimmerPlaceHolder from 'react-native-shimmer-placeholder'
 
 
 
@@ -46,7 +47,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
     const [balance, setBalance] = useState(0);
     const [gasFees, setGasFees] = useState(0);
     const [open, setOpen] = useState(false)
-    const [value, setValue] = useState('EOA 1')
+    const [value, setValue] = useState('Komet Wallet')
     const [confirm, setConfirm] = useState(false);
 
     const [transactionHash, setTransactionHash] = React.useState(false);
@@ -57,7 +58,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
 
 
     const [accounts, setAccounts] = useState([
-        'EOA 1'
+        'Komet Wallet'
     ]);
 
 
@@ -129,7 +130,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
         const newItem = initalData;
         newItem.from = address?.accountAddress.first
         newItem.to = toAddress
-        newItem.name = sentAddress
+        newItem.name = sentAddress || 'unkown'
         newItem.amount = amount
         newItem.hash = hash
         newItem.date = new Date();
@@ -156,7 +157,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
     return (
         <ScrollView
             style={{ backgroundColor: themeColor.primaryBlack, padding: 30 }}>
-            <Header navigation={navigation}/>
+            <Header navigation={navigation} />
             <View style={{ margins: 40 }}>
 
                 {/* {'Account Select Modal'} */}
@@ -272,7 +273,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                     {value}
                 </Text>
             </TouchableOpacity>
-            <Text style={{ fontFamily: typography.medium, color: 'white', marginHorizontal: 10, fontSize: 16 }}>To</Text>
+            <Text style={{ fontFamily: typography.medium, color: 'white', marginHorizontal: 10, fontSize: 16 }}>To (required)</Text>
             <View
                 style={styles.textInputContainer}>
 
@@ -288,7 +289,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                 />
 
             </View>
-            <Text style={{ fontFamily: typography.medium, color: 'white', marginHorizontal: 10, fontSize: 16 }}>Name</Text>
+            <Text style={{ fontFamily: typography.medium, color: 'white', marginHorizontal: 10, fontSize: 16 }}>Name (optional)</Text>
             <View
                 style={styles.textInputContainer}>
 
@@ -305,11 +306,12 @@ const SendTokenFinalize = ({ navigation, route }) => {
 
             </View>
 
-            <Text style={{ fontFamily: typography.medium, color: 'white', marginHorizontal: 10, fontSize: 16 }}>Amount</Text>
+            <Text style={{ fontFamily: typography.medium, color: 'white', marginHorizontal: 10, fontSize: 16 }}>Amount (required)</Text>
             <View
                 style={styles.textInputContainer}>
                 <Image source={{ uri: 'https://ffnews.com/wp-content/uploads/2021/07/q4itcBEb_400x400-300x300.jpg' }} style={{ width: 35, height: 35, borderRadius: 50 }} />
                 <TextInput
+                    keyboardType='number-pad'
                     placeholder={'ENTER MATIC'}
                     onChangeText={(text) => setAmount(text)}
                     style={{
@@ -381,38 +383,40 @@ const SendTokenFinalize = ({ navigation, route }) => {
                             <View
                                 style={styles.summaryTextContainer}>
                                 <Text style={styles.subHeaderText}>Gas Fees</Text>
-                                <Text style={styles.subHeaderText}>$ {gasFees}</Text>
+                                {(gasFees > 0) ?
+                                    <Text style={styles.subHeaderText}> {gasFees + " wei"}</Text>
+                                    : <ShimmerPlaceHolder style={{ width: '40%', borderRadius: 10 }} LinearGradient={LinearGradient} />}
                             </View>
                             <View
                                 style={styles.summaryTextContainer}>
                                 <Text style={styles.subHeaderText}>Transaction</Text>
-                                <Text style={styles.subHeaderText}>$ {amount}</Text>
+                                <Text style={styles.subHeaderText}> {amount} MATIC</Text>
                             </View>
-                            <View
+                            {/* <View
                                 style={styles.summaryTextContainer}>
                                 <Text style={styles.subHeaderText}>Total</Text>
                                 <Text style={styles.subHeaderText}>$ {amount + gasFees}</Text>
-                            </View>
+                            </View> */}
                         </View>
 
                         <View style={{
                             flexDirection: 'column'
                         }}>
 
-                            <View style={{ alignItems: 'center',flexDirection:'row',justifyContent:'space-around',width:'100%'}}>
+                            <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-around', width: '100%' }}>
                                 <GradientButton
                                     text={'Confirm'}
                                     size={150}
                                     disabled={(gasFees <= 0) ? true : false}
-                                    colors={['#FF8DF4', '#89007C']}
+                                    colors={(gasFees > 0) ? ['#FF8DF4', '#89007C'] : ['rgba(0,0,0, 0.2)', 'rgba(0,0,0, 0.2)']}
                                     onPress={() => {
-                                        //            navigation.navigate('RestoreFromPhrase');
                                         clearInterval(timeRef.current)
                                         transferAmount();
                                         setConfirm(false);
+                                        setGasFees(0)
                                     }}
                                 />
-                                                                <GradientButton
+                                <GradientButton
                                     text={'Cancel'}
                                     size={150}
                                     colors={['#FF8DF4', '#89007C']}
@@ -420,6 +424,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                                         //            navigation.navigate('RestoreFromPhrase');
                                         clearInterval(timeRef.current)
                                         setConfirm(false)
+                                        setGasFees(0)
                                     }}
                                 />
 
@@ -442,7 +447,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                             }, 6000)
                             setConfirm(true)
                         } else {
-                            alert('Please Fill the Form and to Address')
+                            alert('Please fill all required fields')
                         }
                     }}
                 />

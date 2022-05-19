@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,27 +12,36 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-import {themeColor} from '../../common/theme';
-import {typography} from '../../common/typography';
+import { themeColor } from '../../common/theme';
+import { typography } from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
-const {width, height} = Dimensions.get('screen');
-const MarketPlace = ({navigation}) => {
+const { width, height } = Dimensions.get('screen');
+const MarketPlace = ({ navigation }) => {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchCollections();
+    }, [])
+  )
+
+
   const fetchCollections = async () => {
     setLoading(true);
-     await axios
-       .get('http://staging.komet.me/api/v1/market/v1/collections?pageNo=0&pageSize=10')
-       .then(res => {
-         console.log(res.data)
-         setCollections(res.data);
-         setLoading(false);
-       })
-       .catch(error => {
-         setLoading(false);
-         console.log(error);
-       });
+    await axios
+      .get('http://staging.komet.me/api/v1/market/v1/collections?pageNo=0&pageSize=50')
+      .then(res => {
+        console.log(res.data)
+        setCollections(res.data);
+        setLoading(false);
+      })
+      .catch(error => {
+        setLoading(false);
+        console.log(error);
+      });
   };
 
   useEffect(() => {
@@ -41,30 +50,30 @@ const MarketPlace = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      
+
       <View style={styles.searchBarContainer}>
-      <TouchableOpacity
+        <TouchableOpacity
           style={{
-            height:40,
-            width:40,
-            borderRadius:40,
-            backgroundColor:'#89007C',
+            height: 40,
+            width: 40,
+            borderRadius: 40,
+            backgroundColor: '#89007C',
             alignSelf: 'center',
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-          <MaterialIcons name='menu' color={'white'} size={30}/>
+          <MaterialIcons name='menu' color={'white'} size={30} />
         </TouchableOpacity>
-          {/* <MaterialIcons name={'search'} size={24} color={'white'} />
+        {/* <MaterialIcons name={'search'} size={24} color={'white'} />
           <TextInput placeholder={'Search'} style={{height: 40}} /> */}
-          <Text style={{fontSize:18,fontFamily:typography.medium,color:'white'}}>DISCOVER</Text>
-        
-          <TouchableOpacity
+        <Text style={{ fontSize: 18, fontFamily: typography.medium, color: 'white' }}>DISCOVER</Text>
+
+        <TouchableOpacity
           style={{
-            height:40,
-            width:40,
-            borderRadius:40,
-            backgroundColor:'#89007C',
+            height: 40,
+            width: 40,
+            borderRadius: 40,
+            backgroundColor: '#89007C',
             alignSelf: 'center',
             justifyContent: 'center',
             alignItems: 'center',
@@ -73,20 +82,20 @@ const MarketPlace = ({navigation}) => {
         </TouchableOpacity>
       </View>
       {loading ? (
-        <ActivityIndicator size={32} style={{margin: 20}} color={'pink'} />
+        <ActivityIndicator size={32} style={{ margin: 20 }} color={'pink'} />
       ) : (
         <FlatList
           data={collections}
           numColumns={2}
           showsVerticalScrollIndicator={false}
-          style={{alignSelf: 'center'}}
+          style={{ alignSelf: 'center' }}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({item, index}) => (
+          renderItem={({ item, index }) => (
             <TouchableOpacity
-              onPress={() => navigation.navigate('Collections', {item: item})}
+              onPress={() => navigation.navigate('Collections', { item: item })}
               style={styles.cardContainer}>
-              <Image source={{uri: item.collectionImage}} style={styles.image} />
-               <Text style={styles.imageText}>{item.collectionName}</Text> 
+              <Image source={{ uri: item.collectionImage }} style={styles.image} />
+              <Text style={styles.imageText}>{item.collectionName}</Text>
             </TouchableOpacity>
           )}
         />
@@ -98,12 +107,12 @@ const MarketPlace = ({navigation}) => {
 export default MarketPlace;
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: themeColor.primaryBlack},
+  container: { flex: 1, backgroundColor: themeColor.primaryBlack },
   searchBarContainer: {
     justifyContent: 'space-around',
     flexDirection: 'row',
     margin: 10,
-    alignItems:'center'
+    alignItems: 'center'
   },
   textInputContainer: {
     flexDirection: 'row',
@@ -115,7 +124,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 10,
   },
-  cardContainer: {height: width * 0.5, width: width * 0.45, margin: 2},
+  cardContainer: { height: width * 0.5, width: width * 0.45, margin: 2 },
   image: {
     height: width * 0.45,
     width: width * 0.45,

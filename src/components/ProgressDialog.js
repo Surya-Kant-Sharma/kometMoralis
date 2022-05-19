@@ -44,7 +44,7 @@ const ProgressDialog = ({ open, setOpen, completed, setCompleted }) => {
                                 <View style={{
                                     flexDirection: 'row'
                                 }}>
-                                    <ActivityIndicator style={{ marginRight: 6 }} />
+                                    <ActivityIndicator style={{ marginRight: 6 }} color={'purple'} />
 
                                     <Text
                                         style={{

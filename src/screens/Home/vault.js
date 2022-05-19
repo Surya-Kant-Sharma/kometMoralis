@@ -421,7 +421,7 @@ const Home = ({ navigation, route }) => {
           </TouchableOpacity>
 
           <Text style={styles.balanceText}>
-            $ {parseFloat(balance).toPrecision(2) * 0.6}
+            $ {parseFloat(parseFloat(balance).toPrecision(2) * 0.6).toPrecision(1)}
           </Text>
 
           <Text style={{

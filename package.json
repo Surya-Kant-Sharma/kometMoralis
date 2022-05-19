@@ -87,6 +87,7 @@
     "react-native-reanimated": "~2.2.0",
     "react-native-safe-area-context": "3.2.0",
     "react-native-screens": "~3.4.0",
+    "react-native-shimmer-placeholder": "^2.0.8",
     "react-native-smooth-pincode-input": "^1.0.9",
     "react-native-splash-screen": "^3.3.0",
     "react-native-stream": "0.1.9",
