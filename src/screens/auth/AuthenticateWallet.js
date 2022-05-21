@@ -15,6 +15,7 @@ import {themeColor} from '../../common/theme';
 import {typography} from '../../common/typography';
 import GradientButton from '../../components/GradientButton';
 import BorderButton from '../../components/BorderButton';
+import Ionicons from 'react-native-vector-icons/Ionicons'
 import TouchID from 'react-native-touch-id';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
@@ -170,17 +171,19 @@ const AuthenticateWallet = ({navigation, route}) => {
             height: 60,
             marginTop: 25,
           }}>
-          <Image source={require('../../../assets/images/fingerprint.png')} />
+          {/* <Image source={require('../../../assets/images/fingerprint.png')} /> */}
+          <Ionicons name={'md-keypad'} color={'white'} size={20}/>
           <View>
             <Text style={{color: 'white', fontFamily: typography.medium}}>
-              Device{' '}
+              Create Password{' '}
             </Text>
             <Text
               style={{
                 color: 'rgba(255,255,255,0.60)',
                 fontFamily: typography.regular,
+                fontSize:11
               }}>
-              Use Device Authentication{' '}
+              Protect your wallet with four-digit PIN
             </Text>
           </View>
           <Switch

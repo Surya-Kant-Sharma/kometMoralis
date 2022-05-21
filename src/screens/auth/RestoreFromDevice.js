@@ -67,7 +67,8 @@ const RestoreFromDevice = ({navigation, route}) => {
 
   const decryptFromDevice = async () => {
     const text = await decryptText(pin);
-    if (text.length > 0) {
+    console.log(text)
+    if (text?.length && text!=undefined > 0) {
       ToastAndroid.showWithGravityAndOffset(
         'Wallet Fetched from device',
         ToastAndroid.LONG,
@@ -78,10 +79,10 @@ const RestoreFromDevice = ({navigation, route}) => {
       //alert(text)
       fetchPrivateKey(text);
     }
-    else{
+    else if(text==undefined || text.length==0){
       setLoading(false)
       ToastAndroid.showWithGravityAndOffset(
-        'Wrong Pincode',
+        'Issue while fetching the wallet information. ',
         ToastAndroid.LONG,
         ToastAndroid.BOTTOM,
         25,

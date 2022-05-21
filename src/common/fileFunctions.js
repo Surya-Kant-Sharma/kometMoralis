@@ -50,6 +50,7 @@ export const encryptText = async(text, key, navigation) => {
 };
 
 export const decryptText = async (pin, navigation) => {
+  var stringResponse=false;
   try{
     try {
       const granted = await PermissionsAndroid.requestMultiple([
@@ -57,17 +58,19 @@ export const decryptText = async (pin, navigation) => {
         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
       ]);
     } catch (err) {
+      stringResponse=''
       console.warn(err);
     }
     const readGranted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE); 
     const writeGranted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
    
     if(!readGranted || !writeGranted ) {
+      stringResponse=''
       console.log('Read and write permissions have not been granted');
       return;
     }
     var path = RNFS.ExternalDirectoryPath + '/wallet.txt';
-    var stringResponse=false;
+    
     console.log(path);
     const response = await RNFS.readFile(path);
     try{

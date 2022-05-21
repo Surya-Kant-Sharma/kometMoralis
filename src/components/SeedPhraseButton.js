@@ -4,7 +4,7 @@ import {typography} from '../common/typography';
 
 const SeedPhraseButton = ({item, index}) => {
   return (
-    <TouchableOpacity
+    <View
       style={{
         height: 30,
         width: 130,
@@ -18,14 +18,14 @@ const SeedPhraseButton = ({item, index}) => {
         paddingHorizontal: 15,
       }}>
       <Text
-        style={{fontFamily: typography.regular, fontSize: 12, color: 'white'}}>
+        style={{fontFamily: typography.regular, fontSize: 12, color: 'white',textAlign:'left',flex:0.5}}>
         {index + 1}
       </Text>
       <Text
-        style={{fontFamily: typography.regular, fontSize: 12, color: 'white'}}>
+        style={{fontFamily: typography.regular, fontSize: 12, color: 'white',textAlign:'left',flex:1}}>
         {item}
       </Text>
-    </TouchableOpacity>
+    </View>
   );
 };
 

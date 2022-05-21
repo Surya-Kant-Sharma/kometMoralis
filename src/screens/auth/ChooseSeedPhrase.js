@@ -1,6 +1,6 @@
 import React from 'react';
 import {useState} from 'react';
-import {View, Text, FlatList, Dimensions} from 'react-native';
+import {View, Text, FlatList, Dimensions, ToastAndroid, Touchable} from 'react-native';
 import bip39 from 'react-native-bip39';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {themeColor} from '../../common/theme';
@@ -10,10 +10,23 @@ import GradientButton from '../../components/GradientButton';
 import Header from '../../components/Header';
 import SeedPhraseButton from '../../components/SeedPhraseButton';
 import {ethers} from 'ethers';
+import { getAccountDetails } from '../../Utils/ImportWallet';
+import { setAccountInfo } from '../../Utils/AsyncStorage';
+import { transferToSmartWallet } from '../../Utils/SmartWallet';
+import { ActivityIndicator } from 'react-native-paper';
+import { useDispatch } from 'react-redux';
+import { setAddress } from '../../store/Actions/action';
+import { API_KEY } from '../../Utils/Api';
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import Clipboard from '@react-native-community/clipboard';
 
 const ChooseSeedPhrase = ({navigation}) => {
   const [phrase, setPhrase] = useState([]);
   const [string, setString] = useState('');
+  const dispatch=useDispatch();
+  const [loading,setLoading]=useState(false)
+  const fetchAddress = address => dispatch(setAddress(address));
   var provider;
 
   const fetchSecretKey = async () => {
@@ -52,6 +65,49 @@ const ChooseSeedPhrase = ({navigation}) => {
   React.useEffect(() => {
     genrateSeedPhrase();
   }, []);
+
+  const createAccount=async()=>{
+      //setLoading(true);
+      //console.log(loading)
+      try {
+        //const sp = "clean gossip jar often rent coconut detect gossip crush invest vicious weapon"
+        const WalletInfo = await getAccountDetails(string);
+        if(WalletInfo) {
+          fetchAddress(WalletInfo);
+          setAccountInfo(WalletInfo);
+          transferToSmartWallet({
+            privateKey : API_KEY,
+            to : WalletInfo?.accountAddress?.first,
+            amount : "0.1"
+          }).then((response) => {
+            setLoading(false)
+            console.log(response)
+          }).catch ((err) => {
+            console.log(err.message);
+            setLoading(false)
+          })
+          //alert(WalletInfo?.accountAddress?.first)
+        }
+        //setLogin(true)
+        ToastAndroid.showWithGravityAndOffset(
+          'Account created Successfully',
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM,
+          25,
+          50
+        );
+        
+        setTimeout(()=>{
+          navigation.replace('Dashboard')
+        },0) 
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+        setLoading(false);
+      }
+    
+  }
+
   return (
     <View
       style={{
@@ -63,15 +119,22 @@ const ChooseSeedPhrase = ({navigation}) => {
         justifyContent: 'space-between',
         flexDirection: 'column',
       }}>
-<Header navigation={navigation}/><View style={{alignItems: 'center'}}>
+<Header navigation={navigation}/>
+<View style={{alignItems: 'center',marginTop:-40}}>
+        <View style={{flexDirection:'row',alignItems:'center'}}>
         <Text
           style={{
             fontFamily: typography.semiBold,
             color: 'white',
             fontSize: 24,
           }}>
-          Secret Recovery Phrase
+          Secret Recovery Phrase{' '}
+        
         </Text>
+        <TouchableOpacity onPress={()=>{Clipboard.setString(string);ToastAndroid.show('Phrase Copied',ToastAndroid.SHORT)}}>
+        <Ionicons name={'md-copy'} color={'white'} size={20} />
+        </TouchableOpacity>
+        </View>
         <Text
           style={{
             fontFamily: typography.medium,
@@ -88,6 +151,7 @@ const ChooseSeedPhrase = ({navigation}) => {
           alignItems: 'center',
         }}>
         <FlatList
+        showsVerticalScrollIndicator={false}
           data={phrase}
           numColumns={2}
           keyExtractor={(item, index) => index.toString()}
@@ -109,14 +173,21 @@ const ChooseSeedPhrase = ({navigation}) => {
             navigation.navigate('AuthenticateWallet', {phrase: string});
           }}
         />
-        {/* <BorderButton
-          borderColor={'#FF8DF4'}
-          text={'  Skip for Now  '}
-          onPress={() => {
-            fetchSecretKey();
-            //console.log('BorderPressed');
-          }}
-        /> */}
+         {loading?
+        <ActivityIndicator size={'small'} color={'pink'}/> 
+        :<BorderButton
+        borderColor={'#FF8DF4'}
+        text={'  Skip for Now  '}
+        onPress={() => {
+          setLoading(true);
+          setTimeout(()=>{
+            createAccount()
+          },0)
+          //console.log('BorderPressed');
+        }}
+      />
+      }
+ 
       </View>
 
       {/* {phrase.map((item, index) => (

@@ -68,20 +68,22 @@ const FinalizeUserName = ({navigation, route}) => {
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Laoreet ut
           dui imperdiet.
         </Text>
-        <View style={{flexDirection: 'row', marginVertical: 40}}>
+        <View style={{flexDirection: 'row', marginVertical: 40,alignSelf:'center'}}>
           <View
             style={{
               width: 320,
+             
               alignItems: 'center',
               justifyContent: 'center',
+              alignSelf:'center',
               backgroundColor: 'white',
               height: 40,
               borderRadius: 10,
               padding: 10,
             }}>
             <Text style={{color: '#8F8F8F', fontFamily: typography.medium}}>
-              @{route.params.name.toString()}
-              <Text style={{color: '#4F5686', fontFamily: typography.medium}}>
+              {route.params.name.toString()}
+              <Text style={{color: '#B02FA4', fontFamily: typography.medium}}>
                 .komet.me
               </Text>
             </Text>

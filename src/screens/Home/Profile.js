@@ -11,11 +11,8 @@ import {
   Modal
 } from 'react-native';
 import { themeColor } from '../../common/theme';
-import Octicons from 'react-native-vector-icons/Octicons';
-import Feather from 'react-native-vector-icons/Feather';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import ProfileIcons from '../../../assets/svg/ProfileIcons.svg';
-import AssetIcon from '../../../assets/svg/AssetIcon.svg';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+
 import { typography } from '../../common/typography';
 //import axios from 'axios';
 import { useSelector } from 'react-redux';
@@ -248,7 +245,7 @@ const Profile = ({ navigation }) => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Ionicons name={'menu'} size={26} color={'white'} />
+            <FontAwesome name={'gear'} size={26} color={'white'} />
           </TouchableOpacity>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 20 }}>

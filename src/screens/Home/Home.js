@@ -17,6 +17,7 @@ import {
 import { themeColor } from '../../common/theme';
 import { typography } from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useDispatch, useSelector } from 'react-redux';
 //import ScanIcon from '../../../assets/svg/ScanIcon.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -275,7 +276,7 @@ const Home = ({ navigation, route }) => {
             style={{ borderRadius: 20 }}
             colors={['#FE85F2', '#B02FA4']}>
             <TouchableOpacity style={{ ...styles.headerDropdownContainer }} onPress={(!vault) ? () => setVaultModal(true) : () => createSW()}>
-              <Entypo name={'wallet'} size={20} />
+              <MaterialCommunityIcons name={'safe-square'} size={20} color={'white'} />
               <Text style={styles.dropDownText}>{(vault) ? 'Open Vault' : 'Create Smart Vault'}</Text>
             </TouchableOpacity>
           </LinearGradient>
@@ -285,7 +286,7 @@ const Home = ({ navigation, route }) => {
               ...styles.headerDropdownContainer,
               backgroundColor: '#343153',
             }}>
-            <AntDesign name={'qrcode'} color={'white'} size={28} />
+            <Entypo name={'wallet'} color={'white'} size={20} />
             <Text style={styles.dropDownText}> {!isAuthenticated ? 'Connect Wallet' : 'Open Other Wallet'} </Text>
           </TouchableOpacity>
         </View>
@@ -297,8 +298,9 @@ const Home = ({ navigation, route }) => {
             <View
               style={{
                 flex: 1,
-                justifyContent: 'flex-end',
+                //justifyContent: 'flex-end',
               }}>
+                <TouchableOpacity style={{flex:1}} onPress={()=>setOpen(false)}></TouchableOpacity>
               <View
                 style={{
                   borderTopRightRadius: 10,
@@ -306,6 +308,7 @@ const Home = ({ navigation, route }) => {
                   backgroundColor: '#2F2F3A',
                   alignItems: 'flex-start',
                   padding: 15,
+                  flex:1
                 }}>
                 <View
                   style={{
@@ -585,10 +588,10 @@ const Home = ({ navigation, route }) => {
                   borderRadius: 64,
                   justifyContent: 'center',
                 }}>
-                <TouchableOpacity
+                <View
                   style={{ alignItems: 'center', justifyContent: 'center' }}>
                   <AntDesign name={'arrowup'} color={'white'} size={28} />
-                </TouchableOpacity>
+                </View>
               </LinearGradient>
               <Text
                 style={{
@@ -611,10 +614,10 @@ const Home = ({ navigation, route }) => {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                <TouchableOpacity
+                <View
                   style={{ alignItems: 'center', justifyContent: 'center' }}>
                   <AntDesign name={'arrowdown'} color={'white'} size={28} />
-                </TouchableOpacity>
+                </View>
               </LinearGradient>
               <Text
                 style={{
@@ -636,10 +639,10 @@ const Home = ({ navigation, route }) => {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                <TouchableOpacity
+                <View
                   style={{ alignItems: 'center', justifyContent: 'center' }}>
                   <AntDesign name={'swap'} color={'white'} size={28} />
-                </TouchableOpacity>
+                </View>
               </LinearGradient>
               <Text
                 style={{
@@ -836,7 +839,7 @@ const styles = StyleSheet.create({
   },
   headerDropdownContainer: {
     height: 30,
-    width: width * 0.45,
+    width: width * 0.40,
     borderRadius: 20,
 
     flexDirection: 'row',

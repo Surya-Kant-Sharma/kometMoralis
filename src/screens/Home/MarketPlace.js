@@ -95,6 +95,7 @@ const MarketPlace = ({ navigation }) => {
               onPress={() => navigation.navigate('Collections', { item: item })}
               style={styles.cardContainer}>
               <Image source={{ uri: item.collectionImage }} style={styles.image} />
+              
               <Text style={styles.imageText}>{item.collectionName}</Text>
             </TouchableOpacity>
           )}

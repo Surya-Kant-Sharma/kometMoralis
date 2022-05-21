@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {useState, useEffect} from 'react';
 import {View, Text, ScrollView, Alert, ToastAndroid} from 'react-native';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
@@ -31,6 +31,7 @@ import {useNavigation} from '@react-navigation/native';
 var RNFS = require('react-native-fs');
 
 const ChooseSecurityPin = ({navigation, route}) => {
+  const codeRef=useRef()
   const [pin, setPin] = useState('');
   const navigations = useNavigation();
   const [confirmed, setConfirmed] = useState(false);
@@ -61,8 +62,11 @@ const ChooseSecurityPin = ({navigation, route}) => {
   const fetchAddress = address => dispatch(setAddress(address));
 
   useEffect(() => {
-    // Initial configuration
-  }, []);
+    setTimeout(() => {
+      // Fix auto focus for Android
+      codeRef.current.focus()
+    }, 500)
+  }, [codeRef])
 
   const fetchPrivateKey = async () => {
     
@@ -140,6 +144,8 @@ const ChooseSecurityPin = ({navigation, route}) => {
           {confirmed ? 'Re-enter' : 'Enter'} Pin
         </Text>
         <SmoothPinCodeInput
+        ref={codeRef}
+          autoFocus={true}
           password
           restrictToNumbers
           mask="﹡"
