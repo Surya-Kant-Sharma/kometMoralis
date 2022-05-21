@@ -82,6 +82,7 @@
     "react-native-localhost": "1.0.0",
     "react-native-os": "^1.0.1",
     "react-native-paper": "^4.9.2",
+    "react-native-progress": "^5.0.0",
     "react-native-qrcode-generator": "^1.2.2",
     "react-native-qrcode-scanner": "^1.5.5",
     "react-native-randombytes": "^3.6.1",

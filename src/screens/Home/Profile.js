@@ -32,6 +32,7 @@ import useNativeBalance from '../../../frontend/hooks/useNativeBalance';
 import { getWallets, setAddress } from '../../store/Actions/action';
 import { getSmartWalletBalance } from '../../Utils/SmartWallet';
 import { useFocusEffect } from '@react-navigation/native';
+import { getUserName } from '../../common/Storage';
 
 console.ignoredYellowBox = ['Setting a timer'];
 
@@ -44,6 +45,7 @@ const Profile = ({ navigation }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('Komet Wallet')
   const [Modes, setModes] = useState(['Komet Wallet'])
+  const [name,setName]=useState('Victoria')
   const address = useSelector(state => state.address);
   const otherWalletAddress = useSelector(state => state.otherWallet);
   const eoaBalance = useSelector(state => state.eoaBalance);
@@ -71,10 +73,17 @@ const Profile = ({ navigation }) => {
       });
   };
 
+    const fetchUserName=async()=>{
+      
+      const name= await getUserName()
+      console.log('Name',name)
+      setName(name);
+    }
 
   useEffect(() => {
     getSelectedItemInfo()
     getModesBalance()
+    fetchUserName()
     // getExternalWallet()
   }, [value, isAuthenticated])
 
@@ -217,7 +226,7 @@ const Profile = ({ navigation }) => {
                   color: 'white',
                   fontSize: 18,
                 }}>
-                Victoria
+                {name}
               </Text>
               <Text
                 numberOfLines={1}

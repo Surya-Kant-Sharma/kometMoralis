@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, Image} from 'react-native';
+import {View, Text, Image, StatusBar} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from './Home';
 import MarketPlace from './MarketPlace';
@@ -13,6 +13,7 @@ import FontAwesomeFive  from 'react-native-vector-icons/FontAwesome5';
 const Dashboard = () => {
   return (
     <>
+    <StatusBar backgroundColor={themeColor.primaryBlack}/>
       <Tab.Navigator
         initialRouteName="Home"
         screenOptions={{

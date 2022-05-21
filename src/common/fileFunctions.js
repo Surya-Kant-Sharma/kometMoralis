@@ -3,6 +3,7 @@ import axios from 'axios';
 import Crypto from 'crypto-js';
 import { PermissionsAndroid, ToastAndroid } from 'react-native';
 import GDrive from 'react-native-google-drive-api-wrapper';
+import { getUserId } from './Storage';
 var RNFS = require('react-native-fs');
 
 export const encryptText = async(text, key, navigation) => {
@@ -68,6 +69,7 @@ export const encryptForDrive = async(text, key, navigation) => {
 };
 
 export const decryptText = async (pin, navigation) => {
+  const userId=await getUserId();
   var stringResponse=false;
   try{
     try {
@@ -87,7 +89,7 @@ export const decryptText = async (pin, navigation) => {
       console.log('Read and write permissions have not been granted');
       return;
     }
-    var path = RNFS.ExternalDirectoryPath + '/wallet.txt';
+    var path = RNFS.ExternalDirectoryPath + `/${userId}.txt`;
     
     console.log(path);
     const response = await RNFS.readFile(path);
@@ -137,7 +139,7 @@ export const decryptDriveText = async (pin, path, navigation) => {
         console.log(decrypted.toString(Crypto.enc.Utf8));
         
         stringResponse=decrypted.toString(Crypto.enc.Utf8);
-        console.log(stringResponse.length);
+        //console.log(stringResponse.length);
         }
         catch (error){
           stringResponse=''

@@ -13,9 +13,11 @@ import TouchID from 'react-native-touch-id';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GoogleSignin,GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
 import axios from 'axios';
-import { saveUserData } from '../../common/Storage';
+import { getUserName, saveUserData, saveUserName } from '../../common/Storage';
 import { ActivityIndicator } from 'react-native-paper';
 import SplashScreens from 'react-native-splash-screen'
+import Lottie from 'lottie-react-native'
+import GradientButton from '../../components/GradientButton';
 
 const SplashScreen = ({navigation,route}) => {
   const loggedIn=useSelector((state)=>state.logIn)
@@ -62,24 +64,13 @@ const SplashScreen = ({navigation,route}) => {
 
  
   
-  const optionalConfigObject = {
-    title: 'Authentication Required', // Android
-    imageColor: '#e00606', // Android
-    imageErrorColor: '#ff0000', // Android
-    sensorDescription: 'Touch sensor', // Android
-    sensorErrorDescription: 'Failed', // Android
-    cancelText: 'Cancel', // Android
-    fallbackLabel: 'Show Passcode', // iOS (if empty, then label is hidden)
-    unifiedErrors: false, // use unified error messages (default false)
-    passcodeFallback: true, // iOS - allows the device to fall back to using the passcode, if faceid/touch is not available. this does not mean that if touchid/faceid fails the first few times it will revert to passcode, rather that if the former are not enrolled, then it will use the passcode.
-  };
 
   const _pressHandler=()=> {
     
     LocalAuth.authenticate({
         reason: 'Please authenticate yourself to use the Komet Wallet',
         fallbackToPasscode: true,    // fallback to passcode on cancel
-        suppressEnterPassword: false // disallow Enter Password fallback
+        suppressEnterPassword: true // disallow Enter Password fallback
       })
       .then(async(success) => {
         setAuthenticated(true)
@@ -87,6 +78,9 @@ const SplashScreen = ({navigation,route}) => {
         console.log('SignIn',isSignedIn)
         if(isSignedIn)
         {
+          const userInfo=await GoogleSignin.getCurrentUser();
+          console.log('CurrentUser',userInfo)
+          saveUserName(userInfo.user.name)
           //setLoading(false)
           //await GoogleSignin.signOut();
           try {
@@ -95,143 +89,29 @@ const SplashScreen = ({navigation,route}) => {
               navigation.replace('Dashboard')
             }
             else{
-              navigation.navigate('OnBoarding')
+              navigation.replace('OnBoarding')
             }
           } catch (err) {
             //ssetLoading(false)
-            navigation.navigate('OnBoarding')
+            navigation.replace('OnBoarding')
 
           }
         }
         else{
-          setNotLoggedInd(true)
+          //setNotLoggedInd(true)
+          navigation.replace('OnBoarding')
    //       setLoading(false)
           return
         }
       })
       .catch(error => {
-        setNotLoggedInd(true)
+       // _pressHandler()
+        //setNotLoggedInd(true)
         //setLoading(false)
 //        AlertIOS.alert('Authentication Failed', error.message)
       })
   }
-
-  const navigate=async(state)=>{
-    console.log('inside',state)
-    if(state!=null)
-        state?navigation.replace('Dashboard'):navigation.navigate('OnBoarding')
-    
-    
-  }
-
- 
-
-  const onAuthenticate = (navigation,state) => {
-    var auth=false;
-    TouchID.authenticate(
-      'Scan your fingerprint on the device scanner to continue',
-      optionalConfigObject,
-    )
-      .then(async(res) => {
-        const isSignedIn = await GoogleSignin.isSignedIn();
-        console.log('SignOut',isSignedIn)
-        if(isSignedIn)
-        {
-          await GoogleSignin.signOut();
-          try {
-            const data = await getDataLocally(Locations.ACCOUNTS) 
-            if(data!=null){
-              navigation.replace('Dashboard')
-            }
-            else{
-              navigation.navigate('OnBoarding')
-            }
-          } catch (err) {
-            navigation.navigate('OnBoarding')
-
-          }
-        }
-        else{
-          return
-        }
-        
-//        navigate(state)
-        //console.log(userInfo)
-       
-        //setAuthenticate(true);
-        //Alert.alert('Authenticated successfully');
-       
-        //onGoogleButtonPress();
-      })
-      .catch(error => {
-        Alert.alert(error.message);
-        return false
-        //setAuthenticate(false);
-       
-      });
-      
-  };
   
- {/*
-  const onAuthenticate = (navigation,state) => {
-    var auth=false;
-    TouchID.authenticate(
-      'Scan your fingerprint on the device scanner to continue',
-      optionalConfigObject,
-    )
-      .then(async(res) => {
-          try {
-            const data = await getDataLocally(Locations.ACCOUNTS) 
-            if(data!=null){
-              navigation.replace('Dashboard')
-            }
-            else{
-              navigation.navigate('OnBoarding')
-            }
-          } catch (err) {
-            navigation.navigate('OnBoarding')
-          }
-        
-//        navigate(state)
-        //console.log(userInfo)
-       
-        //setAuthenticate(true);
-        //Alert.alert('Authenticated successfully');
-       
-        //onGoogleButtonPress();
-      })
-      .catch(error => {
-        Alert.alert(error.message);
-        return false
-        //setAuthenticate(false);
-       
-      });
-      
-  };
-*/}
-  const _signIn = async () => {
-    try {
-      await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
-      });
-      const userInfo = await GoogleSignin.signIn();
-      console.log('User Info --> ', userInfo);
-      login(userInfo.idToken);
-      //navigation.replace('OnBoarding')
-      //navigation.replace('HomeScreen', {userInfo: userInfo});
-    } catch (error) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        alert('User Cancelled the Login Flow');
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        alert('Signing In');
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        alert('Play Services Not Available or Outdated');
-      } else {
-        console.log('error.message', JSON.stringify(error));
-        alert(error.message);
-      }
-    }
-  };
 
   // Check if User is signned in or not?
   const _isSignedIn = async () => {
@@ -274,7 +154,9 @@ const SplashScreen = ({navigation,route}) => {
 
     //onAuthenticate(navigation,loggedIn);
     console.log('Loading',loading)
+
     _pressHandler(navigation,loggedIn)
+    
     // provider = new ethers.providers.JsonRpcProvider(
     //   'https://rinkeby.infura.io/v3/d02fb37024ef430b8f15fdacf9134ccc',
     // );
@@ -295,15 +177,28 @@ const SplashScreen = ({navigation,route}) => {
       <TouchableOpacity>
         <Image source={require('../../../assets/images/Logo.png')} />
       </TouchableOpacity>
-{notLoggedIn?
+{!authenticated?
+<View style={{alignItems:'center'}}>
+<Lottie
+  
+  source={require('../../../assets/Animation/Authenticate.json')}
+  style={{height:200,width:200}}
+  loop={false}
+  
+  autoPlay={true}
+  
+/>
+<GradientButton
+                  text={'Authenticate Again'}
+                  colors={['#FF8DF4', '#89007C']}
+                  onPress={() => {
+                    
+                    _pressHandler();
+                  }}
+                />
+</View>
 
-<GoogleSigninButton
-  style={{ width: 230, height: 48,alignSelf:'center' }}
-  size={GoogleSigninButton.Size.Wide}
-  color={GoogleSigninButton.Color.Dark}
-  onPress={_signIn}
-  //disabled={this.state.isSigninInProgress}
-/>:<View></View>}
+:<View></View>}
  
 </View>
   );
@@ -311,7 +206,13 @@ const SplashScreen = ({navigation,route}) => {
 
 export default SplashScreen;
 
-
+{/* <GoogleSigninButton
+  style={{ width: 230, height: 48,alignSelf:'center' }}
+  size={GoogleSigninButton.Size.Wide}
+  color={GoogleSigninButton.Color.Dark}
+  onPress={_signIn}
+  //disabled={this.state.isSigninInProgress}
+/> */}
 {/*
 
 

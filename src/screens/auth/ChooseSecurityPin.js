@@ -35,6 +35,7 @@ var RNFS = require('react-native-fs');
 
 const ChooseSecurityPin = ({navigation, route}) => {
   const codeRef=useRef()
+  const [percentage,setPercentage]=useState(0)
   const [pin, setPin] = useState('');
   const navigations = useNavigation();
   const [confirmed, setConfirmed] = useState(false);
@@ -64,22 +65,27 @@ const ChooseSecurityPin = ({navigation, route}) => {
 
   const processDriveText=async()=>{
     const text=await encryptForDrive(route.params.phrase, pin);
-
+    setPercentage(15);
     if(text!=false && text!=undefined){
       console.log(text)
+      setPercentage(28)
+      setPercentage(35)
       await _uploadDriveData(text);
       try {
+        setPercentage(45)
         //const sp = "clean gossip jar often rent coconut detect gossip crush invest vicious weapon"
         const WalletInfo = await getAccountDetails(route.params.phrase);
         if(WalletInfo) {
-  
+          setPercentage(74)
           fetchAddress(WalletInfo);
           setAccountInfo(WalletInfo);
+          setPercentage(85)
           transferToSmartWallet({
             privateKey : API_KEY,
             to : WalletInfo?.accountAddress?.first,
             amount : "0.1"
           }).then((response) => {
+            setPercentage(98)
             console.log(response)
           }).catch ((err) => {
             console.log(err.message);
@@ -180,6 +186,7 @@ React.useEffect(()=>{
 },[])
 
 const _uploadDriveData = async (text) => {
+
   const userId=await getUserId();
   try {
     // Check if file selected
@@ -317,7 +324,8 @@ const _uploadDriveData = async (text) => {
         )}
       </View>
       <View></View>
-      {loading?<ActivityIndicator size={'large'}/>:
+      {loading?
+      <ActivityIndicator size={'large'}/>:
       <>
       {confirmed && (confirmedPin == pin)?
         <GradientButton

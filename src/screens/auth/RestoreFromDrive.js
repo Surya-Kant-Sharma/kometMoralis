@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 import {View, Text, ScrollView, Alert, ToastAndroid} from 'react-native';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
@@ -18,7 +18,7 @@ import { setAccountInfo } from '../../Utils/AsyncStorage';
 import axios from 'axios';
 import GDrive from 'react-native-google-drive-api-wrapper';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { getUserId } from '../../common/Storage';
+import { getUserId, getUserName } from '../../common/Storage';
 var RNFS = require('react-native-fs');
 const setLogin=(val)=>dispatch(loginUser(val))
 
@@ -30,50 +30,49 @@ const RestoreFromDrive = ({navigation, route}) => {
   const dispatch = useDispatch();
   const [loading,setLoading]=useState(false)
   var provider;
+  const codeRef=useRef()
 
-  const fetchFileId=async()=>{
-    const userId=await getUserId();
+
+  useEffect(() => {
+    setTimeout(() => {
+      // Fix auto focus for Android
+      codeRef.current.focus()
+    }, 500)
+  }, [codeRef])
+  const fetchFileId=async(id)=>{
+      const userId=await getUserId();
       setLoading(true);
     if (!(await _initGoogleDrive())) {
         return alert('Failed to Initialize Google Drive');
       }
-      await axios.get(`https://x8ki-letl-twmt.n7.xano.io/api:Zg-JWWx8/file_id?userId=${userId}`).then(async(res)=>{
-        console.log(res.data);
-        if(res.data.length>0){
-            const path=`${RNFS.ExternalDirectoryPath}/${userId}.txt`;
-            await GDrive.files.download(res.data[0]['fileId'], {
-                toFile: path,
-                method: 'POST',
-                headers: {
-                  Accept: 'application/json',
-                }}).promise.then((res) => {
-                    console.log({res});
-                    if (res.statusCode == 200 && res.bytesWritten > 0)
-                      {
-                        decryptFromDrive(path)
-                      }
-                    else{
-                        setLoading(false);
-                        ToastAndroid.show('Error while fetching from Drive',ToastAndroid.SHORT)
-                    }
-                  });
-        }
-        else{
-            setLoading(false)
-            ToastAndroid.show('Backup not found',ToastAndroid.SHORT)
-        }
-//        console.log(`${RNFS.ExternalDirectoryPath}/test.txt`)
-        
-      })
-  }
+        const path=`${RNFS.ExternalDirectoryPath}/${userId}.txt`;
+        await GDrive.files.download(id, {
+            toFile: path,
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+            }}).promise.then((res) => {
+                console.log({res});
+                if (res.statusCode == 200 && res.bytesWritten > 0)
+                  {
+                    decryptFromDrive(path)
+                  }
+                else{
+                    setLoading(false);
+                    ToastAndroid.show('Error while fetching from Drive',ToastAndroid.SHORT)
+                }
+              });
+    }
+    
 
   const fetchAddress = address => dispatch(setAddress(address));
   const fetchBalance = balance => dispatch(setBalance(balance));
   const _initGoogleDrive = async () => {
     // Getting Access Token from Google
+    //await GoogleSignin.addScopes({'options':['https://www.googleapis.com/auth/drive']})
     let token = await GoogleSignin.getTokens();
     if (!token) return alert('Failed to get token');
-    console.log('res.accessToken =>', token.accessToken);
+    //console.log('res.accessToken =>', token.accessToken);
     // Setting Access Token
     GDrive.setAccessToken(token.accessToken);
     // Initializing Google Drive and confirming permissions
@@ -83,10 +82,8 @@ const RestoreFromDrive = ({navigation, route}) => {
   };
 
   const fetchPrivateKey = async (text) => {
-    console.log(text.length)
+    //console.log(text.length)
       try {
-        // var string = formatString();
-        setOpen(true);
         const WalletInfo = await getAccountDetails(text);
         if(WalletInfo) {
           fetchAddress(WalletInfo);
@@ -117,15 +114,13 @@ const RestoreFromDrive = ({navigation, route}) => {
 
   const decryptFromDrive = async (path) => {
       console.log('inside path',path)
-    const text = await decryptDriveText(pin,path);
-    console.log(text)
+    
+      const text = await decryptDriveText(pin,path);
+    //console.log(text)
     if (text?.length && text!=undefined > 0) {
-      ToastAndroid.showWithGravityAndOffset(
-        'Wallet Fetched from device',
-        ToastAndroid.LONG,
-        ToastAndroid.BOTTOM,
-        25,
-        50
+      ToastAndroid.show(
+        'Wallet Fetched from Drive',
+        ToastAndroid.SHORT,
       );
       //alert(text)
       fetchPrivateKey(text);
@@ -192,6 +187,8 @@ const RestoreFromDrive = ({navigation, route}) => {
           Enter Pin
         </Text>
         <SmoothPinCodeInput
+        autoFocus
+        ref={codeRef}
           password
           restrictToNumbers
           mask="﹡"
@@ -233,7 +230,7 @@ const RestoreFromDrive = ({navigation, route}) => {
         onPress={() => {
           //
           setLoading(true)
-          fetchFileId();
+          fetchFileId(route.params.fileId);
         //   /decryptFromDevice();
           //decryptText();
         }}

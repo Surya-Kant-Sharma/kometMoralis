@@ -1,4 +1,6 @@
-import React, {useState} from 'react';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import axios from 'axios';
+import React, {useEffect, useState} from 'react';
 import {useCallback} from 'react';
 import {
   View,
@@ -9,8 +11,10 @@ import {
   Touchable,
   TouchableOpacity,
   StyleSheet,
+  ToastAndroid,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { saveUserData, saveUserName } from '../../common/Storage';
 import {themeColor} from '../../common/theme';
 import {typography} from '../../common/typography';
 import BorderButton from '../../components/BorderButton';
@@ -19,6 +23,54 @@ import GradientButton from '../../components/GradientButton';
 const OnboardingScreen = ({navigation}) => {
   const {height, width} = Dimensions.get('screen');
   const [currentIndex, setCurrentIndex] = useState([0]);
+
+  const login=async(token)=>{
+    console.log(token)
+    await axios.post('http://staging.komet.me/api/v1/user/v1/auth/login',{
+    "idToken":token
+    }).then(async(res)=>{
+      saveUserData(res.data);
+      await axios.get(`https://x8ki-letl-twmt.n7.xano.io/api:Zg-JWWx8/file_id?userId=${res.data['userDto']['userAccountId']}`).then((response)=>{
+      if(response.data.length>0){
+        ToastAndroid.show('Wallet Already Exists',ToastAndroid.SHORT)
+        navigation.navigate('RestoreFromDrive',{fileId:response.data[0]['fileId']})
+      }
+      else{
+        navigation.replace('SelectUsername')
+      }
+      })
+    })
+  }
+
+  const _signIn = async () => {
+    try {
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
+      const userInfo = await GoogleSignin.signIn();
+      console.log('User Info --> ', userInfo);
+      saveUserName(userInfo.user.name)
+      login(userInfo.idToken);
+      //navigation.replace('OnBoarding')
+      //navigation.replace('HomeScreen', {userInfo: userInfo});
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        alert('User Cancelled the Login Flow');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        alert('Signing In');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        alert('Play Services Not Available or Outdated');
+      } else {
+        console.log('error.message', JSON.stringify(error));
+        alert(error.message);
+      }
+    }
+  };
+
+  useEffect(()=>{
+
+  },[])
+
   const onBoardingData = [
     
     {
@@ -104,15 +156,16 @@ const OnboardingScreen = ({navigation}) => {
       </View>
       <View>
         <GradientButton
-          text={'Create a new Wallet'}
+          text={'Get Started with Komet Wallet'}
           colors={['#FF8DF4', '#89007C']}
           onPress={() => {
-            navigation.navigate('SelectUsername');
+            _signIn();
+            //navigation.navigate('SelectUsername');
           }}
         />
         <BorderButton
           borderColor={'#FF8DF4'}
-          text={'I already have one'}
+          text={'I already have an Other one'}
           onPress={() => {
             navigation.navigate('ImportWallet');
           }}

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 import {View, Text, ScrollView, Alert, ToastAndroid,FlatList} from 'react-native';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
@@ -27,6 +27,17 @@ const ViewSeedPhrase = ({navigation, route}) => {
   const [phrase,setPhrase]=useState('')
   const [decoded,setDecoded]=useState(false)
   const dispatch = useDispatch();
+
+  const codeRef=useRef()
+
+
+  useEffect(() => {
+    setTimeout(() => {
+      // Fix auto focus for Android
+      codeRef.current.focus()
+    }, 500)
+  }, [codeRef])
+
   var provider;
   const fetchAddress = address => dispatch(setAddress(address));
 
@@ -135,6 +146,8 @@ const ViewSeedPhrase = ({navigation, route}) => {
         </Text>
         <SmoothPinCodeInput
           password
+          autoFocus
+          ref={codeRef}
           restrictToNumbers
           mask="﹡"
           cellSize={36}

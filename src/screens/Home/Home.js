@@ -169,7 +169,7 @@ const Home = ({ navigation, route }) => {
       const value = await getAccountInfo();
       // console.log(value);
       fetchAddress(value);
-      listenBalance(address?.accountAddress?.second?.toString())
+      listenBalance(value?.accountAddress?.second?.toString())
 
       // vaultStatus()
       // value?.accountAddress?.second;
@@ -180,6 +180,7 @@ const Home = ({ navigation, route }) => {
   }
 
   const listenBalance = async (address) => {
+    console.log('BalanceListen',address)
     try {
       const provider = walletProvider();
       //      console.log(provider)
@@ -243,7 +244,7 @@ const Home = ({ navigation, route }) => {
       console.log('bal',bal)
       // alert(bal)
     } catch (err) {
-      console.log(err)
+      console.log('Error:247',err)
       console.log(err.message)
     }
 
