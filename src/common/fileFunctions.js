@@ -1,6 +1,10 @@
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import axios from 'axios';
 import Crypto from 'crypto-js';
 import { PermissionsAndroid, ToastAndroid } from 'react-native';
+import GDrive from 'react-native-google-drive-api-wrapper';
 var RNFS = require('react-native-fs');
+
 export const encryptText = async(text, key, navigation) => {
   var bool=false;
   try{
@@ -49,6 +53,20 @@ export const encryptText = async(text, key, navigation) => {
     return bool
 };
 
+
+
+
+export const encryptForDrive = async(text, key, navigation) => {
+  try{
+    var encrypted = await Crypto.DES.encrypt(text, key);
+    console.log('encrypted',encrypted.toString());
+    return encrypted.toString()
+    //console.log(`RNFS.ExternalStorageDirectoryPath/Downloads`
+  }catch(error){
+    return false
+  }
+};
+
 export const decryptText = async (pin, navigation) => {
   var stringResponse=false;
   try{
@@ -86,6 +104,53 @@ export const decryptText = async (pin, navigation) => {
   }catch(error){
     stringResponse=''
   }
+  
+  return stringResponse;
+};
+
+export const decryptDriveText = async (pin, path, navigation) => {
+  var stringResponse=false;
+  try{
+    try {
+      const granted = await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      ]);
+    } catch (err) {
+      stringResponse=''
+      console.warn(err);
+    }
+    const readGranted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE); 
+    const writeGranted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+   
+    if(!readGranted || !writeGranted ) {
+      stringResponse=''
+      console.log('Read and write permissions have not been granted');
+      return;
+    }
+    else{
+      try{ 
+        console.log(path);
+        const response = await RNFS.readFile(path);
+        try{
+        const decrypted = Crypto.DES.decrypt(response, pin);
+        console.log(decrypted.toString(Crypto.enc.Utf8));
+        
+        stringResponse=decrypted.toString(Crypto.enc.Utf8);
+        console.log(stringResponse.length);
+        }
+        catch (error){
+          stringResponse=''
+        }
+      }catch(error){
+        stringResponse=''
+      }
+    }
+    
+  }catch{
+    stringResponse=''
+  }
+  
   
   return stringResponse;
 };

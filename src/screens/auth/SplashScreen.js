@@ -26,6 +26,7 @@ const SplashScreen = ({navigation,route}) => {
   //console.log(route.params['state'])
 
   const login=async(token)=>{
+    console.log(token)
     await axios.post('http://staging.komet.me/api/v1/user/v1/auth/login',{
     "idToken":token
     }).then((res)=>{

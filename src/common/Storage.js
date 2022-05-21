@@ -11,6 +11,21 @@ export const saveUserData=async(responseData)=>{
         console.log("error is: " + err);
     });
 }
+export const getUserId=async()=>{
+    try {
+        const value = await AsyncStorage.getItem('USER_DATA');
+        if (value !== null) {
+            // We have data!!
+            console.log(JSON.parse(value));
+            console.log('User',data)
+            const data=JSON.parse(value)
+            return data['userDto']['userAccountId']
+        }
+    } catch (error) {
+        return null;
+        // Error retrieving data
+    }
+}
 
 export const getToken=async()=>{
     try {

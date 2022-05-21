@@ -204,8 +204,8 @@ const Home = ({ navigation, route }) => {
   const vaultStatus = async (options) => {
     try {
       const data = await getDataLocally(Locations.SMARTACCOUNTS);
-      console.log('status', data)
-      if (data.address)
+      //console.log('status', data)
+      if (data?.address)
         setVault(true)
     } catch (err) {
       console.log(err)

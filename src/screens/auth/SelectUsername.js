@@ -54,7 +54,7 @@ const SelectUsername = ({navigation}) => {
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Laoreet ut
           dui imperdiet.
         </Text>
-        <View style={{flexDirection: 'row', marginVertical: 40}}>
+        <View style={{flexDirection: 'row', marginVertical: 40,alignSelf:'center'}}>
           <TextInput
             style={{
               width: 320,

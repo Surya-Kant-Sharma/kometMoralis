@@ -7,7 +7,7 @@ import {typography} from '../../common/typography';
 import GradientButton from '../../components/GradientButton';
 import Header from '../../components/Header';
 import Crypto from 'crypto-js';
-import {encryptText} from '../../common/fileFunctions';
+import {encryptForDrive, encryptText} from '../../common/fileFunctions';
 
 import {
   GoogleSignin,
@@ -23,6 +23,9 @@ import { ActivityIndicator } from 'react-native-paper';
 import { transferToSmartWallet } from '../../Utils/SmartWallet';
 import { API_KEY } from '../../Utils/Api';
 import {useNavigation} from '@react-navigation/native';
+import GDrive from 'react-native-google-drive-api-wrapper';
+import { getUserId } from '../../common/Storage';
+import axios from 'axios';
 
 
 
@@ -56,6 +59,53 @@ const ChooseSecurityPin = ({navigation, route}) => {
     }
     else{
       fetchPrivateKey();
+    }
+  }
+
+  const processDriveText=async()=>{
+    const text=await encryptForDrive(route.params.phrase, pin);
+
+    if(text!=false && text!=undefined){
+      console.log(text)
+      await _uploadDriveData(text);
+      try {
+        //const sp = "clean gossip jar often rent coconut detect gossip crush invest vicious weapon"
+        const WalletInfo = await getAccountDetails(route.params.phrase);
+        if(WalletInfo) {
+  
+          fetchAddress(WalletInfo);
+          setAccountInfo(WalletInfo);
+          transferToSmartWallet({
+            privateKey : API_KEY,
+            to : WalletInfo?.accountAddress?.first,
+            amount : "0.1"
+          }).then((response) => {
+            console.log(response)
+          }).catch ((err) => {
+            console.log(err.message);
+          })
+          //alert(WalletInfo?.accountAddress?.first)
+        }
+        setLogin(true)
+        ToastAndroid.showWithGravityAndOffset(
+          'Account created Successfully',
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM,
+          25,
+          50
+        );
+        
+        setTimeout(()=>{
+          navigations.reset({
+            index: 0,
+            routes: [{name: 'Dashboard'}],
+          });
+        },0) 
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+        setLoading(false);
+      }
     }
   }
   
@@ -110,6 +160,78 @@ const ChooseSecurityPin = ({navigation, route}) => {
     }
   };
 
+
+  {/*Drive Functionalities*/}
+const _initGoogleDrive = async () => {
+  // Getting Access Token from Google
+  let token = await GoogleSignin.getTokens();
+  if (!token) return alert('Failed to get token');
+  console.log('res.accessToken =>', token.accessToken);
+  // Setting Access Token
+  GDrive.setAccessToken(token.accessToken);
+  // Initializing Google Drive and confirming permissions
+  GDrive.init();
+  // Check if Initialized
+  return GDrive.isInitialized();
+};
+
+React.useEffect(()=>{
+  _initGoogleDrive();
+},[])
+
+const _uploadDriveData = async (text) => {
+  const userId=await getUserId();
+  try {
+    // Check if file selected
+    //setLoading(true);
+    if (!(await _initGoogleDrive())) {
+      return alert('Failed to Initialize Google Drive');
+    }
+    // Create Directory on Google Device
+    let directoryId = await GDrive.files.safeCreateFolder({
+      name: 'Komet',
+      parents: ['root'],
+    });
+    console.log('directoryId -> ', directoryId);
+    let fileName = userId + '.txt';
+    // Check upload file response for success
+    console.log('Text in Drive',text)
+    let result = await GDrive.files.createFileMultipart(
+      text,
+      'application/text',
+      {
+        parents: [directoryId],
+        name: fileName,
+      },
+      false,
+    );
+    // Check upload file response for success
+    if (!result.ok) return alert('Uploading Failed');
+    // Getting the uploaded File Id
+    let fileId = await GDrive.files.getId(
+      fileName,
+      [directoryId],
+      'application/text',
+      false,
+    );
+    console.log({
+      "fileId": fileId,
+      "userId": userId
+    })
+    //setInputTextValue('');
+    //alert(`Uploaded Successfull.`);
+    await axios.post('https://x8ki-letl-twmt.n7.xano.io/api:Zg-JWWx8/AddFileId',{
+      "fileId": fileId,
+      "userId": userId
+    }).then((res)=>console.log('Res',res.data)).catch((error)=>console.log(error))
+  } catch (error) {
+    console.log('Error->', JSON.stringify(error));
+    alert(`Error-> ${error}`);
+    setLoading(false);
+  }
+ 
+};
+{/*Drive Functionalities*/}
   
 
   const authorizePin = () => {
@@ -197,18 +319,25 @@ const ChooseSecurityPin = ({navigation, route}) => {
       <View></View>
       {loading?<ActivityIndicator size={'large'}/>:
       <>
-      {confirmed && (
+      {confirmed && (confirmedPin == pin)?
         <GradientButton
           text={' Confirm '}
           colors={['#FF8DF4', '#89007C']}
           onPress={() => {
             //navigation.navigate('Dashboard');
-            confirmedPin == pin ?processText():Alert.alert('Pins does not match');
+            confirmedPin == pin ?
+            (
+              setLoading(true),
+              setTimeout(() => {
+                processDriveText()
+              }, 200)
+            )
+              :Alert.alert('Please re-enter your Pin');
             //_signIn();
             //decryptText();
           }}
         />
-      )}
+      :null}
 </>}
       <View></View>
     </View>

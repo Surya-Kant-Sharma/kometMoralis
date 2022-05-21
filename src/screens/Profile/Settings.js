@@ -11,6 +11,7 @@ import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
   
 
 //import ProfileIcons from '../../../assets/svg/ProfileIcons.svg';
@@ -19,11 +20,12 @@ const Settings = ({navigation}) => {
 
 const navigations =useNavigation();
 const logOut=async()=>{
+  await GoogleSignin.signOut();
   const keys = await AsyncStorage.getAllKeys()
   await AsyncStorage.multiRemove(keys).then(()=>{
     navigations.reset({
       index: 0,
-      routes: [{name: 'OnBoarding'}],
+      routes: [{name: 'Splash'}],
     });
   })
 }
