@@ -1,8 +1,9 @@
 import React from 'react'
 import { Text, View, ActivityIndicator, TouchableOpacity, Modal, Linking } from 'react-native'
 import { typography } from '../common/typography'
-
-const ProgressDialog = ({ open, setOpen, completed, setCompleted }) => {
+import LottieView from 'lottie-react-native';
+import { NavigationContainer } from '@react-navigation/native';
+const ProgressDialog = ({ open, setOpen, completed, setCompleted,navigation }) => {
 
     // const [open, setOpen] = React.useState(true)
 
@@ -73,18 +74,20 @@ const ProgressDialog = ({ open, setOpen, completed, setCompleted }) => {
                                 </View>
                             </View>
                             :
-                            <View style={{ width: '100%' }}>
-                                <Text
+                            <View style={{ width: '100%',height:300 }}>
+                               
+                                {/* <Text
                                     style={{
                                         fontSize: 16,
                                         fontFamily: typography.medium,
                                         color: 'white',
                                     }}>
                                     Transaction Completed.
-                                </Text>
+                                </Text> */}
 
                                 <View>
-                                    <Text style={{ margin: 10 }}>Your Transaction Successfully Completed. If you want to explore transaction tap on Explore Button and otherwise click ok</Text>
+                                <LottieView source={require('../../assets/Animation/TransactionConfirmation.json')} autoPlay loop style={{zIndex:1,height:160,width:160,alignSelf:'center'}} />
+                                    <Text style={{ margin: 10,marginBottom:30 }}>Your Transaction Successfully Completed. If you want to explore transaction tap on Explore Button and otherwise click ok</Text>
                                 </View>
 
                                 <View style={{ flexDirection: 'row' }}>
@@ -119,6 +122,7 @@ const ProgressDialog = ({ open, setOpen, completed, setCompleted }) => {
                                         onPress={() => {
                                             setOpen(false)
                                             setCompleted(false)
+                                            navigation?.goBack();
                                         }}
                                     >
                                         <Text>Ok</Text>

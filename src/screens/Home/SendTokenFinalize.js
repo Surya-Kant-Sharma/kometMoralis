@@ -341,7 +341,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                     }}></TouchableOpacity>
                     <View
                         style={{
-                            flex: 1,
+                            flex: 0.7,
                             borderTopRightRadius: 10,
                             borderTopLeftRadius: 10,
                             backgroundColor: '#2F2F3A',
@@ -458,6 +458,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                 setOpen={setStartProgress}
                 completed={transactionHash}
                 setCompleted={setTransactionHash}
+                navigation={navigation}
             />
 
         </ScrollView>
