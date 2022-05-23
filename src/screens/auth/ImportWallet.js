@@ -95,7 +95,7 @@ const ImportWallet = ({navigation}) => {
           borderColor={'#FF8DF4'}
           text={'Restore from Device'}
           onPress={() => {
-            navigation.navigate('RestoreFromDrive');
+            navigation.navigate('RestoreFromDevice');
           }}
         />
       </View>

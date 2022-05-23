@@ -19,6 +19,9 @@ import {themeColor} from '../../common/theme';
 import {typography} from '../../common/typography';
 import BorderButton from '../../components/BorderButton';
 import GradientButton from '../../components/GradientButton';
+import CoinOnboarding from '../../components/SVG/CoinOnboarding';
+import NFTOnboarding from '../../components/SVG/NFTOnboarding';
+import PaintOnboarding from '../../components/SVG/PaintOnboarding';
 
 const OnboardingScreen = ({navigation}) => {
   const {height, width} = Dimensions.get('screen');
@@ -29,17 +32,30 @@ const OnboardingScreen = ({navigation}) => {
     await axios.post('http://staging.komet.me/api/v1/user/v1/auth/login',{
     "idToken":token
     }).then(async(res)=>{
+      console.log(res.data['userDto']['userAccountId'])
       saveUserData(res.data);
-      await axios.get(`https://x8ki-letl-twmt.n7.xano.io/api:Zg-JWWx8/file_id?userId=${res.data['userDto']['userAccountId']}`).then((response)=>{
-      if(response.data.length>0){
-        ToastAndroid.show('Wallet Already Exists',ToastAndroid.SHORT)
-        navigation.navigate('RestoreFromDrive',{fileId:response.data[0]['fileId']})
+      try{
+        const response= await axios.get(`http://staging.komet.me/api/v1/user/v1/wallet/drive_location`,
+        {
+          headers: {
+            'X-USER-ID': res.data['userDto']['userAccountId']
+          }
+        });
+        if(response.status==200){
+          ToastAndroid.show('Wallet Already Exists',ToastAndroid.SHORT)
+          navigation.navigate('RestoreFromDrive',{fileId:response.data['fileId']})
       }
       else{
         navigation.replace('SelectUsername')
       }
+      }
+      catch(error){
+        console.log('Error',error)
+        navigation.replace('SelectUsername')
+      }
+      
+      
       })
-    })
   }
 
   const _signIn = async () => {
@@ -76,17 +92,17 @@ const OnboardingScreen = ({navigation}) => {
     {
       id: 1,
       text: 'Easily access and own trusted NFTs with a single click',
-      image: require('../../../assets/images/OnBoarding2.png'),
+      image: ()=>{return <NFTOnboarding/> },
     },
     {
       id: 2,
       text: 'Progressive wallet security to safegaurd your funds.',
-      image: require('../../../assets/images/OnBoarding3.png'),
+      image: ()=>{return <CoinOnboarding/>},
     },
     {
       id: 3,
       text: "Create your distinct identity in the  community",
-      image: require('../../../assets/images/OnBoarding4.png'),
+      image: ()=>{return <Image source={require('../../../assets/images/OnBoarding4.png')}/>},
     },
   ];
 
@@ -114,13 +130,15 @@ const OnboardingScreen = ({navigation}) => {
         renderItem={({item}) => (
           <View
             style={{
+              
               paddingHorizontal: 20,
               width: width,
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Image source={item.image} />
+            {item.image()}
+            
             <Text
               style={{
                 color: 'rgba(255,255,255,0.82)',
@@ -165,7 +183,7 @@ const OnboardingScreen = ({navigation}) => {
         />
         <BorderButton
           borderColor={'#FF8DF4'}
-          text={'I already have an Other one'}
+          text={'I already have one'}
           onPress={() => {
             navigation.navigate('ImportWallet');
           }}

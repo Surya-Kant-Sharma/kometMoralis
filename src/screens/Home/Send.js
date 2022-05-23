@@ -226,7 +226,7 @@ const SendScreen = ({ navigation }) => {
                     }
                     renderItem={(data) => {
                         let item = data.item
-                        console.log(item)
+                        //console.log(item)
                         return (
                             <TouchableOpacity
                                 style={{

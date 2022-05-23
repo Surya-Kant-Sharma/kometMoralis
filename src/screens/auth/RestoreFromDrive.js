@@ -30,15 +30,15 @@ const RestoreFromDrive = ({navigation, route}) => {
   const dispatch = useDispatch();
   const [loading,setLoading]=useState(false)
   var provider;
-  const codeRef=useRef()
+  const codeRef1=useRef()
 
 
   useEffect(() => {
     setTimeout(() => {
       // Fix auto focus for Android
-      codeRef.current.focus()
+      codeRef1.current.focus()
     }, 500)
-  }, [codeRef])
+  }, [codeRef1])
   const fetchFileId=async(id)=>{
       const userId=await getUserId();
       setLoading(true);
@@ -188,7 +188,7 @@ const RestoreFromDrive = ({navigation, route}) => {
         </Text>
         <SmoothPinCodeInput
         autoFocus
-        ref={codeRef}
+        ref={codeRef1}
           password
           restrictToNumbers
           mask="﹡"

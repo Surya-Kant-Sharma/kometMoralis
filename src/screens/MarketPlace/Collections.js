@@ -42,7 +42,7 @@ const Collections = ({ navigation, route }) => {
         }
       })
       .then(res => {
-        console.log(res.data) 
+        console.log(res.data)
         setCollections(res.data);
         setLoading(false);
       })
@@ -143,7 +143,11 @@ const Collections = ({ navigation, route }) => {
               keyExtractor={(item, index) => index.toString()}
               renderItem={({ item, index }) => (
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('NFTPage', { item: item })}
+                  onPress={() => navigation.navigate('NFTPage', {
+                    item: item,
+                    contract: route.params.item.collectionContractId,
+                    price: route.params.item.collectionPrice
+                  })}
                   style={styles.cardContainer}>
                   <Image source={{ uri: item.mediaUrl }} style={styles.image} />
                   <Text style={styles.imageText}>{item.attributes.name}</Text>

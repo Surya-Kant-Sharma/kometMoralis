@@ -227,10 +227,16 @@ const _uploadDriveData = async (text) => {
     })
     //setInputTextValue('');
     //alert(`Uploaded Successfull.`);
-    await axios.post('https://x8ki-letl-twmt.n7.xano.io/api:Zg-JWWx8/AddFileId',{
-      "fileId": fileId,
-      "userId": userId
-    }).then((res)=>console.log('Res',res.data)).catch((error)=>console.log(error))
+    await axios.post('http://staging.komet.me/api/v1/user/v1/wallet/drive_location',{
+      "location": "",
+      "fileId": fileId
+    },
+    {
+      headers: {
+        'X-USER-ID': userId
+      }
+    }
+    ).then((res)=>console.log('Res',res.data)).catch((error)=>console.log(error))
   } catch (error) {
     console.log('Error->', JSON.stringify(error));
     alert(`Error-> ${error}`);

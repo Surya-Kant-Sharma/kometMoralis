@@ -278,7 +278,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                 style={styles.textInputContainer}>
 
                 <TextInput
-                    placeholder={'Address'}
+                    placeholder={'0xff3263445362882332'}
                     value={toAddress}
                     onChangeText={(e) => setToAddress(e)}
                     style={{
@@ -294,7 +294,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                 style={styles.textInputContainer}>
 
                 <TextInput
-                    placeholder={'Name'}
+                    placeholder={'Tim David'}
                     value={sentAddress}
                     onChangeText={(text) => setSentAddress(text)}
                     style={{
@@ -308,7 +308,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
 
             <Text style={{ fontFamily: typography.medium, color: 'white', marginHorizontal: 10, fontSize: 16 }}>Amount (required)</Text>
             <View
-                style={styles.textInputContainer}>
+                style={{...styles.textInputContainer,borderColor: amount>balance?'red':'#C445B8'}}>
                 <Image source={{ uri: 'https://ffnews.com/wp-content/uploads/2021/07/q4itcBEb_400x400-300x300.jpg' }} style={{ width: 35, height: 35, borderRadius: 50 }} />
                 <TextInput
                     keyboardType='number-pad'
@@ -321,7 +321,11 @@ const SendTokenFinalize = ({ navigation, route }) => {
                     }}
                 />
             </View>
-
+            {amount>balance &&
+            <View style={{alignItems:'center',justifyContent:'center'}}>
+                <Text style={{color:'red',fontFamily:typography.medium}}>Insufficient Balance</Text>
+            </View>
+            }
 
             <Modal
                 visible={confirm}

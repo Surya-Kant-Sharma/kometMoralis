@@ -33,7 +33,14 @@ const Dashboard = () => {
           component={Home}
           options={{
             tabBarIcon: ({color, size, focused}) =>
-              <AntDesign name={'home'} color={focused?'white':'#D3D3D3'} size={size}/>
+            focused? (
+              <View style={{ borderTopWidth:3, width: "100%", height: "100%", borderColor: 'white',alignItems:'center',justifyContent:'center',marginHorizontal:20 }}>
+                  <AntDesign name={'home'} color={focused?'white':'#D3D3D3'} size={size}/>
+              </View>) :
+              (
+                <AntDesign name={'home'} color={'#D3D3D3'} size={size}/>
+              )
+              
           }}
         />
         <Tab.Screen
@@ -41,7 +48,15 @@ const Dashboard = () => {
           component={MarketPlace}
           options={{
             tabBarIcon: ({color, size, focused}) =>
-            <MaterialIcon name={'storefront'} color={focused?'white':'#D3D3D3'} size={size}/>
+            
+            focused? (
+              <View style={{ borderTopWidth:3, width: "100%", height: "100%", borderColor: 'white',alignItems:'center',justifyContent:'center',marginHorizontal:20 }}>
+                   <MaterialIcon name={'storefront'} color={'white'} size={size}/>
+              </View>) :
+              (
+                <MaterialIcon name={'storefront'} color={'#D3D3D3'} size={size}/>
+              )
+           
           }}
         />
         <Tab.Screen
@@ -49,7 +64,14 @@ const Dashboard = () => {
           component={Profile}
           options={{
             tabBarIcon: ({color, size, focused}) =>
-            <AntDesign name={'user'} color={focused?'white':'#D3D3D3'} size={size}/>
+            focused? (
+              <View style={{ borderTopWidth:3, width: "100%", height: "100%", borderColor: 'white',alignItems:'center',justifyContent:'center',marginHorizontal:20 }}>
+                    <AntDesign name={'user'} color={'white'} size={size}/>
+              </View>) :
+              (
+                <AntDesign name={'user'} color={'#D3D3D3'} size={size}/>
+              )
+           
           }}
         />
       </Tab.Navigator>
