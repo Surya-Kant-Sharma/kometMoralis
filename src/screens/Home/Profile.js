@@ -33,6 +33,7 @@ import { getWallets, setAddress } from '../../store/Actions/action';
 import { getSmartWalletBalance } from '../../Utils/SmartWallet';
 import { useFocusEffect } from '@react-navigation/native';
 import { getUserName } from '../../common/Storage';
+import UserNfts from '../MarketPlace/UserNFT';
 
 console.ignoredYellowBox = ['Setting a timer'];
 
@@ -45,7 +46,7 @@ const Profile = ({ navigation }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('Komet Wallet')
   const [Modes, setModes] = useState(['Komet Wallet'])
-  const [name,setName]=useState('Victoria')
+  const [name, setName] = useState('Victoria')
   const address = useSelector(state => state.address);
   const otherWalletAddress = useSelector(state => state.otherWallet);
   const eoaBalance = useSelector(state => state.eoaBalance);
@@ -63,7 +64,7 @@ const Profile = ({ navigation }) => {
   let MODES = ['EOA2'];
 
   const { nativeBalance } = useNativeBalance('0x13881');
-  console.log("matic ",nativeBalance)
+  console.log("matic ", nativeBalance)
 
   const fetchAssets = async () => {
     await fetch('https://api.opensea.io/api/v1/collections?offset=0&limit=300')
@@ -73,12 +74,12 @@ const Profile = ({ navigation }) => {
       });
   };
 
-    const fetchUserName=async()=>{
-      
-      const name= await getUserName()
-      console.log('Name',name)
-      setName(name);
-    }
+  const fetchUserName = async () => {
+
+    const name = await getUserName()
+    console.log('Name', name)
+    setName(name);
+  }
 
   useEffect(() => {
     getSelectedItemInfo()
@@ -117,10 +118,10 @@ const Profile = ({ navigation }) => {
     }
   }
 
-  const getVaultDetails = async() => {
+  const getVaultDetails = async () => {
     try {
       const info = await getDataLocally(Locations.SMARTACCOUNTS);
-      if (info?.address){
+      if (info?.address) {
         setSelectedAddress(info?.address)
         const bal = await getVaultBalance({
           privateKey: address?.privateKey?.first,
@@ -128,13 +129,13 @@ const Profile = ({ navigation }) => {
         })
         // setBalance(0)
       }
-      
+
       // alert(info);
     } catch (err) {
       // alert(err.message)
     }
   }
-  
+
   const getVaultBalance = async (options) => {
     try {
       const balance = await getSmartWalletBalance(options);
@@ -142,7 +143,7 @@ const Profile = ({ navigation }) => {
       // console.log(balance);
     } catch (err) {
       console.log(err.message)
-    //   alert(err.message)
+      //   alert(err.message)
     }
   }
 
@@ -150,7 +151,7 @@ const Profile = ({ navigation }) => {
 
   const getExternalWallet = () => {
     if (isAuthenticated) {
-      console.log(Modes.indexOf('External Wallet'))        
+      console.log(Modes.indexOf('External Wallet'))
       if (Modes.indexOf('External Wallet') == -1) {
         setModes(Modes => [...Modes, 'External Wallet'])
       }
@@ -179,15 +180,15 @@ const Profile = ({ navigation }) => {
   }
 
   useFocusEffect(
-    
-     React.useCallback(() => {
+
+    React.useCallback(() => {
       fetchAssets();
       getVaultInfo();
       getExternalWallet();
-     }, [])
-   )
+    }, [])
+  )
 
-  
+
 
   useEffect(() => {
     fetchAssets();
@@ -273,6 +274,7 @@ const Profile = ({ navigation }) => {
 
       {(isAuthenticated) ?
         <AssetsLog
+          style
           image={'https://ffnews.com/wp-content/uploads/2021/07/q4itcBEb_400x400-300x300.jpg'}
           coinName={'Polygon'}
           symbol={'MATIC'}
@@ -281,15 +283,20 @@ const Profile = ({ navigation }) => {
           change={balance}
           chain={'polygon'}
         /> :
-        <AssetsLog
-          image={'https://ffnews.com/wp-content/uploads/2021/07/q4itcBEb_400x400-300x300.jpg'}
-          coinName={'Polygon'}
-          symbol={'MATIC'}
-          value={parseFloat(balance).toPrecision(4)}
-          price={'$1.34'}
-          change={'low'}
-          chain={'polygon'}
-        />
+        <View style={{
+          paddingLeft : 20,
+          paddingRight : 20
+        }}>
+          <AssetsLog
+            image={'https://ffnews.com/wp-content/uploads/2021/07/q4itcBEb_400x400-300x300.jpg'}
+            coinName={'Polygon'}
+            symbol={'MATIC'}
+            value={parseFloat(balance).toPrecision(4)}
+            price={'$1.34'}
+            change={'low'}
+            chain={'polygon'}
+          />
+        </View>
       }
       <TouchableOpacity style={{ borderRadius: 15, padding: 10, backgroundColor: '#E1E4F8', flexDirection: 'row', alignItems: 'center', width: 50, margin: 20 }}><Text style={{ fontFamily: typography.medium, color: 'white', fontSize: 12, color: '#453E9F' }}>All</Text><MaterialIcons name={'keyboard-arrow-right'} size={16} color={'#453E9F'} /></TouchableOpacity>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 20, alignItems: 'center' }}>
@@ -300,7 +307,9 @@ const Profile = ({ navigation }) => {
         <TouchableOpacity style={{ borderRadius: 15, padding: 10, flexDirection: 'row', alignItems: 'center' }}><Text style={{ fontFamily: typography.medium, color: 'white', fontSize: 14, color: 'white' }}>Showcase</Text></TouchableOpacity>
         <TouchableOpacity style={{ borderRadius: 15, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, height: 35 }}><MaterialIcons name={'keyboard-arrow-down'} size={16} color={'white'} /></TouchableOpacity>
       </View>
-      <NFTAssets chain={'0x13881'}/>
+      {/* <NFTAssets chain={'0x13881'}/> */}
+
+      {(value === 'Komet Wallet') ? <UserNfts /> : <NFTAssets chain={'0x13881'} />}
 
       {/* {'Account Select Modal'} */}
       <Modal

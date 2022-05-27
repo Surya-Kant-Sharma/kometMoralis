@@ -30,6 +30,7 @@ import ShimmerPlaceHolder from 'react-native-shimmer-placeholder'
 import LinearGradient from 'react-native-linear-gradient';
 import { getUserId } from '../../common/Storage';
 import ProgressDialog from '../../components/ProgressDialog';
+import Snackbar from 'react-native-snackbar';
 import { set } from 'react-native-reanimated';
 
 
@@ -75,31 +76,56 @@ const NFTPage = ({ navigation, route }) => {
             headers: {
               'X-USER-ID': userId
             }
-          }).then(async (response) => {
+          }).then((response) => {
             console.log("key >>>> " + response.data.reservationRequestId, route.params.contract, '0x4D3f75262b6A2F9328b24245770970cbcE18Eb9a')
-            try{
-              const wallet = await BuyNft(amount, address?.privateKey?.second, '0x4D3f75262b6A2F9328b24245770970cbcE18Eb9a');
-            console.log(wallet);
+            try {
+              BuyNft(amount, address?.privateKey?.second, route.params.contract).then((sold) => {
+                sold.on("mint", (value, token) => {
+                  console.log("event starts");
+                  if (value.toString() === address?.accountAddress?.second.toString()) {
+                    const hex = Object.values(token);
+                    console.log(parseInt(hex[0]), hex);
+                    axios.post('http://staging.komet.me/api/v1/market/v1/token/sold',
+                      {
+                        "reservationRequestId": response.data.reservationRequestId,
+                        "blockchainId": parseInt(hex[0]),
+                        "tokenId": route.params.item.tokenId,
+                        "walletAddress": address?.accountAddress?.second
+                      },
+                      {
+                        headers: {
+                          'X-USER-ID': userId
+                        }
+                      }).then((response) => {
+                        console.log(response)
+                        setTC(true)
+                        setTimeout(() => {
+                          Snackbar.show({
+                            text: 'Mined Sucessfully which will take a while to show',
+                            duration: Snackbar.LENGTH_INDEFINITE,
+                            action: {
+                              text: 'go to profile',
+                              textColor: 'green',
+                              onPress: () => {
+                                navigation.navigate('Profile')
+                              },
+                            },
+                          });
+                        }, 4000)
+                      })
+                  }
+                })
+                console.log(
+                  response.data.reservationRequestId,
+                  route.params.item.tokenId,
+                  address?.accountAddress?.second
+                );
+              });
 
-            await axios.post('http://staging.komet.me/api/v1/market/v1/token/request_reservation',
-              {
-                "reservationRequestId": response.data.reservationRequestId,
-                "blockchainId": wallet,
-                "tokenId": route.params.item.tokenId,
-                "walletAddress": address?.accountAddress?.second
-
-              },
-              {
-                headers: {
-                  'X-USER-ID': userId
-                }
-              }).then((response) => {
-                console.log(response)
-                setTC(true)
-              })
             }
-            catch(error){
+            catch (error) {
               setOpen(false);
+              console.log(err.message)
             }
           })
       })
@@ -148,6 +174,10 @@ const NFTPage = ({ navigation, route }) => {
               onPress={() => {
                 //fetchSecretKey();
                 //console.log('BorderPressed');
+                Snackbar.show({
+                  text: 'Hello world',
+                  duration: Snackbar.LENGTH_SHORT,
+                });
               }}
             />
           </View>

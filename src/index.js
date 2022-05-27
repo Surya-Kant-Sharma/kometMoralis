@@ -29,7 +29,7 @@ import { getAccountsInfo, getDataLocally } from './Utils/AsyncStorage';
 import Vault from './screens/Home/vault';
 // import SendToken from './screens/Home/Send'
 import SendScreen from './screens/Home/Send';
-import SendTokenFinalize from './screens/Home/sendTokenFinalize';
+import SendTokenFinalize from './screens/Home/SendTokenFinalize';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import appStore from './store/store';
 import Collections from './screens/MarketPlace/Collections';

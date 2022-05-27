@@ -25,10 +25,13 @@ import Clipboard from '@react-native-community/clipboard';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder'
 import LinearGradient from 'react-native-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
+import { GrapghMintedQuery } from '../../Utils/theGraph';
+import { set } from 'react-native-reanimated';
 
 const { width, height } = Dimensions.get('screen');
 const Collections = ({ navigation, route }) => {
   const [collections, setCollections] = useState([]);
+  const [sold, setSold] = useState(0);
   const [loading, setLoading] = useState(false);
   //const [loading,setLoading]=useState(false);
 
@@ -36,15 +39,36 @@ const Collections = ({ navigation, route }) => {
     setLoading(true);
     // alert(route.params.item.collectionId)
     await axios
-      .get(`http://staging.komet.me/api/v1/market/v1/token?pageNo=0&pageSize=10&collectionId=${route.params.item.collectionId}`, {
+      .get(`http://staging.komet.me/api/v1/market/v1/token?pageNo=0&pageSize=50&collectionId=${route.params.item.collectionId}`, {
         headers: {
           'X-USER-ID': 'worl'
         }
       })
-      .then(res => {
-        console.log(res.data)
-        setCollections(res.data);
+      .then((res) => {
+        console.log(res)
+        // setCollections(res.data);
         setLoading(false);
+
+        GrapghMintedQuery(route.params.item.collectionContractId).then(result => {
+          console.log(result.data.nfts);
+
+          const value = result.data.nfts || []
+          setSold(res.data.length - value.length);
+
+          const arr = res.data.map((item, index) => {
+            if(index <= (res.data.length - value.length)) {
+              return item
+            }
+          })
+
+          console.log(arr);
+          setCollections(arr)
+         
+
+        }
+        ).catch((err) => {
+          console.log(err.message)
+        })
       })
       .catch(error => {
         setLoading(false);
@@ -62,7 +86,7 @@ const Collections = ({ navigation, route }) => {
     fetchCollections();
   }, []);
 
-  console.log(route.params.item)
+  // console.log(route.params.item)
 
 
   return (
@@ -116,14 +140,14 @@ const Collections = ({ navigation, route }) => {
           <View
             style={styles.summaryTextContainer}>
             <Text style={styles.subHeaderText}>Tokens on Sale</Text>
-            <Text style={styles.subHeaderValue}>{route.params.item.numberOfTokensOnSale}</Text>
+            <Text style={styles.subHeaderValue}>{sold}</Text>
           </View>
 
           <View
             style={styles.summaryTextContainer}>
             <Text style={{ ...styles.subHeaderText, fontSize: 20, color: '#FF8DF4', alignSelf: 'center' }}>Floor Price</Text>
             <View>
-              <Text style={{ ...styles.price, color: '#FF8DF4', textAlign: 'right' }}>{route.params.item.collectionPrice} Matic</Text>
+              <Text style={{ ...styles.price, color: '#FF8DF4', textAlign: 'right' }}>{parseFloat(route.params.item.collectionPrice)} Matic</Text>
               {/* <Text style={{...styles.price,color:'white',fontSize:18}}>200 <Text style={{color:'rgba(255,255,255,0.6)',fontFamily:typography.medium}}>MATIC</Text></Text> */}
             </View>
           </View>
@@ -150,7 +174,7 @@ const Collections = ({ navigation, route }) => {
                   })}
                   style={styles.cardContainer}>
                   <Image source={{ uri: item.mediaUrl }} style={styles.image} />
-                  <Text style={styles.imageText}>{item.attributes.name}</Text>
+                  <Text style={styles.imageText}>{item.attributes.name + " " + index}</Text>
                 </TouchableOpacity>
               )}
             />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -85,6 +85,7 @@ const Home = ({ navigation, route }) => {
   } = useMoralis();
 
 
+  let balanceEvent = useRef();
   
 
   useEffect(() => {
@@ -110,6 +111,12 @@ const Home = ({ navigation, route }) => {
       })
       .catch(() => { });
   };
+
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     getDataFromTheLocally()
+  //   }, [])
+  // )
 
 
   const createSW = async () => {
@@ -167,12 +174,9 @@ const Home = ({ navigation, route }) => {
   const getDataFromTheLocally = async () => {
     try {
       const value = await getAccountInfo();
-      // console.log(value);
       fetchAddress(value);
       listenBalance(value?.accountAddress?.second?.toString())
 
-      // vaultStatus()
-      // value?.accountAddress?.second;
     } catch (err) {
       console.log(err.message)
       // alert(err.message)
@@ -180,23 +184,23 @@ const Home = ({ navigation, route }) => {
   }
 
   const listenBalance = async (address) => {
-    console.log('BalanceListen',address)
     try {
-      const provider = walletProvider();
-      //      console.log(provider)
-      let lastBalance = ethers.constants.Zero
-      // const address = address?.accountAddress?.second;
-      provider.on("block", () => {
-        provider.getBalance(address).then((balance) => {
-          if (!balance.eq(lastBalance)) {
-            lastBalance = balance
-            const balanceInEth = ethers.utils.formatEther(balance)
-            console.log(`balance: ${balanceInEth} ETH`)
-            setBalance(balanceInEth)
-            setEOABalance(balanceInEth)
-          }
+      if(address) {
+        const provider = walletProvider();
+        let lastBalance = ethers.constants.Zero
+        balanceEvent = provider.on("block", () => {
+          console.log('BalanceListen',address)
+          provider.getBalance(address.toString()).then((balance) => {
+            if (!balance.eq(lastBalance)) {
+              lastBalance = balance
+              const balanceInEth = ethers.utils.formatEther(balance)
+              console.log(`balance: ${balanceInEth} ETH`)
+              setBalance(balanceInEth)
+              setEOABalance(balanceInEth)
+            }
+          })
         })
-      })
+      }
     } catch (err) {
       console.log(err.message)
     }
@@ -238,7 +242,7 @@ const Home = ({ navigation, route }) => {
       const connection = await new ethers.providers.JsonRpcProvider(
         "https://matic-mumbai.chainstacklabs.com"
       );
-      const firstAddress = await connection.getBalance(address?.accountAddress?.second)
+      const firstAddress = await connection.getBalance(address?.accountAddress?.first)
       const bal = ethers.utils.formatEther(firstAddress)
       setEoaOneBalance(bal)
       console.log('bal',bal)
@@ -251,7 +255,7 @@ const Home = ({ navigation, route }) => {
   }
 
   const initHome=async()=>{
-    await getDataFromTheLocally()
+    getDataFromTheLocally()
     getSWallet()
     getEoaBalance()
     vaultStatus()
@@ -551,14 +555,14 @@ const Home = ({ navigation, route }) => {
           </TouchableOpacity>
 
           <Text style={styles.balanceText}>
-            $ {parseFloat(parseFloat(eoaOneBalance).toPrecision(2) * 0.6).toPrecision(1)}
+            $ {parseFloat(parseFloat(balance).toPrecision(2) * 0.6).toPrecision(1)}
           </Text>
           <Text style={{
             ...styles.addressText,
             fontSize: 16,
             margin: 4
           }}>
-            {parseFloat(eoaOneBalance).toPrecision(2)} Matic
+            {parseFloat(balance).toPrecision(2)} Matic
           </Text>
           <TouchableOpacity style={styles.addressContainer} onPress={() => {
             Clipboard.setString(address?.accountAddress?.second?.toString())

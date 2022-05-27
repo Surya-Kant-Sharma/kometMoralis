@@ -19,7 +19,7 @@ import ShimmerPlaceHolder from 'react-native-shimmer-placeholder'
 import { getDataLocally, setDataLocally } from '../../Utils/AsyncStorage';
 import { Locations } from '../../Utils/StorageLocations';
 import { getSmartWalletBalance, smartWalletToEoa, transferToSmartWallet } from '../../Utils/SmartWallet';
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { walletProvider } from '../../Utils/Provider';
 import { parse } from 'url';
 import AlertConfirm, { AlertCustoDialog, AlertCustomDialog } from '../../components/Alert';
@@ -83,9 +83,14 @@ const SendTokenFinalize = ({ navigation, route }) => {
     const calculateGesFee = async () => {
         try {
             const provider = walletProvider();
+            const tx = {
+                to: toAddress,
+                value: ethers.utils.parseEther(parseFloat(amount.toString()).toString()),
+                gasLimit: 31000
+            }
             const gasFees = await provider.getGasPrice();
             const hex = Object.values(gasFees);
-            console.log(parseInt(hex[0]))
+            console.log(parseInt(hex[0]), gasFees)
             setGasFees(pre => pre = parseInt(hex[0]));
         } catch (err) {
             console.log(err);
@@ -101,7 +106,13 @@ const SendTokenFinalize = ({ navigation, route }) => {
                     to: toAddress,
                     privateKey: address?.privateKey?.second,
                     amount: parseFloat(amount.toString())
-                })
+                },
+                    {
+                        to: toAddress,
+                        value: ethers.utils.parseEther(parseFloat(amount.toString()).toString()),
+                        gasLimit: 21000
+                    }
+                )
 
                 if (transferHash) {
                     sendTransaction(transferHash.hash)
@@ -147,12 +158,20 @@ const SendTokenFinalize = ({ navigation, route }) => {
     }
 
 
+    //total Amount 
+    const totalAmount = () => {
+        const a = BigNumber.from(ethers.utils.parseEther(amount.toString()));
+        const b = BigNumber.from(parseInt(gasFees.toString()));
+        console.log(a, b)
+        const total = b.add(a);
+        return (ethers.utils.formatUnits(total, 18).substring(0,16))
+    }
 
 
     // address
 
     const [name, setName] = useState('')
-    const [amount, setAmount] = useState(0);
+    const [amount, setAmount] = useState(0.002);
     console.log(sentAddress)
     return (
         <ScrollView
@@ -292,7 +311,6 @@ const SendTokenFinalize = ({ navigation, route }) => {
             <Text style={{ fontFamily: typography.medium, color: 'white', marginHorizontal: 10, fontSize: 16 }}>Name (optional)</Text>
             <View
                 style={styles.textInputContainer}>
-
                 <TextInput
                     placeholder={'Tim David'}
                     value={sentAddress}
@@ -308,7 +326,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
 
             <Text style={{ fontFamily: typography.medium, color: 'white', marginHorizontal: 10, fontSize: 16 }}>Amount (required)</Text>
             <View
-                style={{...styles.textInputContainer,borderColor: amount>balance?'red':'#C445B8'}}>
+                style={{ ...styles.textInputContainer, borderColor: amount > balance ? 'red' : '#C445B8' }}>
                 <Image source={{ uri: 'https://ffnews.com/wp-content/uploads/2021/07/q4itcBEb_400x400-300x300.jpg' }} style={{ width: 35, height: 35, borderRadius: 50 }} />
                 <TextInput
                     keyboardType='number-pad'
@@ -321,19 +339,16 @@ const SendTokenFinalize = ({ navigation, route }) => {
                     }}
                 />
             </View>
-            {amount>balance &&
-            <View style={{alignItems:'center',justifyContent:'center'}}>
-                <Text style={{color:'red',fontFamily:typography.medium}}>Insufficient Balance</Text>
-            </View>
+            {amount > balance &&
+                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ color: 'red', fontFamily: typography.medium }}>Insufficient Balance</Text>
+                </View>
             }
 
             <Modal
                 visible={confirm}
                 transparent
                 onRequestClose={() => setConfirm(false)}>
-
-
-
                 <View
                     style={{
                         flex: 1,
@@ -388,7 +403,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                                 style={styles.summaryTextContainer}>
                                 <Text style={styles.subHeaderText}>Gas Fees</Text>
                                 {(gasFees > 0) ?
-                                    <Text style={styles.subHeaderText}> {gasFees + " wei"}</Text>
+                                    <Text style={styles.subHeaderText}> {parseFloat(ethers.utils.formatUnits(gasFees.toString(), "gwei")).toPrecision(3) + " Gwei"}</Text>
                                     : <ShimmerPlaceHolder style={{ width: '40%', borderRadius: 10 }} LinearGradient={LinearGradient} />}
                             </View>
                             <View
@@ -396,11 +411,11 @@ const SendTokenFinalize = ({ navigation, route }) => {
                                 <Text style={styles.subHeaderText}>Transaction</Text>
                                 <Text style={styles.subHeaderText}> {amount} MATIC</Text>
                             </View>
-                            {/* <View
+                            <View
                                 style={styles.summaryTextContainer}>
                                 <Text style={styles.subHeaderText}>Total</Text>
-                                <Text style={styles.subHeaderText}>$ {amount + gasFees}</Text>
-                            </View> */}
+                                <Text style={styles.subHeaderText}>$ {totalAmount(amount, gasFees)}</Text>
+                            </View>
                         </View>
 
                         <View style={{
@@ -426,6 +441,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                                     colors={['#FF8DF4', '#89007C']}
                                     onPress={() => {
                                         //            navigation.navigate('RestoreFromPhrase');
+                                        console.log(totalAmount())
                                         clearInterval(timeRef.current)
                                         setConfirm(false)
                                         setGasFees(0)

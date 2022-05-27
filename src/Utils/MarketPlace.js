@@ -14,11 +14,11 @@ export const BuyNft = async (price, sign, contractAddress) => {
     const options = { value: ethers.utils.parseEther(price.toString()), gasLimit : 3100000}
     try{
         const transactions = await contract.mintNFT(1, options)
+        console.log("transactions >>>> ", transactions)
+        return contract
     }
     catch (error){
         console.log('Error')
         ToastAndroid.show('Insufficient Funds',ToastAndroid.SHORT)
     }
-    console.log(transactions)
-    return transactions
 }

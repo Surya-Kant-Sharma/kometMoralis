@@ -3,14 +3,11 @@ import { View, Text, TouchableOpacity, TextInput, Linking, Modal, StyleSheet, Im
 import GradientButton from '../../components/GradientButton';
 import { themeColor } from '../../common/theme';
 import Header from '../../components/Header';
-//import MaticIcon from '../../../assets/svg/MaticIcon.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { typography } from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder'
-
-//import HistoryIcon from '../../../assets/svg/HistoryIcon.svg';
 import { getDataLocally } from '../../Utils/AsyncStorage';
 import { Locations } from '../../Utils/StorageLocations';
 import { getSmartWalletBalance, smartWalletToEoa, transferToSmartWallet } from '../../Utils/SmartWallet';
@@ -20,8 +17,9 @@ import { walletProvider } from '../../Utils/Provider';
 import { parse } from 'url';
 import AlertConfirm, { AlertCustoDialog, AlertCustomDialog } from '../../components/Alert';
 import ProgressDialog from '../../components/ProgressDialog';
-const SwapToken = ({ navigation, route }) => {
 
+
+const SwapToken = ({ navigation, route }) => {
   const { path } = route.params;
   const [balanceVault, setBalanceVault] = React.useState(0);
   const [balanceEoa, setBalanceEoa] = React.useState(0);
@@ -45,7 +43,7 @@ const SwapToken = ({ navigation, route }) => {
       const provider = walletProvider();
       const balance = await provider.getBalance(address?.accountAddress?.second);
       getVaultBalance(data);
-      
+
       const hex = Object.values(balance);
       const ether = ethers.utils.formatEther(balance)
 
@@ -82,7 +80,12 @@ const SwapToken = ({ navigation, route }) => {
           to: vdata?.address,
           privateKey: address?.privateKey?.second,
           amount: parseFloat(amount.toString())
-        })
+        },
+          {
+            to: vdata?.address,
+            value: ethers.utils.parseEther(parseFloat(amount.toString()).toString()),
+          }
+        )
 
         if (transferHash) {
           // alert(transferHash?.hash)
@@ -114,7 +117,12 @@ const SwapToken = ({ navigation, route }) => {
           to: address?.accountAddress?.second,
           privateKey: address?.privateKey?.first,
           amount: parseFloat(amount.toString())
-        })
+        },
+          {
+            to: address?.accountAddress?.second,
+            value: ethers.utils.parseEther(parseFloat(amount.toString()).toString()),
+          }
+        )
 
         if (transferHash) {
           setTransactionHash(transferHash?.hash)
@@ -464,7 +472,7 @@ const SwapToken = ({ navigation, route }) => {
           }}></TouchableOpacity>
           <View
             style={{
-              flex: 1,
+              flex: 0,
               borderTopRightRadius: 10,
               borderTopLeftRadius: 10,
               backgroundColor: '#2F2F3A',
@@ -507,7 +515,7 @@ const SwapToken = ({ navigation, route }) => {
                 style={styles.summaryTextContainer}>
                 <Text style={styles.subHeaderText}>Gas Fees</Text>
                 {(gasFees > 0) ?
-                  <Text style={styles.subHeaderText}> {gasFees + " wei"}</Text>
+                  <Text style={styles.subHeaderText}> {parseFloat(ethers.utils.formatUnits(gasFees.toString(), "gwei")).toPrecision(3) + " Gwei"}</Text>
                   : <ShimmerPlaceHolder style={{ width: '40%', borderRadius: 10 }} LinearGradient={LinearGradient} />}
               </View>
               <View
@@ -532,7 +540,9 @@ const SwapToken = ({ navigation, route }) => {
                 <GradientButton
                   text={'Confirm'}
                   disabled={(gasFees <= 0) ? true : false}
-                  colors={['#FF8DF4', '#89007C']}
+                  colors={(gasFees > 0) ? ['#FF8DF4', '#89007C'] : ['rgba(0,0,0, 0.2)', 'rgba(0,0,0, 0.2)']}
+                  // disabled={(gasFees <= 0) ? true : false}
+                  // colors={['#FF8DF4', '#89007C']}
                   size={150}
 
                   onPress={() => {

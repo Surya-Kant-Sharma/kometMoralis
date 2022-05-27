@@ -28,8 +28,8 @@ export const getUserId=async()=>{
         const value = await AsyncStorage.getItem('USER_DATA');
         if (value !== null) {
             // We have data!!
-            console.log(JSON.parse(value));
-            console.log('User',data)
+            // console.log(JSON.parse(value));
+            // console.log('User',data)
             const data=JSON.parse(value)
             return data['userDto']['userAccountId']
         }

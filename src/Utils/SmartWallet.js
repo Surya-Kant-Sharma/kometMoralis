@@ -60,6 +60,7 @@ export const smartWalletToEoa = async (options) => {
     console.log(transactionHash)
     return transactionHash;
 }
+
 // export const smartWalletToEoa = async (options) => {
 //     const provider = await new ethers.providers.JsonRpcProvider("https://matic-mumbai.chainstacklabs.com")
 //     const wallet = await new Wallet(options.privateKey, provider)
@@ -75,17 +76,14 @@ export const smartWalletToEoa = async (options) => {
 //     console.log(hex)
 //     return hex
 // }
-export const transferToSmartWallet = async (options) => {
+
+export const transferToSmartWallet = async (options, tx) => {
     const provider = await new ethers.providers.JsonRpcProvider("https://matic-mumbai.chainstacklabs.com")
     const wallet = await new Wallet(options.privateKey, provider)
     // const hexValue = new BigNumber.from(ethers.utils.formatUnits(options?.amount?.toString(), "wei"));
     const hexValue = parseFloat(options?.amount).toPrecision(6).toString();
     // console.log("" + options?.amount?.toString());
-    const tx = {
-        to: options?.to,
-        value: ethers.utils.parseEther(options?.amount?.toString()),
-        gasLimit: 31000
-    }
+    
     const hex = await wallet.sendTransaction(tx)
     // console.log(hex)
     return hex

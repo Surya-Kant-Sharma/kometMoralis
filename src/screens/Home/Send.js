@@ -12,37 +12,81 @@ import { getDataLocally } from '../../Utils/AsyncStorage';
 import { Locations } from '../../Utils/StorageLocations';
 import { FlatList } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
-
+import { walletProvider } from '../../Utils/Provider';
+import { useSelector } from 'react-redux'
+import { utils } from 'ethers'
+import PendingTransactions from '../../components/pendingTransactions';
+import TransactionControlModal from '../../components/TransactionControlModel';
+import { introspectionFromSchema } from 'graphql';
+import TransactionRow from '../../components/tranasctionRow';
+let provider;
 
 const SendScreen = ({ navigation }) => {
+
+    const address = useSelector(state => state.address)
     const [visible, setVisible] = useState(false);
     const [open, setOpen] = useState(false);
     const [data, setData] = useState([]);
     const [selectedData, setSelectedData] = useState();
+    const [isPending, setIsPending] = useState(false);
+    const [openTransactionController, setOpenTransactionController] = useState(false);
+    const [transactionInfo, setTransactionInfo] = useState(false);
 
 
     useEffect(() => {
         getTransactionList();
+        getPendingTransactions();
+        return (() => {
+            // provider?.removeAllListeners("pending", (err) => console.log(err.message))
+        })
     }, [])
 
     useFocusEffect(
         React.useCallback(() => {
             getTransactionList();
         }, []))
-    
+
 
     const getTransactionList = async () => {
         try {
             const data = await getDataLocally(Locations.SENDTRANSACTIONS);
-            console.log(data)
             setData(data);
         } catch (err) {
             alert(err.message)
         }
     }
 
+    const getPendingTransactions = async () => {
+        try {
+            provider = walletProvider()
+            const info = await provider.getTransaction("0x3aabfdb2f211c76891c10f1820d69bac343a415fe59d3ba499c0408b21513a3b");
+            console.log(info)
+            if (info?.confirmations <= 0) {
+                // setIsPending(true)
+                const amt = Object.values(info.value)[0];
+                const obj = {
+                    to : info.to,
+                    from: info.from,
+                    amount : amt,
+                    nonce : info.nonce,
+                    pk : address.privateKey.second
+                }
+
+                console.log(obj)
+                setTransactionInfo(obj)
+            }
+        } catch (err) {
+            console.log(err.message)
+        }
+    }
 
     const HeaderUI = () => {
+
+        const item = {
+            name: "pending...",
+            amount: '0.00002'
+        }
+
         return (
             <View style={{ width: '100%' }}>
                 <Header navigation={navigation} />
@@ -61,7 +105,6 @@ const SendScreen = ({ navigation }) => {
                                 setVisible(false)
                                 navigation.navigate('SendTokenFinalize', { to: val.data, name: '' })
                             }}
-                        //flashMode={RNCamera.Constants.FlashMode.torch}
                         />
                     </View>
                 </Modal>
@@ -161,17 +204,76 @@ const SendScreen = ({ navigation }) => {
                         style={{
                             fontFamily: typography.regular,
                             fontSize: 14,
-
                             flex: 1,
                         }}>
                         {'  '}Scan any QR code
                         {/* {'  '}Transaction History */}
                     </Text>
                 </TouchableOpacity>
+
+                {
+                    (isPending) ?
+                        <View>
+                            <TouchableOpacity
+                                activeOpacity={1}
+                                //onPress={() => setVisible(true)}
+                                // onPress={() => navigation.navigate('SendTokenFinalize')}
+                                style={{
+                                    borderRadius: 10,
+                                    borderColor: '#232732',
+                                    borderWidth: 1,
+                                    marginVertical: 20,
+                                    flexDirection: 'row',
+                                    justifyContent: 'flex-start',
+                                    alignItems: 'center',
+                                    paddingHorizontal: 0,
+                                    height: 50,
+                                }}>
+                                {/* <MaterialIcons name={'qr-code'} color={'white'} size={28} /> */}
+                                {/* <MaterialIcons name={'history'} color={'white'} size={28} /> */}
+                                <Text
+                                    style={styles.subHeaderText}>
+                                    {/* {'  '}Scan any QR code */}
+                                    {'  '}Pending Transactions
+                                </Text>
+                            </TouchableOpacity>
+                            <FlatList
+                                data={[item]}
+                                renderItem={(data) => {
+                                    let item = data.item
+                                    //console.log(item)
+                                    return (
+                                        <TouchableOpacity
+                                            style={{
+                                                borderBottomColor: '#ffffff',
+                                                borderBottomWidth: 0.4,
+                                                borderRadius: 20
+                                            }}
+                                            key={item.date}
+                                            onPress={() => {
+                                                setOpenTransactionController(true)
+                                                setSelectedData(item)
+                                            }}
+                                        >
+                                            <PendingTransactions
+                                                image={'https://ffnews.com/wp-content/uploads/2021/07/q4itcBEb_400x400-300x300.jpg'}
+                                                coinName={item.name}
+                                                symbol={''}
+                                                value={(new Date(item.date).toLocaleString()) || "Is not provided"}
+                                                price={item.amount}
+                                                change={1.3} />
+                                        </TouchableOpacity>)
+
+                                }}
+                            />
+
+                        </View> 
+                        : null
+                }
+
+
                 <TouchableOpacity
                     activeOpacity={1}
-                    //onPress={() => setVisible(true)}
-                    // onPress={() => navigation.navigate('SendTokenFinalize')}
                     style={{
                         borderRadius: 10,
                         borderColor: '#232732',
@@ -180,19 +282,11 @@ const SendScreen = ({ navigation }) => {
                         flexDirection: 'row',
                         justifyContent: 'flex-start',
                         alignItems: 'center',
-                        paddingHorizontal: 10,
+                        paddingHorizontal: 0,
                         height: 50,
                     }}>
-                    {/* <MaterialIcons name={'qr-code'} color={'white'} size={28} /> */}
-                    <MaterialIcons name={'history'} color={'white'} size={28} />
                     <Text
-                        style={{
-                            fontFamily: typography.regular,
-                            fontSize: 14,
-
-                            flex: 1,
-                        }}>
-                        {/* {'  '}Scan any QR code */}
+                        style={styles.subHeaderText}>
                         {'  '}Transaction History
                     </Text>
                 </TouchableOpacity>
@@ -241,11 +335,11 @@ const SendScreen = ({ navigation }) => {
                                     setSelectedData(item)
                                 }}
                             >
-                                <AssetsLog
+                                <TransactionRow
                                     image={'https://ffnews.com/wp-content/uploads/2021/07/q4itcBEb_400x400-300x300.jpg'}
                                     coinName={item.name}
                                     symbol={''}
-                                    value={(new Date(item.date).toLocaleString())}
+                                    value={item.date}
                                     price={item.amount}
                                     change={1.3} />
                             </TouchableOpacity>)
@@ -361,10 +455,16 @@ const SendScreen = ({ navigation }) => {
                                 </TouchableOpacity>
                             </View>
                         </View>
-
                     </View>
                 </View>
             </Modal>
+
+            <TransactionControlModal 
+                open={openTransactionController}
+                setOpen={setOpenTransactionController}
+                selectedData={transactionInfo}
+                onSuccess={getPendingTransactions}
+            />
         </View>
     );
 };

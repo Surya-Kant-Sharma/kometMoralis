@@ -2,8 +2,10 @@ import { View, Text,Image } from 'react-native'
 import React from 'react'
 import { typography } from '../common/typography'
 import useNativeBalance from '../../frontend/hooks/useNativeBalance';
+import moment from 'moment'
 
-const AssetsLog = ({image,coinName,value,symbol,price,change,chain}) => {
+
+const TransactionRow = ({image,coinName,value,symbol,price,change,chain}) => {
   return (
     <View style={{marginVertical:20}}>
     <View style={{flexDirection:'row',justifyContent:'space-between'}}>
@@ -12,6 +14,7 @@ const AssetsLog = ({image,coinName,value,symbol,price,change,chain}) => {
         <View style={{marginHorizontal:10}}>
           <Text style={{fontFamily:typography.regular,fontSize:14,color:'white'}}>{coinName}</Text>
           <Text style={{fontFamily:typography.regular,fontSize:12,color:'white'}}>{value?.toString().replace('undefined'|| 'ETH','')} </Text>
+          <Text style={{fontFamily:typography.regular,fontSize:12,color:'white'}}>{moment.utc(value).local().startOf('seconds').fromNow()}</Text>
         </View>
       </View>
       <View style={{marginHorizontal:10}}>
@@ -24,4 +27,4 @@ const AssetsLog = ({image,coinName,value,symbol,price,change,chain}) => {
   )
 }
 
-export default AssetsLog
+export default TransactionRow
