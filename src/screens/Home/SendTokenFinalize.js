@@ -49,6 +49,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
     const [open, setOpen] = useState(false)
     const [value, setValue] = useState('Komet Wallet')
     const [confirm, setConfirm] = useState(false);
+    const [gas, setGas] = useState(35000)
 
     const [transactionHash, setTransactionHash] = React.useState(false);
     const [startProgress, setStartProgress] = React.useState(0);
@@ -110,21 +111,13 @@ const SendTokenFinalize = ({ navigation, route }) => {
                     {
                         to: toAddress,
                         value: ethers.utils.parseEther(parseFloat(amount.toString()).toString()),
-                        gasLimit: 21000
+                        gasPrice: gas || gasFees
                     }
                 )
 
                 if (transferHash) {
                     sendTransaction(transferHash.hash)
                     setTransactionHash(transferHash.hash)
-                    // AlertCustomDialog(
-                    //     'Transaction Hash',
-                    //     'Check Your Transaction on Mumbai Testnet By Clicking Explore Btn and Otherwise Tap Ok Btn',
-                    //     'Explore',
-                    //     'Ok',
-                    //     () => { Linking.openURL("https://mumbai.polygonscan.com/tx/" + transferHash.hash) },
-                    //     () => console.log('dismiss')
-                    // );
                 }
             } else {
                 alert('insufficent balance')
@@ -137,7 +130,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
 
 
     const sendTransaction = async (hash) => {
-        let data = await getDataLocally(Locations.SENDTRANSACTIONS);
+        // let data = await getDataLocally(Locations.TEMPTRANSACTION);
         const newItem = initalData;
         newItem.from = address?.accountAddress.first
         newItem.to = toAddress
@@ -146,15 +139,13 @@ const SendTokenFinalize = ({ navigation, route }) => {
         newItem.hash = hash
         newItem.date = new Date();
 
-        if (data != null) {
-            data.push(newItem);
-        } else {
-            data = [newItem];
-        }
+        // if (data != null) {
+        //     data.push(newItem);
+        // } else {
+        //     data = [newItem];
+        // }
 
-        console.log(data)
-        console.log(data)
-        await setDataLocally(Locations.SENDTRANSACTIONS, data);
+        await setDataLocally(Locations.TEMPTRANSACTION, newItem);
     }
 
 
@@ -164,14 +155,14 @@ const SendTokenFinalize = ({ navigation, route }) => {
         const b = BigNumber.from(parseInt(gasFees.toString()));
         console.log(a, b)
         const total = b.add(a);
-        return (ethers.utils.formatUnits(total, 18).substring(0,16))
+        return (ethers.utils.formatUnits(total, 18).substring(0, 16))
     }
 
 
     // address
 
     const [name, setName] = useState('')
-    const [amount, setAmount] = useState(0.002);
+    const [amount, setAmount] = useState(0);
     console.log(sentAddress)
     return (
         <ScrollView
@@ -344,7 +335,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                     <Text style={{ color: 'red', fontFamily: typography.medium }}>Insufficient Balance</Text>
                 </View>
             }
-
+            {/* For transactions */}
             <Modal
                 visible={confirm}
                 transparent
@@ -354,7 +345,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                         flex: 1,
                         justifyContent: 'flex-start',
                     }}>
-                    <TouchableOpacity style={{ flex: 1 }} onPress={() => {
+                    <TouchableOpacity style={{ flex: 0.7 }} onPress={() => {
                         clearInterval(timeRef.current)
                         setConfirm(false)
                     }}></TouchableOpacity>
@@ -416,6 +407,67 @@ const SendTokenFinalize = ({ navigation, route }) => {
                                 <Text style={styles.subHeaderText}>Total</Text>
                                 <Text style={styles.subHeaderText}>$ {totalAmount(amount, gasFees)}</Text>
                             </View>
+                        </View>
+
+                        <View style={{
+                            width : '100%',
+                            flexDirection : 'row',
+                            justifyContent : 'center',
+                            paddingTop : 10,
+                            paddingBottom : 10,
+                        }}>
+                            <TouchableOpacity
+                                onPress={() => setGas(0)}
+                                // onPress={() => navigation.navigate('SendTokenFinalize', { to: '', name: '' })}
+                                style={{
+                                    width : '40%',
+                                    margin : 6,
+                                    borderRadius: 10,
+                                    borderColor: 'red',
+                                    borderWidth: 1,
+                                    marginVertical: 0,
+                                    flexDirection: 'row',
+                                    justifyContent: 'flex-start',
+                                    alignItems: 'center',
+                                    paddingHorizontal: 10,
+                                    height: 50,
+                                }}>
+                                <Text
+                                    style={{
+                                        fontFamily: typography.regular,
+                                        // fontSize: 20,
+                                        color : 'red',
+                                        flex: 1,
+                                    }}>
+                                    {'  '}Low Fees
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => setGas(50000)}
+                                // onPress={() => navigation.navigate('SendTokenFinalize', { to: '', name: '' })}
+                                style={{
+                                    width : '40%',
+                                    margin : 6,
+                                    borderRadius: 10,
+                                    borderColor: 'yellow',
+                                    borderWidth: 1,
+                                    marginVertical: 0,
+                                    flexDirection: 'row',
+                                    justifyContent: 'flex-start',
+                                    alignItems: 'center',
+                                    paddingHorizontal: 10,
+                                    height: 50,
+                                }}>
+                                <Text
+                                    style={{
+                                        fontFamily: typography.regular,
+                                        // fontSize: 20,
+                                        color : 'yellow',
+                                        flex: 1,
+                                    }}>
+                                    {'  '}High Fees
+                                </Text>
+                            </TouchableOpacity>
                         </View>
 
                         <View style={{

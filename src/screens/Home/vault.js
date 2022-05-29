@@ -30,7 +30,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import BorderButton from '../../components/BorderButton';
 import Header from '../../components/Header';
 import { getAccountDetails } from '../../Utils/ImportWallet';
-import { getDataLocally } from '../../Utils/AsyncStorage';
+import { getDataLocally, setDataLocally } from '../../Utils/AsyncStorage';
 import { setAddress, setVaultBalance } from '../../store/Actions/action';
 import AlertConfirm from '../../components/Alert';
 import Clipboard from '@react-native-community/clipboard';
@@ -72,7 +72,21 @@ const Home = ({ navigation, route }) => {
 
   React.useEffect(() => {
     getSWallet()
+    getBalanceLocally()
   }, [])
+
+
+
+  const getBalanceLocally = async () => {
+    try {
+      const bal = await getDataLocally(Locations.VAULT)
+      console.log(bal)
+      setBalance(bal)
+    } catch (err) {
+      console.log(err.message)
+    }
+  }
+
 
 
   // const createSW = () => {
@@ -139,6 +153,7 @@ const Home = ({ navigation, route }) => {
       if (data.address) {
         setSData(data)
         getBalance(data)
+
       }
     } catch (err) {
       alert(err.message)
@@ -154,6 +169,7 @@ const Home = ({ navigation, route }) => {
       const balance = await getSmartWalletBalance(options);
       setBalance(balance)
       setVAULTBalance(balance)
+      setDataLocally(Locations.VAULT, balance)
       // console.log(balance);
     } catch (err) {
       console.log(err)

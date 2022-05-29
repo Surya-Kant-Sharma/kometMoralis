@@ -16,12 +16,12 @@ const PendingTransactions = ({ image, coinName, value, symbol, price, change, ch
           <ActivityIndicator style={{ height: 40, width: 40, borderRadius: 40 }} color="white" />
           <View style={{ marginHorizontal: 10 }}>
             <Text style={{ fontFamily: typography.regular, fontSize: 14, color: 'white' }}>{coinName}</Text>
-            <Text style={{ fontFamily: typography.regular, fontSize: 12, color: 'white' }}>{value?.toString().replace('undefined' || 'ETH', '')} </Text>
+            <Text style={{ fontFamily: typography.regular, fontSize: 12, color: 'white' }}>{"Please Wait"} </Text>
           </View>
         </View>
         <View style={{ marginHorizontal: 10 }}>
           <Text style={{ fontFamily: typography.regular, fontSize: 14, color: 'white', textAlign: 'right' }}> MAT {price}</Text>
-          {/* <Text style={{fontFamily:typography.regular,fontSize:12,color:'gray',textAlign:'right'}}>{change} </Text> */}
+          <Text style={{fontFamily:typography.regular,fontSize:12,color:'gray',textAlign:'right'}}>$ {parseFloat(parseFloat(price).toPrecision(2) * 0.6).toPrecision(1)} </Text>
         </View>
       </View>
 

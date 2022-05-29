@@ -7,9 +7,10 @@ import { typography } from '../common/typography'
 import { walletProvider } from '../Utils/Provider'
 import Icons from 'react-native-vector-icons/MaterialIcons'
 import { cancelTransactions, speedUpTransactions } from '../Utils/Transactions'
+import GradientButton from './GradientButton'
 
 
-const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess}) => {
+const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess }) => {
 
     const [currentGasFee, setCurrentGasFee] = React.useState(-1);
     let interval = React.useRef();
@@ -52,7 +53,7 @@ const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess}) => {
                 selectedData.pk,
             )
             console.log(hash)
-            onSuccess()
+            onSuccess(hash)
         } catch (err) {
             console.log(err.message)
         }
@@ -86,7 +87,7 @@ const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess}) => {
                         flex: 1,
                         justifyContent: 'flex-start',
                     }}>
-                    <TouchableOpacity style={{ flex: 1 }} onPress={() =>{ 
+                    <TouchableOpacity style={{ flex: 1 }} onPress={() => {
                         setOpen(false)
                         clearInterval(interval.current)
                     }}></TouchableOpacity>
@@ -160,31 +161,31 @@ const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess}) => {
                         </View>
 
                         <TouchableOpacity
-                                activeOpacity={1}
-                                //onPress={() => setVisible(true)}
-                                // onPress={() => navigation.navigate('SendTokenFinalize')}
-                                style={{
-                                    width : '100%',
-                                    borderRadius: 10,
-                                    borderColor: 'yellow',
-                                    borderWidth: 1,
-                                    marginVertical: 20,
-                                    flexDirection: 'row',
-                                    justifyContent: 'flex-start',
-                                    alignItems: 'center',
-                                    paddingHorizontal: 0,
-                                    height: 50,
-                                }}>
-                                {/* <MaterialIcons name={'qr-code'} color={'white'} size={28} /> */}
-                                {/* <MaterialIcons name={'history'} color={'white'} size={28} /> */}
-                                <Text
-                                    style={{...styles.subHeaderText, color : 'yellow', fontWeight : 'normal'}}>
-                                    {/* {'  '}Scan any QR code */}
-                                    {'  '}Add To Context
-                                </Text>
-                            </TouchableOpacity>
+                            activeOpacity={1}
+                            //onPress={() => setVisible(true)}
+                            // onPress={() => navigation.navigate('SendTokenFinalize')}
+                            style={{
+                                width: '100%',
+                                borderRadius: 10,
+                                borderColor: 'yellow',
+                                borderWidth: 1,
+                                marginVertical: 20,
+                                flexDirection: 'row',
+                                justifyContent: 'flex-start',
+                                alignItems: 'center',
+                                paddingHorizontal: 0,
+                                height: 50,
+                            }}>
+                            {/* <MaterialIcons name={'qr-code'} color={'white'} size={28} /> */}
+                            {/* <MaterialIcons name={'history'} color={'white'} size={28} /> */}
+                            <Text
+                                style={{ ...styles.subHeaderText, color: 'yellow', fontWeight: 'normal' }}>
+                                {/* {'  '}Scan any QR code */}
+                                {'  '}Add To Context
+                            </Text>
+                        </TouchableOpacity>
 
-                        <View>
+                        {/* <View>
                             <View style={{
                                 flexDirection: 'row'
                             }}>
@@ -226,6 +227,38 @@ const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess}) => {
                                     <Text style={{ fontWeight: 'bold', color: 'white' }} >Cancel</Text>
                                 </TouchableOpacity>
                             </View>
+                        </View> */}
+
+                        <View style={{
+                            flexDirection: 'column'
+                        }}>
+                            <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-around', width: '100%' }}>
+                                <GradientButton
+                                    text={'Speed Up'}
+                                    size={150}
+                                    disabled={(currentGasFee <= 0) ? true : false}
+                                    colors={(currentGasFee > 0) ? ['#FF8DF4', '#89007C'] : ['rgba(0,0,0, 0.2)', 'rgba(0,0,0, 0.2)']}
+                                    onPress={() => {
+                                        setOpen(false)
+                                        clearInterval(interval.current)
+                                        speedUp()
+                                    }}
+                                />
+                                <GradientButton
+                                    text={'Cancel'}
+                                    size={150}
+                                    disabled={(currentGasFee <= 0) ? true : false}
+                                    colors={(currentGasFee > 0) ? ['#FF8DF4', '#89007C'] : ['rgba(0,0,0, 0.2)', 'rgba(0,0,0, 0.2)']}
+                                    onPress={() => {
+                                        //            navigation.navigate('RestoreFromPhrase');
+                                        setOpen(false)
+                                        clearInterval(interval.current)
+                                        cancel()
+                                    }}
+                                />
+
+                            </View>
+
                         </View>
 
                     </View>

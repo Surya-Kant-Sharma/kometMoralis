@@ -29,7 +29,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import BorderButton from '../../components/BorderButton';
 import Header from '../../components/Header';
 import { getAccountDetails } from '../../Utils/ImportWallet';
-import { getAccountInfo, getDataLocally } from '../../Utils/AsyncStorage';
+import { getAccountInfo, getDataLocally, setDataLocally } from '../../Utils/AsyncStorage';
 import { getOtherWalletAddress, getWallets, setAddress, setEoaBalance } from '../../store/Actions/action';
 import AlertConfirm from '../../components/Alert';
 // import Clipboard from '@react-native-community/clipboard';
@@ -92,7 +92,19 @@ const Home = ({ navigation, route }) => {
     //console.log(user);
     fetchOtherWallet(user?.attributes.accounts[0])
     fetchWallets(user?.attributes.accounts[0])
+    getBalanceLocally()
   }, [isAuthenticated]);
+
+
+  const getBalanceLocally = async () => {
+    try {
+      const bal = await getDataLocally(Locations.EOA2)
+      console.log(bal)
+      setBalance(bal)
+    } catch (err) {
+      console.log(err.message)
+    }
+  }
 
 
   const handleCryptoLogin = async () => {
@@ -197,6 +209,7 @@ const Home = ({ navigation, route }) => {
               console.log(`balance: ${balanceInEth} ETH`)
               setBalance(balanceInEth)
               setEOABalance(balanceInEth)
+              setDataLocally(Locations.EOA2, balanceInEth)
             }
           })
         })
@@ -209,8 +222,7 @@ const Home = ({ navigation, route }) => {
   const vaultStatus = async (options) => {
     try {
       const data = await getDataLocally(Locations.SMARTACCOUNTS);
-      //console.log('status', data)
-      if (data?.address)
+      if (data?.address)    
         setVault(true)
     } catch (err) {
       console.log(err)

@@ -34,15 +34,17 @@ import { getSmartWalletBalance } from '../../Utils/SmartWallet';
 import { useFocusEffect } from '@react-navigation/native';
 import { getUserName } from '../../common/Storage';
 import UserNfts from '../MarketPlace/UserNFT';
+import ShimmerPlaceHolder from 'react-native-shimmer-placeholder'
+import LinearGradient from 'react-native-linear-gradient';
 
 console.ignoredYellowBox = ['Setting a timer'];
 
 const Profile = ({ navigation }) => {
   const eoaTwo = useSelector(state => state.address);
   const [selectedAddress, setSelectedAddress] = useState('');
-  const [otherAssets, setOtherAssets] = useState([]);
+  const [kometBalance, setKometBalance] = useState(0);
   const [balance, setBalance] = useState(0);
-  const [selectedMode, setSelectedMode] = useState();
+  const [vaultBalance, setVaultBalance] = useState(0);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('Komet Wallet')
   const [Modes, setModes] = useState(['Komet Wallet'])
@@ -83,6 +85,13 @@ const Profile = ({ navigation }) => {
 
   useEffect(() => {
     getSelectedItemInfo()
+    fetchUserName()
+    getVaultDetails()
+    getModesBalance()
+  }, [])
+
+  useEffect(() => {
+    getSelectedItemInfo()
     getModesBalance()
     fetchUserName()
     // getExternalWallet()
@@ -93,6 +102,7 @@ const Profile = ({ navigation }) => {
       case 'Komet Wallet':
         setSelectedAddress(address?.accountAddress?.second)
         getModesBalance(address?.accountAddress?.second)
+        setBalance(kometBalance)
         break
       case 'Vault':
         getVaultDetails();
@@ -120,6 +130,9 @@ const Profile = ({ navigation }) => {
 
   const getVaultDetails = async () => {
     try {
+      if (value === "Vault") {
+        setBalance(vaultBalance)
+      }
       const info = await getDataLocally(Locations.SMARTACCOUNTS);
       if (info?.address) {
         setSelectedAddress(info?.address)
@@ -139,7 +152,8 @@ const Profile = ({ navigation }) => {
   const getVaultBalance = async (options) => {
     try {
       const balance = await getSmartWalletBalance(options);
-      setBalance(balance)
+      setVaultBalance(balance)
+      // setBalance(balance)
       // console.log(balance);
     } catch (err) {
       console.log(err.message)
@@ -170,11 +184,10 @@ const Profile = ({ navigation }) => {
       );
       const firstAddress = await connection.getBalance(address)
       const bal = ethers.utils.formatEther(firstAddress)
+      setKometBalance(bal)
       setBalance(bal)
-      // alert(bal)
     } catch (err) {
       console.log(err)
-      // alert(err.message)
     }
 
   }
@@ -266,7 +279,13 @@ const Profile = ({ navigation }) => {
             </Text>
 
             <MaterialIcons name={'keyboard-arrow-down'} size={16} color={'#453E9F'} /></TouchableOpacity>
-          <Text style={{ fontFamily: typography.semiBold, color: 'white', fontSize: 18 }}>$ {(parseFloat(balance).toPrecision(4) * 0.6).toPrecision(2)}</Text>
+          {
+            (balance > 0) ?
+              <Text style={{ fontFamily: typography.semiBold, color: 'white', fontSize: 18 }}>$ {(parseFloat(balance).toPrecision(2) * 0.6).toPrecision(1)}</Text>
+              : 
+              <ShimmerPlaceHolder style={{ width: '40%', borderRadius: 10 }} LinearGradient={LinearGradient} />
+            }
+
         </View>
       </View>
 
@@ -284,8 +303,8 @@ const Profile = ({ navigation }) => {
           chain={'polygon'}
         /> :
         <View style={{
-          paddingLeft : 20,
-          paddingRight : 20
+          paddingLeft: 20,
+          paddingRight: 20
         }}>
           <AssetsLog
             image={'https://ffnews.com/wp-content/uploads/2021/07/q4itcBEb_400x400-300x300.jpg'}

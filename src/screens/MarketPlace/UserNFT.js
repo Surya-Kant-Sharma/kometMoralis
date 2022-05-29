@@ -31,16 +31,18 @@ const UserNfts = (props) => {
             console.log(address?.accountAddress?.second)
             const data = await getUserNfts(address?.accountAddress?.second)
             console.log(data)
+
             const arr = await data.data?.nfts?.map((item) => {
                 return axios.get(`http://staging.komet.me/api/v1/market/v1/token/search?collectionContractId=${item.address}&tokenBlockchainId=${item.tokenId}`)
             })
 
             allSettled(arr).then((res) => {
-
                 const arr = res.map((value) => {
                     if (value?.value) {
                         return value?.value
                     }
+
+
                 })
                 setNfts(res)
                 console.log(arr)
@@ -69,8 +71,8 @@ const UserNfts = (props) => {
                             <TouchableOpacity
                                 key={itm?.data.tokenId}
                                 style={styles.cardContainer}>
-                                <Image source={{ uri: itm?.data?.mediaUrl || 'https://storage.googleapis.com/komet_public_objects_staging/token/media/f1a5782f-9946-42ca-81c8-1582d218a2df' }} style={styles.image} />
-                                <Text style={styles.imageText}>{itm?.data?.attributes?.name || "ssd"}</Text>
+                                <Image source={{ uri: itm?.data?.mediaUrl}} style={styles.image} />
+                                <Text style={styles.imageText}>{itm?.data?.attributes?.name}</Text>
                             </TouchableOpacity>
 
                         </View>
