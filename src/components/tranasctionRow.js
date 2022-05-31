@@ -13,7 +13,6 @@ const TransactionRow = ({image,coinName,value,symbol,price,change,chain}) => {
         <Image source={{uri:image}} style={{height:40,width:40,borderRadius:40}}/>
         <View style={{marginHorizontal:10}}>
           <Text style={{fontFamily:typography.regular,fontSize:14,color:'white'}}>{coinName}</Text>
-          {/* <Text style={{fontFamily:typography.regular,fontSize:12,color:'white'}}>{value?.toString().replace('undefined'|| 'ETH','')} </Text> */}
           <Text style={{fontFamily:typography.regular,fontSize:12,color:'white'}}>{moment.utc(value).local().startOf('seconds').fromNow()}</Text>
         </View>
       </View>

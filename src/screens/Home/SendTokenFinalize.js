@@ -16,7 +16,7 @@ import ShimmerPlaceHolder from 'react-native-shimmer-placeholder'
 
 
 
-import { getDataLocally, setDataLocally } from '../../Utils/AsyncStorage';
+import { clearAllData, getDataLocally, setDataLocally } from '../../Utils/AsyncStorage';
 import { Locations } from '../../Utils/StorageLocations';
 import { getSmartWalletBalance, smartWalletToEoa, transferToSmartWallet } from '../../Utils/SmartWallet';
 import { BigNumber, ethers } from 'ethers'
@@ -111,7 +111,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                     {
                         to: toAddress,
                         value: ethers.utils.parseEther(parseFloat(amount.toString()).toString()),
-                        gasPrice: gas || gasFees
+                        gasPrice: gasFees
                     }
                 )
 
@@ -124,13 +124,16 @@ const SendTokenFinalize = ({ navigation, route }) => {
             }
         } catch (err) {
             console.log(err)
+            setStartProgress(false)
             alert(err.message)
         }
     }
 
 
     const sendTransaction = async (hash) => {
+        // await clearAllData()
         // let data = await getDataLocally(Locations.TEMPTRANSACTION);
+        // console.log("send History" ,data)
         const newItem = initalData;
         newItem.from = address?.accountAddress.first
         newItem.to = toAddress
@@ -138,13 +141,15 @@ const SendTokenFinalize = ({ navigation, route }) => {
         newItem.amount = amount
         newItem.hash = hash
         newItem.date = new Date();
-
-        // if (data != null) {
+        
+        // if (data !== null && data !== undefined) {
         //     data.push(newItem);
         // } else {
+        //     console.log("Array")
         //     data = [newItem];
         // }
 
+        // setDataLocally(Locations.SENDTRANSACTIONS, data);
         await setDataLocally(Locations.TEMPTRANSACTION, newItem);
     }
 
@@ -417,7 +422,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                             paddingBottom : 10,
                         }}>
                             <TouchableOpacity
-                                onPress={() => setGas(0)}
+                                onPress={() => setGas(20000)}
                                 // onPress={() => navigation.navigate('SendTokenFinalize', { to: '', name: '' })}
                                 style={{
                                     width : '40%',

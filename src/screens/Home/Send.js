@@ -14,12 +14,13 @@ import { FlatList } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 import { walletProvider } from '../../Utils/Provider';
 import { useSelector } from 'react-redux'
-import { utils } from 'ethers'
+import { ethers, utils } from 'ethers'
 import PendingTransactions from '../../components/pendingTransactions';
 import TransactionControlModal from '../../components/TransactionControlModel';
 import { introspectionFromSchema } from 'graphql';
 import TransactionRow from '../../components/tranasctionRow';
 import moment from 'moment'
+// import { ethers } from 'hardhat';
 
 let provider;
 let transactionHash;
@@ -40,29 +41,30 @@ const SendScreen = ({ navigation }) => {
     useEffect(() => {
         getTransactionList();
 
-        return (() => {
+        return () => {
             // provider?.removeAllListeners("pending", (err) => console.log(err.message))
-        })
+            clearInterval(listenPendingTransaction.current)
+        }
     }, [])
 
     useFocusEffect(
         React.useCallback(() => {
+            getPendingTransactions();
             getTransactionList();
         }, []))
 
 
     const getTransactionList = async () => {
         try {
-            const data = await getDataLocally(Locations.SENDTRANSACTIONS);
-            getPendingTransactions(data);
+            let data = await getDataLocally(Locations.SENDTRANSACTIONS);
             const yesterday = []
             const today = []
             const previous = []
-
+            
             data.map((item) => {
                 const day = moment.utc(item.date).local().startOf('seconds').fromNow()
+                // console.log("list", day)
 
-                console.log(moment.utc("2019-12-04 12:00:24").local().startOf('seconds').fromNow())
                 if (day == 'a day ago') {
                     yesterday.push(item)
                 } else if (
@@ -98,60 +100,119 @@ const SendScreen = ({ navigation }) => {
         }
     }
 
-    const getPendingTransactions = async (data) => {
+    const getPendingTransactions = async () => {
         try {
-            provider = walletProvider()
-            const pTransaction = await getDataLocally(Locations.TEMPTRANSACTION)
-            const info = await provider.getTransaction(pTransaction?.hash);
-            const last = data[data?.length - 1].hash
-            console.log(info)
+            // const provider = walletProvider()
+            // const provider = ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com/")
+            const provider = new ethers.providers.JsonRpcProvider(
+                // "https://matic-mumbai.chainstacklabs.com"
+                "https://rpc-mumbai.maticvigil.com/"
+            );
 
-            if (last !== pTransaction.hash) {
-                if (info.confirmations <= 0) {
-                    setIsPending(true)
-                    const amt = Object.values(info.value)[0];
-                    const obj = {
-                        to: info.to,
-                        from: info.from,
-                        amount: amt,
-                        nonce: info.nonce,
-                        pk: address.privateKey.second
-                    }
+            const lastTransactions = await getDataLocally(Locations.TEMPTRANSACTION);
+            console.log(lastTransactions, provider)
+            const tx = await provider.getTransaction(lastTransactions.hash)
+            // const tx = {
 
-                    listenPendingTransaction = setInterval(async () => {
-                        const info = await provider.getTransaction(pTransaction?.hash);
-                        console.log(info)
-                        if (info?.confirmations > 0) {
-                            clearInterval(listenPendingTransaction.current)
-                            if (data != null) {
-                                data.push(pTransaction);
-                            } else {
-                                data = [pTransaction];
-                            }
-                            setDataLocally(Locations.SENDTRANSACTIONS, data)
-                            getTransactionList();
-                            setIsPending(false);
-                        }
-                    }, 25000)
-                    console.log(obj)
-                    setTransactionInfo(obj)
-                } else if (info.confirmations > 0) {
-                    clearInterval(listenPendingTransaction.current)
-                    if (data != null) {
-                        data.push(pTransaction);
-                    } else {
-                        data = [pTransaction];
-                    }
-                    setDataLocally(Locations.SENDTRANSACTIONS, data)
-                    getTransactionList();
-                    setIsPending(false);
-                }
-            }
+            // };
+            // if(lastTransactions?.hash > 0) {
+            //     setHistory(lastTransactions)
+            //     return 
+            // } else if(lastTransactions?.hash <= 0) {
+    
+            // }
         } catch (err) {
+            alert(err.message)
             console.log(err.message)
-            clearInterval(listenPendingTransaction.current)
-            setIsPending(false)
         }
+    }
+
+    const setHistory = async (pendingTx) => {
+        console.log("send History")
+        let data = await getDataLocally(Locations.SENDTRANSACTIONS);
+        if(data !== null) {
+            data.push(pendingTx);
+        } else {
+            data = [pendingTx];
+        }
+        setDataLocally(Locations.SENDTRANSACTIONS, data);
+        getTransactionList()
+    }
+
+    // const getPendingTransactions = async (data) => {
+    //     try {
+    //         provider = walletProvider()
+    //         const pTransaction = await getDataLocally(Locations.TEMPTRANSACTION)
+    //         const info = await provider.getTransaction(pTransaction?.hash);
+    //         const last = data[data?.length - 1].hash
+    //         console.log("get ===>>>>> ", pTransaction)
+    //         console.log(info)
+
+    //         if (last !== pTransaction.hash) {
+    //             if (info.confirmations <= 0) {
+    //                 setIsPending(true)
+    //                 const amt = Object.values(info.value)[0];
+    //                 const obj = {
+    //                     to: info.to,
+    //                     from: info.from,
+    //                     amount: amt,
+    //                     nonce: info.nonce,
+    //                     pk: address.privateKey.second
+    //                 }
+
+    //                 listenPendingTransaction.current = setInterval(async () => {
+    //                     const info = await provider.getTransaction(pTransaction?.hash);
+    //                     console.log(info)
+    //                     if (info?.confirmations > 0 || info == null) {
+    //                         setIsPending(false);
+    //                         clearInterval(listenPendingTransaction.current)
+    //                         // if (data != null) {
+    //                         //     data.push(pTransaction);
+    //                         // } else {
+    //                         //     data = [pTransaction];
+    //                         // }
+    //                         // setDataLocally(Locations.SENDTRANSACTIONS, data)
+    //                         // getTransactionList();
+    //                     }
+    //                 }, 6000)
+    //                 console.log(obj)
+    //                 setTransactionInfo(obj)
+    //             } else if (info.confirmations > 0) {
+    //                 clearInterval(listenPendingTransaction.current)
+    //                 if (data != null) {
+    //                     data.push(pTransaction);
+    //                 } else {
+    //                     data = [pTransaction];
+    //                 }
+    //                 setDataLocally(Locations.SENDTRANSACTIONS, data)
+    //                 getTransactionList();
+    //                 setIsPending(false);
+    //             }
+    //         }
+    //     } catch (err) {
+    //         console.log(err.message)
+    //         clearInterval(listenPendingTransaction.current)
+    //         setIsPending(false)
+    //     }
+    // }
+
+
+    const onSpeedUpTransactionComplete = async (data) => {
+        console.log("HASH FROM =>>>> ", data)
+        const temp = await getDataLocally(Locations.TEMPTRANSACTION);
+        let list = await getDataLocally(Locations.SENDTRANSACTIONS);
+        if (data.hash !== temp.hash) {
+            temp.hash = data.hash
+            if (list != null) {
+                list.push(temp);
+            } else {
+                list = [temp];
+            }
+            setDataLocally(Locations.SENDTRANSACTIONS, list)
+            console.log("SET DATA IN LOCATIONS")
+            getTransactionList()
+        }
+
     }
 
     const Item = ({ title }) => {
@@ -286,6 +347,7 @@ const SendScreen = ({ navigation }) => {
                     onPress={() => {
                         if (!isPending) {
                             navigation.navigate('SendTokenFinalize', { to: '', name: '' })
+                            // onSpeedUpTransactionComplete({ to: '', name: '', hash : 'jai shri ram' })
                         } else {
                             alert("Please speed up your previous transaction or cancel it because if you create a new Transaction it is also in a pending state until your first transaction is confirmed")
                         }
@@ -621,19 +683,7 @@ const SendScreen = ({ navigation }) => {
                 open={openTransactionController}
                 setOpen={setOpenTransactionController}
                 selectedData={transactionInfo}
-                onSuccess={async (hash) => {
-                        const temp = await getDataLocally(Locations.TEMPTRANSACTION);
-                    if (hash !== temp.hash) {
-                        // const temp = await getDataLocally(Locations.TEMPTRANSACTION);
-                        temp.hash = hash
-                        if (data != null) {
-                            data.push(pTransaction);
-                        } else {
-                            data = [pTransaction];
-                        }
-                        setDataLocally(Locations.SENDTRANSACTIONS, data)
-                    }
-                }}
+                onSuccess={onSpeedUpTransactionComplete}
             />
         </View>
     );

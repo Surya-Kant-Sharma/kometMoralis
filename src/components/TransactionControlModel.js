@@ -70,7 +70,7 @@ const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess }) => 
                 selectedData.pk,
             )
             console.log(hash)
-            onSuccess()
+            onSuccess(hash)
         } catch (err) {
             console.log(err.message)
         }

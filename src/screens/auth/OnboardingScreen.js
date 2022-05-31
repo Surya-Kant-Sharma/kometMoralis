@@ -29,13 +29,13 @@ const OnboardingScreen = ({navigation}) => {
 
   const login=async(token)=>{
     console.log(token)
-    await axios.post('http://staging.komet.me/api/v1/user/v1/auth/login',{
+    await axios.post('https://staging.komet.me/api/v1/user/v1/auth/login',{
     "idToken":token
     }).then(async(res)=>{
       console.log(res.data['userDto']['userAccountId'])
       saveUserData(res.data);
       try{
-        const response= await axios.get(`http://staging.komet.me/api/v1/user/v1/wallet/drive_location`,
+        const response= await axios.get(`https://staging.komet.me/api/v1/user/v1/wallet/drive_location`,
         {
           headers: {
             'X-USER-ID': res.data['userDto']['userAccountId']
