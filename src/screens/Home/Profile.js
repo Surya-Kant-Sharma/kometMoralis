@@ -119,7 +119,7 @@ const Profile = ({ navigation }) => {
   const getVaultInfo = async () => {
     try {
       const info = await getDataLocally(Locations.SMARTACCOUNTS);
-      if (info?.address)
+      if (info[0])
         if (Modes.indexOf('Vault') == -1) {
           setModes(pre => [...pre, 'Vault'])
         }
@@ -134,11 +134,11 @@ const Profile = ({ navigation }) => {
         setBalance(vaultBalance)
       }
       const info = await getDataLocally(Locations.SMARTACCOUNTS);
-      if (info?.address) {
-        setSelectedAddress(info?.address)
+      if (info[0]) {
+        setSelectedAddress(info[0])
         const bal = await getVaultBalance({
           privateKey: address?.privateKey?.first,
-          address: info?.address
+          address: info[0]
         })
         // setBalance(0)
       }

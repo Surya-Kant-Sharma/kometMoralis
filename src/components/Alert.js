@@ -40,5 +40,27 @@ const AlertCustomDialog = (title, message, okBtnText, cancelBtnText, success, di
     );
 }
 
+
+export const CreateContractDialog = (title, message, success, dismiss) => {
+    Alert.alert(
+        title,
+        message,
+        [
+            {
+                text: 'Save',
+                onPress: () => success(),
+                style: 'ok'
+            },
+            {
+                text: 'cancel',
+                onDismiss: () => dismiss(),
+                style: 'cancel'
+            }
+
+        ]
+    );
+}
+
+
 export default AlertConfirm
 export { AlertCustomDialog }

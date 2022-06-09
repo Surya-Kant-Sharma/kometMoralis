@@ -18,6 +18,8 @@ target 'EthereumRNBoilerplate' do
 
   pod 'RNSnackbar', :path => '../node_modules/react-native-snackbar'
 
+  pod 'RNCCheckbox', :path => '../node_modules/@react-native-community/checkbox'
+
   target 'EthereumRNBoilerplateTests' do
     inherit! :complete
     # Pods for testing

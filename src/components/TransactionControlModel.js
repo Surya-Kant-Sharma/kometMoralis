@@ -8,9 +8,10 @@ import { walletProvider } from '../Utils/Provider'
 import Icons from 'react-native-vector-icons/MaterialIcons'
 import { cancelTransactions, speedUpTransactions } from '../Utils/Transactions'
 import GradientButton from './GradientButton'
+import Snackbar from 'react-native-snackbar'
 
 
-const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess }) => {
+const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess, onCancel }) => {
 
     const [currentGasFee, setCurrentGasFee] = React.useState(-1);
     let interval = React.useRef();
@@ -34,7 +35,7 @@ const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess }) => 
             const gasFees = await provider.getGasPrice();
             const hex = Object.values(gasFees);
             console.log(parseInt(hex[0]), gasFees)
-            setCurrentGasFee(pre => pre = parseInt(hex[0]));
+            setCurrentGasFee(parseInt(hex[0]));
         } catch (err) {
             console.log(err);
             alert(err.message);
@@ -44,6 +45,14 @@ const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess }) => 
     const speedUp = async () => {
         try {
             console.log(selectedData)
+            setTimeout(() => {
+                Snackbar.show({
+                    text: 'Please Wait While Speeding Up',
+                    duration: Snackbar.LENGTH_LONG,
+                    textColor: 'white'
+                });
+            }, 2000)
+
             const hash = await speedUpTransactions(
                 selectedData.to,
                 selectedData.from,
@@ -54,6 +63,7 @@ const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess }) => 
             )
             console.log(hash)
             onSuccess(hash)
+
         } catch (err) {
             console.log(err.message)
         }
@@ -61,6 +71,13 @@ const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess }) => 
     const cancel = async () => {
         try {
             console.log(selectedData)
+            setTimeout(() => {
+                Snackbar.show({
+                    text: 'Please Wait While Canceling ',
+                    duration: Snackbar.LENGTH_LONG,
+                    textColor: 'white'
+                });
+            }, 2000)
             const hash = await cancelTransactions(
                 selectedData.to,
                 selectedData.from,
@@ -70,10 +87,18 @@ const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess }) => 
                 selectedData.pk,
             )
             console.log(hash)
-            onSuccess(hash)
+            onCancel(hash)
         } catch (err) {
             console.log(err.message)
         }
+    }
+
+    const totalAmount = () => {
+        const a = BigNumber.from(ethers.utils.parseEther(amount.toString()));
+        const b = BigNumber.from(parseInt(gasFees.toString()));
+        console.log(a, b)
+        const total = b.add(a);
+        return (ethers.utils.formatUnits(total, 18).substring(0, 16))
     }
 
     return (
@@ -150,14 +175,8 @@ const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess }) => 
                             <View
                                 style={styles.summaryTextContainer}>
                                 <Text style={styles.subHeaderText}>Amount</Text>
-                                <Text style={styles.subHeaderText}>{selectedData?.amount} Matic</Text>
+                                <Text style={styles.subHeaderText}>{parseFloat(selectedData?.amountEth)} Matic</Text>
                             </View>
-
-                            {/* <View
-                                style={styles.summaryTextContainer}>
-                                <Text style={styles.subHeaderText}>Hash</Text>
-                                <Text style={styles.subHeaderText}>$ {amount + gasFees}</Text>
-                            </View> */}
                         </View>
 
                         <TouchableOpacity
@@ -184,50 +203,6 @@ const TransactionControlModal = ({ open, setOpen, selectedData, onSuccess }) => 
                                 {'  '}Add To Context
                             </Text>
                         </TouchableOpacity>
-
-                        {/* <View>
-                            <View style={{
-                                flexDirection: 'row'
-                            }}>
-
-                                <TouchableOpacity style={{
-                                    width: '45%',
-                                    height: 40,
-                                    backgroundColor: '#B02FA4',
-                                    borderRadius: 20,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    margin: 10
-                                }}
-                                    onPress={() => {
-                                        setOpen(false)
-                                        clearInterval(interval.current)
-                                        speedUp()
-                                        // Linking.openURL("https://mumbai.polygonscan.com/tx/" + selectedData?.hash)
-                                    }}
-                                >
-                                    <Text style={{ fontWeight: 'bold', color: 'white' }}>Speed Up</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={{
-                                    width: '45%',
-                                    height: 40,
-                                    backgroundColor: '#B02FA4',
-                                    borderRadius: 20,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    margin: 10
-                                }}
-                                    onPress={() => {
-                                        setOpen(false)
-                                        clearInterval(interval.current)
-                                        cancel()
-                                        // navigation.navigate('SendTokenFinalize', { to: selectedData?.to, name: selectedData?.name })
-                                    }}
-                                >
-                                    <Text style={{ fontWeight: 'bold', color: 'white' }} >Cancel</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View> */}
 
                         <View style={{
                             flexDirection: 'column'

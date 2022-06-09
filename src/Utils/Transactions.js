@@ -9,6 +9,7 @@ export const speedUpTransactions = async (to, from, amount, nonce, gasprice, pk)
         value: amount,
         nonce: nonce,
         gasPrice: ethers.utils.formatUnits(gasprice, "wei"),
+        gasLimit: 60000,
     }
     const provider = walletProvider()
     const wallet = await new Wallet(pk, provider)

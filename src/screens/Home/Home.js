@@ -86,7 +86,7 @@ const Home = ({ navigation, route }) => {
 
 
   let balanceEvent = useRef();
-  
+
 
   useEffect(() => {
     //console.log(user);
@@ -164,17 +164,17 @@ const Home = ({ navigation, route }) => {
             name: 'eth_Komet_me'
           }
           // alert(options.privateKey + "  " + options.address)
-          try{
-          await createSmartWallet(options);
-           setTimeout(() => { 
-            setVault(true) 
-            setProgress(false)
-           }, 5000)
+          try {
+            await createSmartWallet(options);
+            setTimeout(() => {
+              setVault(true)
+              setProgress(false)
+            }, 5000)
+          }
+          catch {
+            console.log('Error')
+          }
         }
-      catch{
-        console.log('Error')
-      }
-    }
       }
     } catch (err) {
       console.log(err.message)
@@ -188,7 +188,7 @@ const Home = ({ navigation, route }) => {
       const value = await getAccountInfo();
       fetchAddress(value);
       listenBalance(value?.accountAddress?.second?.toString())
-
+      vaultStatus()
     } catch (err) {
       console.log(err.message)
       // alert(err.message)
@@ -197,11 +197,11 @@ const Home = ({ navigation, route }) => {
 
   const listenBalance = async (address) => {
     try {
-      if(address) {
+      if (address) {
         const provider = walletProvider();
         let lastBalance = ethers.constants.Zero
         balanceEvent = provider.on("block", () => {
-          console.log('BalanceListen',address)
+          // console.log('BalanceListen',address)
           provider.getBalance(address.toString()).then((balance) => {
             if (!balance.eq(lastBalance)) {
               lastBalance = balance
@@ -222,55 +222,58 @@ const Home = ({ navigation, route }) => {
   const vaultStatus = async (options) => {
     try {
       const data = await getDataLocally(Locations.SMARTACCOUNTS);
-      if (data?.address)    
+      console.log("VAULT ___>> " ,data)
+      if (data[0])
         setVault(true)
+      else 
+        getSWallet()
     } catch (err) {
       console.log(err)
       console.log(err.message)
     }
   }
 
-  const getSWallet = async (options) => {
+  const getSWallet = async () => {
     try {
-      const data = await getDataLocally(Locations.SMARTACCOUNTS);
-      console.log(data)
-      if (data?.address) {
+      const info = {
+        privateKey: address?.privateKey?.first,
+        address: address?.accountAddress?.first
+      }
+      console.log(info)
+      const smartAddress = await isVault(info);
+      console.log("smart ADDRESS =>> ",smartAddress)
+      if (smartAddress) {
+        setDataLocally(Locations.SMARTACCOUNTS, smartAddress);
         setVault(true)
       }
-      return data
     } catch (err) {
       console.log(err.message)
     }
   }
 
   const getEoaBalance = async () => {
-    console.log('insideEOA')
-    //console.log('insideEOA',address?.accountAddress)
-    //console.log('insideEOA',address?.accountAddress?.first)
-
-    
     try {
-      const address=await getDataLocally(Locations.ACCOUNTS)
+      const address = await getDataLocally(Locations.ACCOUNTS)
       const connection = await new ethers.providers.JsonRpcProvider(
         "https://matic-mumbai.chainstacklabs.com"
       );
       const firstAddress = await connection.getBalance(address?.accountAddress?.first)
       const bal = ethers.utils.formatEther(firstAddress)
       setEoaOneBalance(bal)
-      console.log('bal',bal)
+      console.log('bal', bal)
       // alert(bal)
     } catch (err) {
-      console.log('Error:247',err)
+      console.log('Error:247', err)
       console.log(err.message)
     }
 
   }
 
-  const initHome=async()=>{
+  const initHome = async () => {
     getDataFromTheLocally()
-    getSWallet()
     getEoaBalance()
-    vaultStatus()
+    // getSWallet()
+    
   }
 
   React.useEffect(() => {
@@ -278,7 +281,7 @@ const Home = ({ navigation, route }) => {
   }, [])
 
   // useFocusEffect(
-    
+
   //   React.useCallback(() => {
   //     console.log('Inside Focus')
   //     getEoaBalance()
@@ -298,7 +301,7 @@ const Home = ({ navigation, route }) => {
             </TouchableOpacity>
           </LinearGradient>
           <TouchableOpacity
-            onPress={() => !isAuthenticated?handleCryptoLogin():navigation.navigate('Profile')}
+            onPress={() => !isAuthenticated ? handleCryptoLogin() : navigation.navigate('Profile')}
             style={{
               ...styles.headerDropdownContainer,
               backgroundColor: '#343153',
@@ -317,7 +320,7 @@ const Home = ({ navigation, route }) => {
                 flex: 1,
                 //justifyContent: 'flex-end',
               }}>
-                <TouchableOpacity style={{flex:1}} onPress={()=>setOpen(false)}></TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1 }} onPress={() => setOpen(false)}></TouchableOpacity>
               <View
                 style={{
                   borderTopRightRadius: 10,
@@ -325,7 +328,7 @@ const Home = ({ navigation, route }) => {
                   backgroundColor: '#2F2F3A',
                   alignItems: 'flex-start',
                   padding: 15,
-                  flex:1
+                  flex: 1
                 }}>
                 <View
                   style={{

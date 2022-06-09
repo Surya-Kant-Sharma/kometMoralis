@@ -38,6 +38,7 @@ import ViewSeedPhrase from './screens/Profile/ViewSeedPhrase';
 import { loginUser } from './store/Actions/action';
 import Drive from './screens/auth/Drive';
 import RestoreFromDrive from './screens/auth/RestoreFromDrive';
+import ContactBook from './screens/Settings/Contacts';
 
 console.ignoredYellowBox = ['Setting a timer'];
 
@@ -96,6 +97,7 @@ const RootNavigation = () => {
         <Stack.Screen name="Dashboard" component={Dashboard} />
         <Stack.Screen name="NFTPage" component={NFTPage} />
         <Stack.Screen name="Settings" component={Settings} />
+        <Stack.Screen name="Contacts" component={ContactBook} />
         <Stack.Screen name="Vault" component={Vault} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="SendTokenFinalize" component={SendTokenFinalize} />

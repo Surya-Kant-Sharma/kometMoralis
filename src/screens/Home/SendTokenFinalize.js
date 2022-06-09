@@ -13,7 +13,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 import GradientButton from '../../components/GradientButton';
 import { useSelector } from 'react-redux';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder'
-
+import Icons from 'react-native-vector-icons/MaterialIcons';
+import CheckBox from '@react-native-community/checkbox';
 
 
 import { clearAllData, getDataLocally, setDataLocally } from '../../Utils/AsyncStorage';
@@ -24,6 +25,11 @@ import { walletProvider } from '../../Utils/Provider';
 import { parse } from 'url';
 import AlertConfirm, { AlertCustoDialog, AlertCustomDialog } from '../../components/Alert';
 import ProgressDialog from '../../components/ProgressDialog';
+import { Icon } from 'react-native-paper/lib/typescript/components/Avatar/Avatar';
+import ContactBoookModal from '../../components/ContactModal';
+import { ToggleButton } from 'react-native-paper';
+import axios from 'axios';
+import { getUserId } from '../../common/Storage';
 
 const initalData = {
     to: '',
@@ -31,7 +37,8 @@ const initalData = {
     name: '',
     amount: '',
     date: '',
-    hash: ''
+    hash: '',
+    contractId: ''
 }
 
 const SendTokenFinalize = ({ navigation, route }) => {
@@ -40,13 +47,16 @@ const SendTokenFinalize = ({ navigation, route }) => {
     console.log(to)
     const address = useSelector(state => state.address);
 
-    const [visible, setVisible] = useState(false);
+    // const [contractId, setContractId] = useState(false);
     const [fromAddress, setFromAddress] = useState(address?.accountAddress?.second || '')
     const [toAddress, setToAddress] = useState(to || '')
     const [sentAddress, setSentAddress] = useState(route.params.name || '');
     const [balance, setBalance] = useState(0);
     const [gasFees, setGasFees] = useState(0);
     const [open, setOpen] = useState(false)
+    const [openContactBook, setOpenContactBook] = useState(false)
+    const [contactId, setContactId] = useState(null)
+    const [toogleCheckBox, setToggleCheckBox] = useState(false)
     const [value, setValue] = useState('Komet Wallet')
     const [confirm, setConfirm] = useState(false);
     const [gas, setGas] = useState(35000)
@@ -84,11 +94,6 @@ const SendTokenFinalize = ({ navigation, route }) => {
     const calculateGesFee = async () => {
         try {
             const provider = walletProvider();
-            const tx = {
-                to: toAddress,
-                value: ethers.utils.parseEther(parseFloat(amount.toString()).toString()),
-                gasLimit: 31000
-            }
             const gasFees = await provider.getGasPrice();
             const hex = Object.values(gasFees);
             console.log(parseInt(hex[0]), gasFees)
@@ -98,6 +103,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
             alert(err.message);
         }
     }
+
 
     const transferAmount = async () => {
         try {
@@ -119,6 +125,7 @@ const SendTokenFinalize = ({ navigation, route }) => {
                     sendTransaction(transferHash.hash)
                     setTransactionHash(transferHash.hash)
                 }
+
             } else {
                 alert('insufficent balance')
             }
@@ -141,7 +148,8 @@ const SendTokenFinalize = ({ navigation, route }) => {
         newItem.amount = amount
         newItem.hash = hash
         newItem.date = new Date();
-        
+        newItem.contractId = contactId
+
         // if (data !== null && data !== undefined) {
         //     data.push(newItem);
         // } else {
@@ -151,6 +159,13 @@ const SendTokenFinalize = ({ navigation, route }) => {
 
         // setDataLocally(Locations.SENDTRANSACTIONS, data);
         await setDataLocally(Locations.TEMPTRANSACTION, newItem);
+    }
+
+    const setContactDetails = async (data) => {
+        console.log(data)
+        setSentAddress(data?.name)
+        setToAddress(data?.walletAddress)
+        setContactId(data?.contactId)
     }
 
 
@@ -293,8 +308,8 @@ const SendTokenFinalize = ({ navigation, route }) => {
                 style={styles.textInputContainer}>
 
                 <TextInput
-                    placeholder={'0xff3263445362882332'}
-                    value={toAddress}
+                    placeholder={'0x59d1E12a62...76bBBA018'}
+                    value={openContactBook?.walletAddress || toAddress}
                     onChangeText={(e) => setToAddress(e)}
                     style={{
                         fontFamily: typography.regular,
@@ -303,13 +318,15 @@ const SendTokenFinalize = ({ navigation, route }) => {
                     }}
                 />
 
+                <Icons name="contacts" size={25} color="pink" onPress={() => { setOpenContactBook(true) }} />
+
             </View>
-            <Text style={{ fontFamily: typography.medium, color: 'white', marginHorizontal: 10, fontSize: 16 }}>Name (optional)</Text>
+            <Text style={{ fontFamily: typography.medium, color: 'white', marginHorizontal: 10, fontSize: 16 }}>Saved by (optional)</Text>
             <View
                 style={styles.textInputContainer}>
                 <TextInput
-                    placeholder={'Tim David'}
-                    value={sentAddress}
+                    placeholder={'Send money to bank, Payment to XYZ'}
+                    value={openContactBook?.name || sentAddress}
                     onChangeText={(text) => setSentAddress(text)}
                     style={{
                         fontFamily: typography.regular,
@@ -349,8 +366,9 @@ const SendTokenFinalize = ({ navigation, route }) => {
                     style={{
                         flex: 1,
                         justifyContent: 'flex-start',
+                        backgroundColor: 'rgba(0,0,0,0.6)'
                     }}>
-                    <TouchableOpacity style={{ flex: 0.7 }} onPress={() => {
+                    <TouchableOpacity style={{ flex: (parseFloat(ethers.utils.formatUnits(gasFees.toString(), "gwei")).toPrecision(3) > 3) ? 0.48 : 0.86}} onPress={() => {
                         clearInterval(timeRef.current)
                         setConfirm(false)
                     }}></TouchableOpacity>
@@ -381,9 +399,34 @@ const SendTokenFinalize = ({ navigation, route }) => {
                         </Text>
                         <View style={{
                             width: '100%',
-                            marginTop: 40
+                            marginTop: 40,
+                            marginBottom: 20,
                         }}>
+                            {/* Warring Message For Hihger Gas Fees */}
 
+                            {(parseFloat(ethers.utils.formatUnits(gasFees.toString(), "gwei")).toPrecision(3) > 3) ?
+                                <View>
+                                    <View style={{
+                                        width: '100%',
+                                        borderRadius: 6,
+                                        borderColor: 'yellow',
+                                        borderWidth: 1,
+                                        marginBottom: 20,
+                                    }}>
+                                        <View style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'flex-start',
+                                            margin: 10
+                                        }}>
+                                            <MaterialIcons name="warning" size={20} color="yellow" />
+                                            <Text style={{ ...styles.subHeaderText, fontWeight: 'normal', color: 'yellow' }}>Warning</Text>
+                                        </View>
+                                        <Text style={{ padding: 6, fontWeight: 'normal', color: 'yellow' }}> Gas fess is too high for transactions to be confirmed.
+                                            If you want to save gas fees then come after some time.</Text>
+                                    </View>
+                                </View>
+                                : null
+                            }
 
                             <View
                                 style={styles.summaryTextContainer}>
@@ -412,67 +455,6 @@ const SendTokenFinalize = ({ navigation, route }) => {
                                 <Text style={styles.subHeaderText}>Total</Text>
                                 <Text style={styles.subHeaderText}>$ {totalAmount(amount, gasFees)}</Text>
                             </View>
-                        </View>
-
-                        <View style={{
-                            width : '100%',
-                            flexDirection : 'row',
-                            justifyContent : 'center',
-                            paddingTop : 10,
-                            paddingBottom : 10,
-                        }}>
-                            <TouchableOpacity
-                                onPress={() => setGas(20000)}
-                                // onPress={() => navigation.navigate('SendTokenFinalize', { to: '', name: '' })}
-                                style={{
-                                    width : '40%',
-                                    margin : 6,
-                                    borderRadius: 10,
-                                    borderColor: 'red',
-                                    borderWidth: 1,
-                                    marginVertical: 0,
-                                    flexDirection: 'row',
-                                    justifyContent: 'flex-start',
-                                    alignItems: 'center',
-                                    paddingHorizontal: 10,
-                                    height: 50,
-                                }}>
-                                <Text
-                                    style={{
-                                        fontFamily: typography.regular,
-                                        // fontSize: 20,
-                                        color : 'red',
-                                        flex: 1,
-                                    }}>
-                                    {'  '}Low Fees
-                                </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => setGas(50000)}
-                                // onPress={() => navigation.navigate('SendTokenFinalize', { to: '', name: '' })}
-                                style={{
-                                    width : '40%',
-                                    margin : 6,
-                                    borderRadius: 10,
-                                    borderColor: 'yellow',
-                                    borderWidth: 1,
-                                    marginVertical: 0,
-                                    flexDirection: 'row',
-                                    justifyContent: 'flex-start',
-                                    alignItems: 'center',
-                                    paddingHorizontal: 10,
-                                    height: 50,
-                                }}>
-                                <Text
-                                    style={{
-                                        fontFamily: typography.regular,
-                                        // fontSize: 20,
-                                        color : 'yellow',
-                                        flex: 1,
-                                    }}>
-                                    {'  '}High Fees
-                                </Text>
-                            </TouchableOpacity>
                         </View>
 
                         <View style={{
@@ -536,6 +518,12 @@ const SendTokenFinalize = ({ navigation, route }) => {
                 completed={transactionHash}
                 setCompleted={setTransactionHash}
                 navigation={navigation}
+            />
+
+            <ContactBoookModal
+                open={openContactBook}
+                setOpen={setOpenContactBook}
+                selectedContact={setContactDetails}
             />
 
         </ScrollView>

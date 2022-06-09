@@ -8,7 +8,8 @@ import { Locations } from './StorageLocations';
 const ContractInit = async (options) => {
     const provider = await new ethers.providers.JsonRpcProvider("https://matic-mumbai.chainstacklabs.com")
     const sign = await new Wallet(options.privateKey, provider)
-    const contractInstance = new ethers.Contract('0x169bf5a795007da6a48f4bcd311c308b5548986a', factoryABI, sign)
+    // const contractInstance = new ethers.Contract('0x169bf5a795007da6a48f4bcd311c308b5548986a', factoryABI, sign)
+    const contractInstance = new ethers.Contract('0x431e4A1c5f007e34c1916b0E6ffd974e6Db6Da3a', factoryABI, sign)
     return contractInstance
 }
 
@@ -41,8 +42,8 @@ export const createSmartWallet = async (options) => {
 
 export const isVault = async (options) => {
     const ci = await ContractInit(options)
-    const smartWalletAccounts = await ci.contracts(options.address);
-    // console.log(smartWalletAccounts)
+    const smartWalletAccounts = await ci.fetchWallets(options.address.toString());
+    console.log(smartWalletAccounts)
     return smartWalletAccounts
 }
 

@@ -150,9 +150,9 @@ const Home = ({ navigation, route }) => {
       const data = await getDataLocally(Locations.SMARTACCOUNTS);
       console.log('SWData',data)
       // alert(data.address)
-      if (data.address) {
-        setSData(data)
-        getBalance(data)
+      if (data[0]) {
+        setSData(data[0])
+        getBalance(data[0])
 
       }
     } catch (err) {
@@ -164,13 +164,13 @@ const Home = ({ navigation, route }) => {
     try {
       const options = {
         privateKey: address?.privateKey?.first,
-        address: data?.address
+        address: data
       }
       const balance = await getSmartWalletBalance(options);
+      console.log("BALANCE" ,balance);
       setBalance(balance)
       setVAULTBalance(balance)
       setDataLocally(Locations.VAULT, balance)
-      // console.log(balance);
     } catch (err) {
       console.log(err)
       alert(err.message)
@@ -449,14 +449,14 @@ const Home = ({ navigation, route }) => {
             {parseFloat(balance).toPrecision(2)} Matic
           </Text>
           <TouchableOpacity style={styles.addressContainer} onPress={() => {
-            Clipboard.setString(sdata?.address?.toString())
+            Clipboard.setString(sdata?.toString())
             ToastAndroid.showWithGravity('Address Copied', ToastAndroid.LONG, ToastAndroid.CENTER)
           }}>
             <Text
               numberOfLines={1}
-              ellipsizeMode={'tail'}
+              ellipsizeMode={'middle'}
               style={styles.addressText}>
-              {sdata?.address?.substring(0, 8) + "..." + sdata?.address?.substring(34, sdata?.address?.length)}
+              {sdata?.substring(0, 8) + "..." + sdata?.substring(34, sdata?.length)}
             </Text>
             <MaterialIcons name='content-copy' size={14} style={{ marginLeft: 20 }} />
           </TouchableOpacity>

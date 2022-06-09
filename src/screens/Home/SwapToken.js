@@ -8,16 +8,26 @@ import { typography } from '../../common/typography';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder'
-import { getDataLocally } from '../../Utils/AsyncStorage';
+import { getDataLocally, setDataLocally } from '../../Utils/AsyncStorage';
 import { Locations } from '../../Utils/StorageLocations';
 import { getSmartWalletBalance, smartWalletToEoa, transferToSmartWallet } from '../../Utils/SmartWallet';
 import { useSelector } from 'react-redux';
-import { ethers, utils } from 'ethers'
+import { BigNumber, ethers, utils } from 'ethers'
 import { walletProvider } from '../../Utils/Provider';
 import { parse } from 'url';
 import AlertConfirm, { AlertCustoDialog, AlertCustomDialog } from '../../components/Alert';
 import ProgressDialog from '../../components/ProgressDialog';
 
+
+const initalData = {
+  to: '',
+  from: '',
+  name: '',
+  amount: '',
+  date: '',
+  hash: '',
+  contractId: ''
+}
 
 const SwapToken = ({ navigation, route }) => {
   const { path } = route.params;
@@ -42,14 +52,15 @@ const SwapToken = ({ navigation, route }) => {
       const data = await getDataLocally(Locations.SMARTACCOUNTS)
       const provider = walletProvider();
       const balance = await provider.getBalance(address?.accountAddress?.second);
-      getVaultBalance(data);
+      getVaultBalance(data[0]);
 
       const hex = Object.values(balance);
       const ether = ethers.utils.formatEther(balance)
 
       console.log(data, ether)
       setBalanceEoa(parseFloat(ether).toPrecision(4))
-      setVData(data);
+      setVData(data[0
+      ]);
     } catch (err) {
       alert(err.message)
     }
@@ -60,44 +71,47 @@ const SwapToken = ({ navigation, route }) => {
     try {
       const options = {
         privateKey: address?.privateKey?.first,
-        address: data?.address
+        address: data
       }
       const balance = await getSmartWalletBalance(options);
       setBalanceVault(balance)
       console.log(balance);
     } catch (err) {
       console.log(err)
-      alert("you don't have any Vault")
+      alert("You don't have any Vault")
     }
   }
 
 
   const transferEoaToVault = async () => {
     try {
-      if (amount < balanceEoa) {
+      const isPending = await checkTransactionStatus();
+      if (amount < balanceEoa && isPending) {
         setStartProgress(true)
         const transferHash = await transferToSmartWallet({
-          to: vdata?.address,
+          to: vdata,
           privateKey: address?.privateKey?.second,
           amount: parseFloat(amount.toString())
         },
           {
-            to: vdata?.address,
+            to: vdata,
             value: ethers.utils.parseEther(parseFloat(amount.toString()).toString()),
+            gasPrice : gasFees,
+            gasLimit : 60000
           }
         )
 
         if (transferHash) {
-          // alert(transferHash?.hash)
           setTransactionHash(transferHash?.hash)
-          // AlertCustomDialog(
-          //   'Transaction Hash',
-          //   'Check Your Transaction on Mumbai Testnet By Clicking Explore Btn and Otherwise Tap Ok Btn',
-          //   'Explore',
-          //   'Ok',
-          //   () => { Linking.openURL("https://mumbai.polygonscan.com/tx/" + transferHash.hash) },
-          //   () => console.log('dismiss')
-          // );
+          const newItem = initalData;
+          newItem.from = address?.accountAddress.first
+          newItem.to = vdata
+          newItem.name = 'Swap to vault'
+          newItem.amount = parseFloat(amount.toString())
+          newItem.hash = transferHash.hash
+          newItem.date = new Date();
+          newItem.contractId = 'contactId'
+          await setDataLocally(Locations.TEMPTRANSACTION, newItem);
         }
       } else {
         alert('insufficent balance')
@@ -105,15 +119,17 @@ const SwapToken = ({ navigation, route }) => {
     } catch (err) {
       console.log(err)
       alert(err.message)
+      setStartProgress(false)
     }
   }
 
   const transferVaultToEoa = async () => {
     try {
-      if (amount < balanceVault) {
+      const isPending = await checkTransactionStatus();
+      if (amount < balanceVault && isPending) {
         setStartProgress(true)
         const transferHash = await smartWalletToEoa({
-          from: vdata?.address,
+          from: vdata,
           to: address?.accountAddress?.second,
           privateKey: address?.privateKey?.first,
           amount: parseFloat(amount.toString())
@@ -121,20 +137,22 @@ const SwapToken = ({ navigation, route }) => {
           {
             to: address?.accountAddress?.second,
             value: ethers.utils.parseEther(parseFloat(amount.toString()).toString()),
+            gasPrice : gasFees,
+            gasLimit : 60000
           }
         )
 
         if (transferHash) {
           setTransactionHash(transferHash?.hash)
-          // alert(transferHash?.hash)
-          // AlertCustomDialog(
-          //   'Transaction Hash',
-          //   'Check Your Transaction on Mumbai Testnet By Clicking Explore Btn and Otherwise Tap Ok Btn',
-          //   'Explore',
-          //   'Ok',
-          //   () => { Linking.openURL("https://mumbai.polygonscan.com/tx/" + transferHash.hash) },
-          //   () => console.log('dismiss')
-          // );
+          const newItem = initalData;
+          newItem.from = vdata
+          newItem.to = address?.accountAddress.first
+          newItem.name = 'Swap to kometWallet'
+          newItem.amount = parseFloat(amount.toString())
+          newItem.hash = transferHash.hash
+          newItem.date = new Date();
+          newItem.contractId = 'contactId'
+          await setDataLocally(Locations.TEMPTRANSACTION, newItem);
         }
       } else {
         console.log(balanceVault)
@@ -143,6 +161,7 @@ const SwapToken = ({ navigation, route }) => {
     } catch (err) {
       console.log(err)
       alert(err.message)
+      setStartProgress(false)
     }
   }
 
@@ -160,6 +179,41 @@ const SwapToken = ({ navigation, route }) => {
     } catch (err) {
       console.log(err);
       alert(err.message);
+    }
+  }
+
+  const totalAmount = () => {
+    const a = BigNumber.from(ethers.utils.parseEther(amount.toString()));
+    const b = BigNumber.from(parseInt(gasFees.toString()));
+    console.log(a, b)
+    const total = b.add(a);
+    return (ethers.utils.formatUnits(total, 18).substring(0, 16))
+  }
+
+  const checkTransactionStatus = async () => {
+    try {
+      const lastTransactions = await getDataLocally(Locations.TEMPTRANSACTION);
+      const provider = walletProvider()
+      const tx = await provider.getTransaction(lastTransactions.hash)
+      if (tx?.confirmations <= 0) {
+        console.log('confirm ===>>> ', tx?.confirmations)
+        AlertCustomDialog(
+          "Pending",
+          "",
+          "Check",
+          "Ok",
+          () => {
+            navigation.navigate("Send")
+          },
+          () => {
+            console.log('cancel')
+          }
+        )
+        return false
+      }
+      return true
+    } catch (err) {
+      alert(err.message)
     }
   }
 
@@ -314,7 +368,7 @@ const SwapToken = ({ navigation, route }) => {
                 // fontSize: 12,
                 color: 'white',
               }}>
-              {vdata && vdata?.address?.substring(0, 8) + "..." + vdata?.address?.substring(34, vdata?.address?.length)}
+              {vdata && vdata?.substring(0, 8) + "..." + vdata?.substring(34, vdata?.length)}
             </Text>
             <View
               style={{
@@ -347,7 +401,7 @@ const SwapToken = ({ navigation, route }) => {
                   if ((selectedData.from != '') && (selectedData.to != '') && amount != '') {
                     const object = {
                       from: address?.accountAddress?.second,
-                      to: vdata?.address,
+                      to: vdata,
                       amount: amount,
                     }
                     setSelectedData(object)
@@ -419,7 +473,7 @@ const SwapToken = ({ navigation, route }) => {
 
                   if ((selectedData.from != '') && (selectedData.to != '' && amount != '')) {
                     const object = {
-                      from: vdata?.address,
+                      from: vdata,
                       to: address?.accountAddress?.second,
                       amount: amount,
                     }
@@ -456,7 +510,7 @@ const SwapToken = ({ navigation, route }) => {
           </View>
       }
 
-      <Modal
+      {/* <Modal
         visible={confirm}
         transparent
         onRequestClose={() => setConfirm(false)}>
@@ -510,6 +564,7 @@ const SwapToken = ({ navigation, route }) => {
                 style={styles.summaryTextContainer}>
                 <Text style={styles.subHeaderText}>To</Text>
                 <Text style={styles.subHeaderText}> {selectedData?.to?.substring(0, 8) + "..." + selectedData?.to?.substring(34, selectedData?.to?.length)}</Text>
+
               </View>
               <View
                 style={styles.summaryTextContainer}>
@@ -528,9 +583,9 @@ const SwapToken = ({ navigation, route }) => {
                 <Text style={styles.subHeaderText}>Total</Text>
                 <Text style={styles.subHeaderText}> {parseFloat(amount) + parseFloat(gasFees)} wei</Text>
               </View> */}
-            </View>
+      {/* </View> */}
 
-            <View style={{
+      {/* <View style={{
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center'
@@ -569,6 +624,146 @@ const SwapToken = ({ navigation, route }) => {
                 />
               </View>
 
+
+            </View>
+          </View>
+        </View> */}
+      {/* </Modal> */}
+
+
+      <Modal
+        visible={confirm}
+        transparent
+        onRequestClose={() => setConfirm(false)}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'flex-start',
+            backgroundColor: 'rgba(0,0,0,0.6)'
+          }}>
+          <TouchableOpacity style={{ flex: (parseFloat(ethers.utils.formatUnits(gasFees.toString(), "gwei")).toPrecision(3) > 3) ? 0.48 : 0.86 }} onPress={() => {
+            clearInterval(timeRef.current)
+            setConfirm(false)
+          }}></TouchableOpacity>
+          <View
+            style={{
+              flex: 0.7,
+              borderTopRightRadius: 10,
+              borderTopLeftRadius: 10,
+              backgroundColor: '#2F2F3A',
+              alignItems: 'flex-start',
+              padding: 15,
+            }}>
+            <View
+              style={{
+                height: 2,
+                width: 40,
+                backgroundColor: '#B02FA4',
+                marginBottom: 30,
+                alignSelf: 'center',
+              }}></View>
+            <Text
+              style={{
+                fontSize: 16,
+                fontFamily: typography.medium,
+                color: 'white',
+              }}>
+              Transaction Info
+            </Text>
+            <View style={{
+              width: '100%',
+              marginTop: 40,
+              marginBottom: 20,
+            }}>
+              {/* Warring Message For Hihger Gas Fees */}
+
+              {(parseFloat(ethers.utils.formatUnits(gasFees.toString(), "gwei")).toPrecision(3) > 3) ?
+                <View>
+                  <View style={{
+                    width: '100%',
+                    borderRadius: 6,
+                    borderColor: 'yellow',
+                    borderWidth: 1,
+                    marginBottom: 20,
+                  }}>
+                    <View style={{
+                      flexDirection: 'row',
+                      justifyContent: 'flex-start',
+                      margin: 10
+                    }}>
+                      <MaterialIcons name="warning" size={20} color="yellow" />
+                      <Text style={{ ...styles.subHeaderText, fontWeight: 'normal', color: 'yellow' }}>Warning</Text>
+                    </View>
+                    <Text style={{ padding: 6, fontWeight: 'normal', color: 'yellow' }}> Gas fess is too high for transactions to be confirmed.
+                      If you want to save gas fees then come after some time.</Text>
+                  </View>
+                </View>
+                : null
+              }
+
+              <View
+                style={styles.summaryTextContainer}>
+                <Text style={styles.subHeaderText}>From</Text>
+                <Text style={styles.subHeaderText}> {selectedData?.from?.substring(0, 8) + "..." + selectedData?.from?.substring(34, selectedData?.from?.length)}</Text>
+              </View>
+              <View
+                style={styles.summaryTextContainer}>
+                <Text style={styles.subHeaderText}>To</Text>
+                <Text style={styles.subHeaderText}> {selectedData?.to?.substring(0, 8) + "..." + selectedData?.to?.substring(34, selectedData?.to?.length)}</Text>
+              </View>
+              <View
+                style={styles.summaryTextContainer}>
+                <Text style={styles.subHeaderText}>Gas Fees</Text>
+                {(gasFees > 0) ?
+                  <Text style={styles.subHeaderText}> {parseFloat(ethers.utils.formatUnits(gasFees.toString(), "gwei")).toPrecision(3) + " Gwei"}</Text>
+                  : <ShimmerPlaceHolder style={{ width: '40%', borderRadius: 10 }} LinearGradient={LinearGradient} />}
+              </View>
+              <View
+                style={styles.summaryTextContainer}>
+                <Text style={styles.subHeaderText}>Transaction</Text>
+                <Text style={styles.subHeaderText}>{selectedData?.amount} Matic</Text>
+              </View>
+              <View
+                style={styles.summaryTextContainer}>
+                <Text style={styles.subHeaderText}>Total</Text>
+                <Text style={styles.subHeaderText}>$ {totalAmount(selectedData?.amount, gasFees)}</Text>
+              </View>
+            </View>
+
+            <View style={{
+              flexDirection: 'column'
+            }}>
+
+              <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-around', width: '100%' }}>
+                <GradientButton
+                  text={'Confirm'}
+                  size={150}
+                  disabled={(gasFees <= 0) ? true : false}
+                  colors={(gasFees > 0) ? ['#FF8DF4', '#89007C'] : ['rgba(0,0,0, 0.2)', 'rgba(0,0,0, 0.2)']}
+                  onPress={() => {
+                    clearInterval(timeRef.current)
+                    if (path == 'home') {
+                      transferEoaToVault()
+                    } else {
+                      transferVaultToEoa()
+                    }
+                    setGasFees(0)
+                    setConfirm(false);
+                  }}
+                />
+                <GradientButton
+                  text={'Cancel'}
+                  size={150}
+                  colors={['#FF8DF4', '#89007C']}
+                  onPress={() => {
+                    //            navigation.navigate('RestoreFromPhrase');
+                    clearInterval(timeRef.current)
+                    setGasFees(0)
+                    setConfirm(false)
+                  }}
+                />
+
+              </View>
 
             </View>
           </View>
